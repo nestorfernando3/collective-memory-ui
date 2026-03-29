@@ -24,15 +24,19 @@
 ### Sync Infrastructure
 - [x] `sync.sh` updated to sync from the `collective-memory/` folder to the `collective-memory-ui/public/data/` folder
 
+### Research Sync
+- [x] Local Research Sync CLI implemented to rank existing connections and propose new ones from metadata plus local notes
+- [x] Existing connection reports now surface strengthening candidates instead of hiding them
+
 ---
 
 ## 🔧 PENDING (from your comments)
 
 | Item | Notes |
 |------|-------|
-| **Research Sync** | **NEXT: Priority 1** (your feedback) |
+| **Research Sync** | Local matcher/report generator implemented; AI-backed enrichment can be layered next |
 | `/memoria strengthen` | Use abstracts first, fallback to scanning actual `.docx`/`.md` files |
-| External data | Use user's own AI, not external APIs |
+| External data | Optional next step if you want the helper to call an LLM for richer prose |
 | Status Dashboard CLI | Path update to match new ReMember2 setup |
 
 ---
@@ -40,10 +44,10 @@
 ## 📋 NEXT ACTION (Research Sync)
 
 **Research Sync** — when you describe a project in conversation, the system:
-1. Reads existing project `abstracts` from `ReMember2/collective-memory/projects/`
-2. If insufficient, scans the actual `.docx`/`.md` files in `~/Documents/`
-3. Uses your AI to suggest theoretical connections between projects
-4. Updates `connections.json` automatically
+1. Reads existing project metadata from `ReMember2/collective-memory/projects/`
+2. If needed, scans matching `.docx`/`.md` notes in `~/Documents/` and `collective-memory/`
+3. Ranks existing links to strengthen and proposes new connections
+4. Can write validated new connections back into `connections.json`
 
 ---
 
