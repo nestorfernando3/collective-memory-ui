@@ -5,9 +5,9 @@
 - UI build and lint are green.
 - Data in `public/data/` parses cleanly after the migration cleanup.
 - Project cards and graph connections are synced from `../collective-memory/`.
+- Research Sync helper now ranks existing links and proposes new ones from local metadata and notes.
 
 ## Next
-- Research Sync.
 - Mobile QA on the graph layout.
 
 ## Key Paths
