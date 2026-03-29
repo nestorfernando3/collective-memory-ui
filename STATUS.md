@@ -3,6 +3,21 @@
 
 ---
 
+## 🚀 FINALIZED: Generic Framework Transformation
+
+We have successfully pivoted the project from a hardcoded personal portfolio into a **Universal React Framework** (Bring Your Own Data).
+
+### 1. Privacy-First "BYOD" Architecture (Bring Your Own Data)
+- **Zero-Data Repository:** The `public/data/` folder is now strictly `.gitignore`'d. Personal projects and connections will never be committed to the open-source repository.
+- **Universal Local Rendering:** Modified `App.jsx` to dynamically load data via the browser's `File` API (`webkitdirectory`). Users can now visit the URL and upload their local JSON folder to visualize their graph without installing anything.
+- **Floating Upload Button:** Added a UI affordance so anyone can swap the rendered dataset live on the site.
+
+### 2. Deployment Pipeline
+- **`gh-pages` Branch Strategy:** Implemented a new secure pipeline. `sync.sh` now builds the production bundle and deploys *only* the compiled static assets to a separate `gh-pages` branch, completely isolating source code from personal data.
+- **Onboarding Tutorial:** Rewritten `README.md` to serve as a step-by-step generic tutorial. Teaches users how to maintain a secret folder for their JSON files and sync it safely.
+
+---
+
 ## ✅ COMPLETED (Recent Fixes)
 
 ### Folder Structure Migration
@@ -11,6 +26,7 @@
 - [x] Moved brain data into `ReMember2/collective-memory/`
 
 ### UI / Layout & Graph Clutter
+- [x] **Editorial Brutalism Empty State:** Added an onboarding screen for visitors who load the tool with no default data.
 - [x] Coordinate system normalized to `(0,0)` origin
 - [x] Concentric ring layout implemented
 - [x] **Dynamic Radii:** Nodes do not overlap anymore! Radius scales with the number of projects (Radius = ~435+ for large numbers of nodes so they don't crash into each other)
@@ -23,6 +39,7 @@
 
 ### Sync Infrastructure
 - [x] `sync.sh` updated to sync from the `collective-memory/` folder to the `collective-memory-ui/public/data/` folder
+- [x] Automates `npm run build` and `npx gh-pages`
 
 ### Research Sync
 - [x] Local Research Sync CLI implemented to rank existing connections and propose new ones from metadata plus local notes
@@ -37,17 +54,6 @@
 | **Research Sync** | Local matcher/report generator implemented; AI-backed enrichment can be layered next |
 | `/memoria strengthen` | Use abstracts first, fallback to scanning actual `.docx`/`.md` files |
 | External data | Optional next step if you want the helper to call an LLM for richer prose |
-| Status Dashboard CLI | Path update to match new ReMember2 setup |
-
----
-
-## 📋 NEXT ACTION (Research Sync)
-
-**Research Sync** — when you describe a project in conversation, the system:
-1. Reads existing project metadata from `ReMember2/collective-memory/projects/`
-2. If needed, scans matching `.docx`/`.md` notes in `~/Documents/` and `collective-memory/`
-3. Ranks existing links to strengthen and proposes new connections
-4. Can write validated new connections back into `connections.json`
 
 ---
 
