@@ -9,7 +9,7 @@ Collective Memory renders your entire professional universe as an orbital map �
 ## ⚡ Onboarding: Build Your Own Memory
 
 **The Philosophy:** Your data stays local. The code is public.
-This interface is designed to let people build a private memory database, load it from their own machine, and keep the last imported snapshot in the browser with IndexedDB. The repository ships with a demo memory, but your uploaded memory replaces it for that browser only.
+This interface is designed to let people build a private memory database, load it from their own machine, and keep the last imported snapshot in the browser with IndexedDB. When the browser supports it, the user can explicitly authorize a local folder and the app will re-read that folder automatically on revisit and while the tab remains active. The repository ships with a demo memory, but your uploaded memory replaces it for that browser only.
 
 Follow these steps to launch your own universe:
 
@@ -41,12 +41,17 @@ The folder should contain:
 
 *(Not sure how to structure them? View `public/data/example.profile.json` and `example.project.json` in this repository for the exact schemas).*
 
-### 4. Open the App and Upload
+### 4. Open the App and Authorize or Upload
 Start the local server:
 ```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) and use **Cargar carpeta local**. The app will parse the folder, render the graph, and keep the last imported memory on this browser.
+Open [http://localhost:5173](http://localhost:5173) and choose one of the two flows:
+
+- **Autorizar carpeta y sincronizar** if your browser supports the File System Access API. This keeps a folder handle in the browser and auto-syncs the latest JSON files from that folder.
+- **Importar carpeta local** if you just want a one-time snapshot. The app will parse the folder, render the graph, and keep the last imported memory on this browser.
+
+In both cases the graph is restored from the last successful import on revisit.
 
 ### 5. Publish When Ready
 When you are ready to publish, keep personal data outside the repository and deploy only the app shell. The included GitHub Pages workflow is configured to build the site from the tracked files.
@@ -70,6 +75,7 @@ This isn't another dashboard. It's a **brutalist research map**.
 - **@xyflow/react** — graph rendering engine
 - **Lucide React** — icon system
 - **IndexedDB** — local persistence for the last uploaded memory
+- **File System Access API** — authorized local-folder sync when the browser supports it
 - **Vanilla CSS** — Hand-crafted brutalism
 
 ## License

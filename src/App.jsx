@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Background,
   Handle,
@@ -24,10 +24,18 @@ import {
 } from 'lucide-react';
 import { extractMemoryBundleFromEntries } from './lib/memoryBundle';
 import {
-  clearPersistedSnapshot,
+  clearPersistedDirectoryHandle,
+  clearPersistedMemory,
+  loadPersistedDirectoryHandle,
   loadPersistedSnapshot,
+  savePersistedDirectoryHandle,
   savePersistedSnapshot,
 } from './lib/memoryStore';
+import {
+  ensureDirectoryPermission,
+  queryDirectoryPermission,
+  readMemoryBundleFromDirectoryHandle,
+} from './lib/memorySync';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -147,6 +155,10 @@ function FlowApp() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [memoryMode, setMemoryMode] = useState('demo');
+  const [directoryPickerSupported, setDirectoryPickerSupported] = useState(false);
+  const [directoryPermission, setDirectoryPermission] = useState('none');
+  const [hasAuthorizedDirectory, setHasAuthorizedDirectory] = useState(false);
+  const [autoSyncActive, setAutoSyncActive] = useState(false);
   const [memorySummary, setMemorySummary] = useState({
     connectionCount: 0,
     importedAt: '',
@@ -166,8 +178,11 @@ function FlowApp() {
   const [lenses, setLenses] = useState([]);
 
   const { setCenter, fitView } = useReactFlow();
+  const directoryHandleRef = useRef(null);
+  const syncIntervalRef = useRef(null);
+  const syncInFlightRef = useRef(false);
 
-  const hydrateBundle = (bundle, mode) => {
+  const hydrateBundle = useCallback((bundle, mode) => {
     if (!bundle?.profile) return;
 
     const profile = bundle.profile;
@@ -193,18 +208,188 @@ function FlowApp() {
     setActiveLens('All');
     setSelectedProject(null);
     setIsDrawerOpen(false);
-  };
+  }, []);
+
+  const stopAutoSyncLoop = useCallback(() => {
+    if (typeof window !== 'undefined' && syncIntervalRef.current) {
+      window.clearInterval(syncIntervalRef.current);
+      syncIntervalRef.current = null;
+    }
+
+    setAutoSyncActive(false);
+  }, []);
+
+  const syncAuthorizedDirectory = useCallback(async (directoryHandle, options = {}) => {
+    if (!directoryHandle || syncInFlightRef.current) return false;
+
+    const { allowPermissionPrompt = false, reason = 'manual' } = options;
+    syncInFlightRef.current = true;
+
+    try {
+      const permission = await queryDirectoryPermission(directoryHandle);
+      setDirectoryPermission(permission);
+
+      if (permission !== 'granted') {
+        if (allowPermissionPrompt) {
+          const granted = await ensureDirectoryPermission(directoryHandle);
+          const nextPermission = await queryDirectoryPermission(directoryHandle);
+          setDirectoryPermission(nextPermission);
+
+          if (!granted) {
+            stopAutoSyncLoop();
+            if (reason !== 'interval' && reason !== 'resume') {
+              setUploadFeedback({
+                kind: 'info',
+                text: 'La carpeta sigue sin permiso para sincronizar. Vuelve a autorizarla para reactivar la sincronización automática.',
+              });
+            }
+            return false;
+          }
+        } else {
+          stopAutoSyncLoop();
+          if (reason !== 'interval' && reason !== 'resume') {
+            setUploadFeedback({
+              kind: 'info',
+              text: 'La carpeta guardada necesita reautorización antes de volver a sincronizar.',
+            });
+          }
+          return false;
+        }
+      }
+
+      const bundle = await readMemoryBundleFromDirectoryHandle(directoryHandle, {
+        sourceLabel: directoryHandle.name || 'Carpeta local',
+      });
+
+      hydrateBundle(bundle, 'local');
+      setHasAuthorizedDirectory(true);
+      setDirectoryPermission('granted');
+      setAutoSyncActive(true);
+
+      try {
+        await savePersistedSnapshot(bundle);
+      } catch {
+        if (reason !== 'interval' && reason !== 'resume') {
+          setUploadFeedback({
+            kind: 'success',
+            text: `Sincronización activa con ${bundle.sourceLabel}, pero no se pudo guardar el snapshot en este navegador.`,
+          });
+        }
+        return true;
+      }
+
+      if (reason !== 'interval' && reason !== 'resume') {
+        setUploadFeedback({
+          kind: 'success',
+          text: `Sincronización automática activa con ${bundle.sourceLabel}.`,
+        });
+      }
+
+      return true;
+    } catch (error) {
+      stopAutoSyncLoop();
+      if (reason !== 'interval' && reason !== 'resume') {
+        setUploadFeedback({
+          kind: 'error',
+          text: error.message || 'No se pudo sincronizar la carpeta autorizada.',
+        });
+      }
+      return false;
+    } finally {
+      syncInFlightRef.current = false;
+    }
+  }, [hydrateBundle, stopAutoSyncLoop]);
+
+  const startAutoSyncLoop = useCallback((directoryHandle) => {
+    if (typeof window === 'undefined') return;
+
+    stopAutoSyncLoop();
+    syncIntervalRef.current = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      void syncAuthorizedDirectory(directoryHandle, { reason: 'interval' });
+    }, 30000);
+    setAutoSyncActive(true);
+  }, [stopAutoSyncLoop, syncAuthorizedDirectory]);
+
+  const handleDirectoryAction = useCallback(async () => {
+    const savedHandle = directoryHandleRef.current;
+
+    if (savedHandle) {
+      const synced = await syncAuthorizedDirectory(savedHandle, {
+        allowPermissionPrompt: true,
+        reason: 'manual',
+      });
+
+      if (synced) {
+        startAutoSyncLoop(savedHandle);
+      }
+
+      return;
+    }
+
+    if (!directoryPickerSupported || typeof window.showDirectoryPicker !== 'function') {
+      setUploadFeedback({
+        kind: 'error',
+        text: 'Tu navegador no soporta la autorización de carpetas. Usa la carga manual de una sola vez.',
+      });
+      return;
+    }
+
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'read' });
+      directoryHandleRef.current = handle;
+      setHasAuthorizedDirectory(true);
+
+      try {
+        await savePersistedDirectoryHandle(handle);
+      } catch {
+        setUploadFeedback({
+          kind: 'info',
+          text: 'La carpeta quedó autorizada, pero no se pudo guardar el handle para la próxima visita.',
+        });
+      }
+
+      const synced = await syncAuthorizedDirectory(handle, {
+        allowPermissionPrompt: false,
+        reason: 'manual',
+      });
+
+      if (synced) {
+        startAutoSyncLoop(handle);
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') {
+        setUploadFeedback({
+          kind: 'info',
+          text: 'Autorización cancelada. No se cambió la memoria actual.',
+        });
+        return;
+      }
+
+      setUploadFeedback({
+        kind: 'error',
+        text: error.message || 'No se pudo autorizar la carpeta.',
+      });
+    }
+  }, [
+    directoryPickerSupported,
+    startAutoSyncLoop,
+    syncAuthorizedDirectory,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
 
     const boot = async () => {
       setIsLoading(true);
+      const pickerSupported = typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function';
+      setDirectoryPickerSupported(pickerSupported);
 
       try {
-        const [demo, persisted] = await Promise.all([
+        const [demo, persistedSnapshot, persistedHandle] = await Promise.all([
           loadDemoBundle().catch((error) => ({ error })),
           loadPersistedSnapshot().catch(() => null),
+          loadPersistedDirectoryHandle().catch(() => null),
         ]);
 
         if (cancelled) return;
@@ -219,11 +404,11 @@ function FlowApp() {
           setDemoBundle(demo);
         }
 
-        if (persisted?.profile) {
-          hydrateBundle(persisted, 'local');
+        if (persistedSnapshot?.profile) {
+          hydrateBundle(persistedSnapshot, 'local');
           setUploadFeedback({
             kind: 'success',
-            text: `Memoria local restaurada automáticamente desde ${persisted.sourceLabel || 'este navegador'}.`,
+            text: `Memoria local restaurada automáticamente desde ${persistedSnapshot.sourceLabel || 'este navegador'}.`,
           });
         } else if (demo && !demo.error) {
           hydrateBundle(demo, 'demo');
@@ -232,6 +417,39 @@ function FlowApp() {
             text: 'Mostrando la demo incluida. Sube tu carpeta local para guardarla en este navegador.',
           });
         }
+
+        if (persistedHandle) {
+          directoryHandleRef.current = persistedHandle;
+          setHasAuthorizedDirectory(true);
+
+          const permission = await queryDirectoryPermission(persistedHandle);
+          if (cancelled) return;
+
+          setDirectoryPermission(permission);
+
+          if (permission === 'granted') {
+            const synced = await syncAuthorizedDirectory(persistedHandle, {
+              reason: 'boot',
+              allowPermissionPrompt: false,
+            });
+
+            if (!cancelled && synced) {
+              startAutoSyncLoop(persistedHandle);
+            }
+          } else {
+            stopAutoSyncLoop();
+            if (!cancelled) {
+              setUploadFeedback({
+                kind: 'info',
+                text: 'La carpeta está guardada, pero necesita reautorización para reactivar la sincronización automática.',
+              });
+            }
+          }
+        } else {
+          setHasAuthorizedDirectory(false);
+          setDirectoryPermission('none');
+          stopAutoSyncLoop();
+        }
       } catch (error) {
         if (cancelled) return;
 
@@ -239,6 +457,7 @@ function FlowApp() {
         setRawProfile(null);
         setRawConnections({ connections: [] });
         setRawProjects([]);
+        stopAutoSyncLoop();
         setUploadFeedback({
           kind: 'error',
           text: error.message || 'No se pudo iniciar Collective Memory.',
@@ -252,8 +471,31 @@ function FlowApp() {
 
     return () => {
       cancelled = true;
+      stopAutoSyncLoop();
     };
-  }, []);
+  }, [startAutoSyncLoop, stopAutoSyncLoop, syncAuthorizedDirectory, hydrateBundle]);
+
+  useEffect(() => {
+    const syncOnResume = () => {
+      if (!autoSyncActive || memoryMode !== 'local') return;
+
+      const directoryHandle = directoryHandleRef.current;
+      if (!directoryHandle || document.visibilityState !== 'visible') return;
+
+      void syncAuthorizedDirectory(directoryHandle, {
+        allowPermissionPrompt: false,
+        reason: 'resume',
+      });
+    };
+
+    window.addEventListener('focus', syncOnResume);
+    document.addEventListener('visibilitychange', syncOnResume);
+
+    return () => {
+      window.removeEventListener('focus', syncOnResume);
+      document.removeEventListener('visibilitychange', syncOnResume);
+    };
+  }, [autoSyncActive, memoryMode, syncAuthorizedDirectory]);
 
   useEffect(() => {
     if (!rawProfile) {
@@ -419,11 +661,16 @@ function FlowApp() {
       }
 
       const bundle = extractMemoryBundleFromEntries(entries);
+      stopAutoSyncLoop();
+      directoryHandleRef.current = null;
+      setHasAuthorizedDirectory(false);
+      setDirectoryPermission('none');
+      await clearPersistedDirectoryHandle().catch(() => null);
       await savePersistedSnapshot(bundle);
       hydrateBundle(bundle, 'local');
       setUploadFeedback({
         kind: 'success',
-        text: `Memoria guardada en este navegador: ${bundle.projects.length} proyectos y ${bundle.connections.connections.length} conexiones.`,
+        text: `Importación única guardada en este navegador: ${bundle.projects.length} proyectos y ${bundle.connections.connections.length} conexiones. Si quieres sincronización automática, autoriza una carpeta.`,
       });
     } catch (error) {
       setUploadFeedback({
@@ -435,7 +682,11 @@ function FlowApp() {
 
   const clearLocalMemory = async () => {
     try {
-      await clearPersistedSnapshot();
+      stopAutoSyncLoop();
+      directoryHandleRef.current = null;
+      setHasAuthorizedDirectory(false);
+      setDirectoryPermission('none');
+      await clearPersistedMemory();
 
       if (demoBundle) {
         hydrateBundle(demoBundle, 'demo');
@@ -470,10 +721,11 @@ function FlowApp() {
   const returnToDemo = () => {
     if (!demoBundle) return;
 
+    stopAutoSyncLoop();
     hydrateBundle(demoBundle, 'demo');
     setUploadFeedback({
       kind: 'info',
-      text: 'Vista de demo activada temporalmente. Tu memoria local sigue guardada en este navegador.',
+      text: 'Vista de demo activada temporalmente. La carpeta autorizada sigue guardada, pero la sincronización automática quedó en pausa.',
     });
   };
 
@@ -499,6 +751,24 @@ function FlowApp() {
     : [];
   const uniqueTags = [...new Set(projectTags)].filter(Boolean);
   const isLocalMemory = memoryMode === 'local';
+  const directoryPermissionLabel = {
+    none: 'Sin autorizar',
+    granted: 'Concedido',
+    prompt: 'Pendiente',
+    denied: 'Denegado',
+    unsupported: 'No disponible',
+  }[directoryPermission] || directoryPermission;
+  const syncStatusLabel = autoSyncActive
+    ? 'Activa'
+    : hasAuthorizedDirectory
+      ? 'En pausa'
+      : 'No configurada';
+  const directoryActionLabel = hasAuthorizedDirectory
+    ? directoryPermission === 'granted'
+      ? 'Sincronizar ahora'
+      : 'Reautorizar carpeta'
+    : 'Autorizar carpeta y sincronizar';
+  const directoryActionDisabled = !hasAuthorizedDirectory && !directoryPickerSupported;
 
   return (
     <div className="app-shell">
@@ -538,18 +808,24 @@ function FlowApp() {
 
           <section className="guide-step">
             <span className="guide-step-index">3</span>
-            <h2>Súbelo aquí</h2>
+            <h2>Autoriza la carpeta</h2>
             <p>
-              Selecciona la carpeta raíz que contiene <code>profile.json</code>, <code>connections.json</code> y
-              <code>projects/</code>. El navegador guardará la última memoria.
+              Si tu navegador lo soporta, autoriza la carpeta raíz que contiene <code>profile.json</code>,{' '}
+              <code>connections.json</code> y <code>projects/</code>. El navegador volverá a leerla de forma
+              automática.
             </p>
           </section>
         </div>
 
         <div className="guide-actions">
+          <button className="secondary-btn" onClick={handleDirectoryAction} disabled={directoryActionDisabled && !hasAuthorizedDirectory}>
+            <FolderUp size={20} />
+            {directoryActionLabel}
+          </button>
+
           <label className="upload-btn">
             <FolderUp size={20} />
-            Cargar carpeta local
+            Importar carpeta local
             <input
               type="file"
               webkitdirectory="true"
@@ -581,6 +857,17 @@ function FlowApp() {
           </div>
           <div className="meta-row">
             <span>
+              <RotateCcw size={14} />
+              Sincronización
+            </span>
+            <strong>{syncStatusLabel}</strong>
+          </div>
+          <div className="meta-row">
+            <span>Permiso</span>
+            <strong>{directoryPermissionLabel}</strong>
+          </div>
+          <div className="meta-row">
+            <span>
               <FileText size={14} />
               Proyectos
             </span>
@@ -600,7 +887,8 @@ function FlowApp() {
         </div>
 
         <p className="privacy-note">
-          Tus archivos se leen en el navegador. La memoria importada se guarda sólo en este dispositivo usando IndexedDB.
+          Tus archivos se leen en el navegador. La memoria importada se guarda sólo en este dispositivo usando
+          IndexedDB. Si autorizas una carpeta, el navegador conserva ese permiso y vuelve a leerla automáticamente.
         </p>
       </aside>
 
