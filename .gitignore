@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ignorar la base de datos inyectada (los json personales)
+public/data/projects/*
+!public/data/projects/.gitkeep
+public/data/projects_index.json
+public/data/profile.json
+public/data/connections.json
