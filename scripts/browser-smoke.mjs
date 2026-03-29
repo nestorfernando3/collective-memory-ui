@@ -96,7 +96,7 @@ async function main() {
     await page.getByTestId('drawer-close-btn').click({ force: true });
     await delay(200);
 
-    await page.getByTestId('project-node-paideia').dispatchEvent('click');
+    await page.getByTestId('project-node-cuaderno-pedagogico').dispatchEvent('click');
     const projectMode = await page.getByTestId('drawer').getAttribute('data-drawer-mode');
     if (projectMode !== 'project') {
       throw new Error(`Expected project drawer mode, received ${projectMode || 'none'}`);
@@ -106,12 +106,12 @@ async function main() {
     await page.getByTestId('excluded-projects-list').waitFor({ state: 'visible' });
     await delay(250);
 
-    const hiddenProjectCount = await page.getByTestId('restore-project-btn-paideia').count();
+    const hiddenProjectCount = await page.getByTestId('restore-project-btn-cuaderno-pedagogico').count();
     if (hiddenProjectCount === 0) {
       throw new Error('Expected the excluded project to appear in the restore list');
     }
 
-    const nodeCount = await page.getByTestId('project-node-paideia').count();
+    const nodeCount = await page.getByTestId('project-node-cuaderno-pedagogico').count();
     if (nodeCount !== 0) {
       throw new Error('Expected the excluded project to disappear from the graph');
     }
