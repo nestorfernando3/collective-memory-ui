@@ -2,24 +2,33 @@
 name: collective-memory
 description: An AI-agnostic collective memory system that catalogs research, projects, and personal knowledge into a centralized filesystem database. Allows agents to find synergies, generate cross-project profiles, and manage portfolios.
 tags: [knowledge-management, memory, orchestration, portfolio]
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Collective Memory Skill
 
 This skill transforms the user's local filesystem into an active, interrogable graph of their life's work.
-Instead of relying on LLM context windows or disjointed chats, a central database (`~/.collective-memory` by default, configurable by the user) stores structured JSON metadata about the user's unified identity, their projects, and the relationships between those projects. The default mode is systemwide: it works across the full memory graph unless the user explicitly narrows the scope.
+Instead of relying on LLM context windows or disjointed chats, a central database (`~/Documents/Collective Memory/` by default, configurable by the user) stores structured JSON metadata about the user's unified identity, their projects, and the relationships between those projects. The default mode is systemwide: it works across the full memory graph unless the user explicitly narrows the scope.
 
 When using this skill, your role as an AI assistant is to act as a **librarian and data synthesizer** for the user's work. You have access to your usual environment tools (file reading, writing, shell access) which you will use to manage this data.
 
 ## 🚀 Uso Guiado
+
+Cada vez que el usuario active este skill, úsalo también como un **mini onboarding**:
+- empieza diciendo en una frase qué es Collective Memory
+- aclara que el modo por defecto es **systemwide**
+- menciona la ruta raíz visible por defecto: `~/Documents/Collective Memory/`
+- explica brevemente qué hace cada comando disponible
+- cierra recomendando el siguiente paso más útil
+
+Si el usuario está perdido, no respondas solo con “dime qué comando ejecutar”. Primero orienta y luego ejecuta o recomienda.
 
 Cuando ejecutes este Skill, acompaña siempre la respuesta con tres datos concretos:
 1. La ruta exacta de la carpeta raíz que quedó generada o actualizada.
 2. Los archivos clave que contiene esa carpeta.
 3. El siguiente paso para usarla dentro de la plataforma.
 
-La carpeta que se importa en la UI es la **raíz del snapshot**, no un JSON suelto. Por defecto esa raíz vive en `~/.collective-memory/`, aunque el usuario esté trabajando desde un proyecto concreto.
+La carpeta que se importa en la UI es la **raíz del snapshot**, no un JSON suelto. Por defecto esa raíz vive en `~/Documents/Collective Memory/`, aunque el usuario esté trabajando desde un proyecto concreto.
 
 Los archivos que la plataforma espera ver dentro de esa carpeta son:
 - `README.md` - Índice humano del snapshot, generado por `/memoria build-readme`.
@@ -37,6 +46,7 @@ Cuando el usuario pida orientación sobre qué comando ejecutar, responde con un
 
 | Comando | Qué hace | Recomendación |
 | --- | --- | --- |
+| `/memoria systemwide` | Fuerza el trabajo sobre toda la memoria acumulada y deja explícito que no se limitará al proyecto actual. | Úsalo cuando quieras máxima claridad para un usuario neófito o cuando el contexto pueda confundirse con el proyecto activo. |
 | `/memoria scan` | Detecta proyectos nuevos o incompletos en el filesystem. | Úsalo antes de registrar nada nuevo o cuando hayas creado carpetas recientes. |
 | `/memoria register [path]` | Convierte una carpeta en una ficha estructurada de proyecto. | Úsalo para proyectos nuevos, carpetas borrador o notas sueltas que merecen estructura. |
 | `/memoria profile` | Regenera `profile.json` y `PROFILE.md` con tu identidad unificada. | Ejecútalo después de registrar varios proyectos o si cambió tu foco de trabajo. |
@@ -45,11 +55,11 @@ Cuando el usuario pida orientación sobre qué comando ejecutar, responde con un
 | `/memoria collect` | Ejecuta el flujo completo: scan, register, profile, connections, build-readme y research sync. | Es la mejor opción cuando quieres dejar todo actualizado en una sola pasada. |
 | `/memoria strengthen [file_path]` | Usa la memoria previa para fortalecer un documento o app actual. | Úsalo al redactar artículos, propuestas o documentos que necesiten justificaciones y vínculos más ricos. Por defecto cruza toda la base de memoria; usa foco explícito solo si quieres acotarlo. |
 
-Si el usuario no especifica un comando, ejecuta `/memoria collect` por defecto y luego reporta el resultado. Usa `/memoria strengthen` solo cuando ya haya un documento abierto y el usuario pida reforzarlo.
+Si el usuario no especifica un comando, ejecuta `/memoria collect` por defecto y luego reporta el resultado, pero antes acompáñalo con el mini onboarding resumido. Usa `/memoria strengthen` solo cuando ya haya un documento abierto y el usuario pida reforzarlo.
 
 ## 💾 The Data Layer
 
-The default data directory is `~/.collective-memory/` (or whatever path the user specifies in their setup or prompt). The normal operating mode is systemwide across the full memory graph, not limited to the currently active project unless the user asks for that.
+The default data directory is `~/Documents/Collective Memory/` (or whatever path the user specifies in their setup or prompt). The normal operating mode is systemwide across the full memory graph, not limited to the currently active project unless the user asks for that.
 The directory contains:
 - `config.json` - System configuration (scan paths, language, base prompt).
 - `profile.json` - The unified professional profile of the user.
@@ -69,6 +79,14 @@ Whenever the user runs one of the following slash commands, you must execute the
 3. Compare the discovered directories against the items in the `projects/` folder.
 4. Report back the new, undocumented projects and ask the user if they want to `/memoria register` them.
 5. If a project already exists but its card is terse, flag it for richer re-registration rather than skipping it.
+
+### `/memoria systemwide`
+**Goal:** Make the global scope explicit and refresh the full memory root.
+**Action:**
+1. State clearly that the run will use the full memory graph, not just the currently active project.
+2. Use the configured memory root, defaulting to `~/Documents/Collective Memory/` unless the user set another path.
+3. Run the same refresh flow as `/memoria collect` unless the user asked for a narrower global action.
+4. Report the exact root folder path, key files, and the next import step for the UI.
 
 ### `/memoria register [path]`
 **Goal:** Extract metadata from a project directory and save it as a structured JSON card.
@@ -112,7 +130,7 @@ Whenever the user runs one of the following slash commands, you must execute the
 **Goal:** Generate the "Collective Memory" portfolio document.
 **Action:**
 1. Read `profile.json`, `projects/*.json`, and `connections.json`.
-2. Generate a comprehensive `README.md` (saved in the database root directory, e.g. `~/.collective-memory/README.md`) that serves as the index of the user's life work. Include a Mermaid.js graph of the project connections.
+2. Generate a comprehensive `README.md` (saved in the database root directory, e.g. `~/Documents/Collective Memory/README.md`) that serves as the index of the user's life work. Include a Mermaid.js graph of the project connections.
 3. Tell the user that `README.md` is the human-readable index, but the platform import target is still the **folder root** containing that file.
 
 ### `/memoria strengthen [file_path]`

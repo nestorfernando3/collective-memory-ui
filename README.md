@@ -13,6 +13,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 - Open the UI repo and run `npm install` once, then `npm run dev`.
 - Keep project cards and graph data in `collective-memory/`.
 - Use `/memoria collect` for a full refresh: scan, register, profile, connections, build-readme, and research sync in one pass.
+- Use `/memoria systemwide` when you want to make the global scope explicit from the start and refresh the full memory root.
 - Use `collective-memory/scripts/sync.sh` to push data into the UI repo.
 - Use `collective-memory/scripts/research_sync.js` to rank and draft project connections from metadata, local notes, and fallback `.md`/`.docx` prose, with optional LLM-enriched connection justifications. By default it scans the full memory system; its document search adapts to the host platform, using common roots for macOS, Linux, and Windows. Pass `--focus <project-id>` only when you want a single-project pass, and `--documents-root` if you want to override the default roots. Set `OPENAI_NARRATIVE_MODEL` or `OPENAI_MODEL` to tune the prose generator.
 
@@ -20,6 +21,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 
 | Command | What it does | Recommendation |
 | --- | --- | --- |
+| `/memoria systemwide` | Makes the full-memory scope explicit and refreshes the whole root. | Use it when you want a novice-safe default that clearly means “work across all my memory,” not just the active project. |
 | `/memoria scan` | Finds new or missing projects in the filesystem. | Run it first when you add new folders or want to check what has not been registered yet. |
 | `/memoria register [path]` | Converts one folder into a structured project card. | Use it for a new project, a thesis folder, a paper, or any folder with enough evidence to describe. |
 | `/memoria profile` | Regenerates the unified profile and `PROFILE.md`. | Run it after registering a batch of projects or when your working identity has changed. |
@@ -28,7 +30,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 | `/memoria collect` | Runs the full memory refresh in one pass. | Best default when you want everything updated together. |
 | `/memoria strengthen [file_path]` | Strengthens a current document using the memory database. | Use it for active writing so the document gets richer justifications, related history, and evidence-backed links. It searches the whole system unless you explicitly narrow the focus. |
 
-Default snapshot root: `~/.collective-memory/`
+Default snapshot root: `~/Documents/Collective Memory/`
 Default scope: systemwide across the full memory graph unless you explicitly narrow it.
 
 ## Useful Links
