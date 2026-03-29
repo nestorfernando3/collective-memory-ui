@@ -51,9 +51,15 @@ We have successfully pivoted the project from a hardcoded personal portfolio int
 
 | Item | Notes |
 |------|-------|
-| **Research Sync** | Local matcher/report generator implemented; AI-backed enrichment can be layered next |
+| **Research Sync** | Local matcher/report generator implemented; `/memoria collect` now covers scan/register/profile/connections/build-readme in one pass |
 | `/memoria strengthen` | Use abstracts first, fallback to scanning actual `.docx`/`.md` files |
 | External data | Optional next step if you want the helper to call an LLM for richer prose |
+
+## ✅ Recent UI/Skill Additions
+- Added richer project registration guidance so terse cards can be rebuilt from README/docs/source evidence.
+- Added a central persona drawer in the UI that synthesizes biography, project routes, and expansion ideas from the memory graph.
+- Added persistent project exclusion/restoration so users can trim the visible selection without deleting data.
+- Added a Playwright browser smoke that checks onboarding, profile drawer, project drawer, and exclusion flow.
 
 ---
 

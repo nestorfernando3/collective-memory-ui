@@ -33,14 +33,17 @@ Whenever the user runs one of the following slash commands, you must execute the
 2. Use terminal/search tools to find directories containing typical project signifiers (`README.md`, `package.json`, `.docx`, `.pdf`, `.py`, etc.) within those paths.
 3. Compare the discovered directories against the items in the `projects/` folder.
 4. Report back the new, undocumented projects and ask the user if they want to `/memoria register` them.
+5. If a project already exists but its card is terse, flag it for richer re-registration rather than skipping it.
 
 ### `/memoria register [path]`
 **Goal:** Extract metadata from a project directory and save it as a structured JSON card.
 **Action:**
 1. Inspect the provided directory to understand its purpose (read files, code, docs).
 2. Generate a comprehensive JSON summarizing the project. Ensure you capture: `id, name, type, status, path, description, themes, outputs, technologies, theoretical_frameworks`.
-3. Save the JSON file into the `projects/` database directory.
-4. Print a summary of the registered project.
+3. When the source material supports it, also capture `abstract, objectives, methodology, evidence, related_projects, crossovers, expansion_ideas, notes, collaborators, institutions, dates`.
+4. If the directory has only terse notes, inspect README files, docs, notebooks, articles, or code comments and synthesize a richer structured card from that evidence.
+5. Save the JSON file into the `projects/` database directory.
+6. Print a summary of the registered project.
 
 ### `/memoria profile`
 **Goal:** Regenerate the unified user profile.
@@ -57,6 +60,17 @@ Whenever the user runs one of the following slash commands, you must execute the
 2. Identify cross-pollination opportunities (e.g., project A uses a methodology that project B needs; project C and D share data sources).
 3. Update `connections.json` with this graph.
 4. Present the user with a markdown table representing the discovered connections and suggesting concrete next steps to merge efforts or leverage past work in current active projects.
+
+### `/memoria collect`
+**Goal:** Run the full memory refresh in a single pass.
+**Action:**
+1. Run `/memoria scan` to identify new or stale projects.
+2. Run `/memoria register` on any new projects and on terse cards that need richer structure.
+3. Run `/memoria profile` to regenerate the unified profile and `PROFILE.md`.
+4. Run `/memoria connections` to refresh synergies and the graph.
+5. Run `/memoria build-readme` to regenerate the portfolio index.
+6. Run the local `research_sync` workflow to strengthen existing links and apply validated new ones when appropriate.
+7. Report the refreshed graph, any newly added projects, and any remaining evidence gaps that still need manual review.
 
 ### `/memoria build-readme`
 **Goal:** Generate the "Collective Memory" portfolio document.
