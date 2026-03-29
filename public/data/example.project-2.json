@@ -1,0 +1,27 @@
+{
+  "id": "cuaderno-pedagogico",
+  "name": "Cuaderno Pedagogico",
+  "type": "Education",
+  "status": "Active",
+  "path": "~/demo/cuaderno-pedagogico",
+  "description": "Cuaderno de planeacion y evaluacion para acompanamiento de aula.",
+  "abstract": "Organiza secuencias didacticas, evidencias de clase y seguimiento formativo en un solo lugar.",
+  "tags": [
+    "education",
+    "pedagogia",
+    "evaluacion",
+    "aprendizaje"
+  ],
+  "domains": [
+    "Education",
+    "Teaching"
+  ],
+  "themes": [
+    "Formative Assessment",
+    "Class Planning"
+  ],
+  "technologies": [
+    "Markdown",
+    "React"
+  ]
+}

@@ -17,17 +17,21 @@ async function readJson(path) {
 }
 
 async function readDemoBundle() {
-  const profile = await readJson(join(DATA_DIR, 'profile.json'));
-  const connections = await readJson(join(DATA_DIR, 'connections.json'));
-  const indexText = await readFile(join(DATA_DIR, 'projects_index.json'), 'utf8');
-  const projectFiles = indexText
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.endsWith('.json'));
+  const profile = await readJson(join(DATA_DIR, 'example.profile.json'));
+  const connections = await readJson(join(DATA_DIR, 'example.connections.json'));
+  const projectFiles = [
+    'example.project.json',
+    'example.project-2.json',
+    'example.project-3.json',
+    'example.project-4.json',
+    'example.project-5.json',
+    'example.project-6.json',
+    'example.project-7.json',
+  ];
 
   const projects = [];
   for (const file of projectFiles) {
-    projects.push(await readJson(join(DATA_DIR, 'projects', file)));
+    projects.push(await readJson(join(DATA_DIR, file)));
   }
 
   return { connections, profile, projects, projectFiles };

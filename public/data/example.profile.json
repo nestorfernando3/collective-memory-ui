@@ -1,5 +1,5 @@
 {
-  "name": "Your Name",
+  "name": "Persona de demostracion",
   "site_title": "Collective Memory",
   "site_subtitle": "Personal Operating System",
   "identifiers": {
@@ -8,24 +8,31 @@
   },
   "affiliations": [
     {
-      "institution": "Your Institution",
-      "role": "Your Role",
+      "institution": "Lab de demostracion",
+      "role": "Diseno de conocimiento",
       "current": true
     }
   ],
   "location": {
-    "city": "Your City",
-    "country": "Your Country"
+    "city": "Bogota",
+    "country": "Colombia"
   },
   "domains": [
-    "Domain 1",
-    "Domain 2"
+    "educacion",
+    "investigacion",
+    "escritura",
+    "software"
   ],
   "skills": [
-    "Skill 1",
-    "Skill 2"
+    "sintesis de investigacion",
+    "arquitectura de informacion",
+    "diseno pedagogico",
+    "escritura analitica"
   ],
-  "languages": ["english"],
+  "languages": [
+    "spanish",
+    "english"
+  ],
   "lenses": [
     {
       "id": "All",
@@ -35,12 +42,22 @@
     {
       "id": "Academic",
       "label": "Academic Lens",
-      "filter": ["research", "academic", "paper"]
+      "filter": ["research", "academic", "paper", "analysis"]
     },
     {
       "id": "Creative",
       "label": "Creative Lens",
       "filter": ["creative", "art", "writing"]
+    },
+    {
+      "id": "Pedagogical",
+      "label": "Pedagogical Lens",
+      "filter": ["education", "tool", "socioemotional"]
+    },
+    {
+      "id": "Tooling",
+      "label": "Tooling Lens",
+      "filter": ["software", "ui", "markdown"]
     }
   ]
 }

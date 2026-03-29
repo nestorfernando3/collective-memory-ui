@@ -1,12 +1,28 @@
 {
-  "id": "my-project",
-  "name": "My Project Name",
-  "type": "Research",
+  "id": "collective-memory",
+  "name": "Collective Memory Core",
+  "type": "Software",
   "status": "Active",
-  "path": "~/Documents/my-project",
-  "description": "A short description of what this project is about.",
-  "abstract": "A longer abstract or summary of the project goals and methodology.",
-  "tags": ["research", "data-science"],
-  "domains": ["Computer Science"],
-  "themes": ["Machine Learning"]
+  "path": "~/demo/collective-memory",
+  "description": "Interfaz para capturar memoria local, leer carpetas autorizadas y persistir snapshots en el navegador.",
+  "abstract": "Capa central del sistema de memoria con auto-sync, seleccion de proyectos y navegacion por grafos.",
+  "tags": [
+    "software",
+    "tool",
+    "ui",
+    "markdown",
+    "memory"
+  ],
+  "domains": [
+    "Design System",
+    "Knowledge Management"
+  ],
+  "themes": [
+    "Local Sync",
+    "Graph Navigation"
+  ],
+  "technologies": [
+    "React",
+    "IndexedDB"
+  ]
 }

@@ -1,0 +1,26 @@
+{
+  "id": "bitacora-acompanamiento",
+  "name": "Bitacora de Acompanamiento",
+  "type": "Support",
+  "status": "En proceso",
+  "path": "~/demo/bitacora-acompanamiento",
+  "description": "Seguimiento emocional y academico con notas breves, acciones y observaciones.",
+  "abstract": "Registra acompanamiento socioemocional y deja trazabilidad para intervenciones posteriores.",
+  "tags": [
+    "socioemotional",
+    "acompanamiento",
+    "emotion",
+    "education"
+  ],
+  "domains": [
+    "Wellbeing",
+    "Education"
+  ],
+  "themes": [
+    "Mentorship",
+    "Support"
+  ],
+  "technologies": [
+    "Markdown"
+  ]
+}

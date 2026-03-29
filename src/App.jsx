@@ -82,31 +82,29 @@ function CustomNode({ data }) {
 }
 
 async function loadDemoBundle() {
-  const profileResponse = await fetch(`${BASE}data/profile.json`);
+  const profileResponse = await fetch(`${BASE}data/example.profile.json`);
   if (!profileResponse.ok) {
     throw new Error('No demo profile data');
   }
 
   const profile = await profileResponse.json();
 
-  const connectionsResponse = await fetch(`${BASE}data/connections.json`);
+  const connectionsResponse = await fetch(`${BASE}data/example.connections.json`);
   const connections = connectionsResponse.ok ? await connectionsResponse.json() : { connections: [] };
 
-  const indexResponse = await fetch(`${BASE}data/projects_index.json`);
-  if (!indexResponse.ok) {
-    throw new Error('No demo project index');
-  }
-
-  const indexText = await indexResponse.text();
-  const projectFiles = indexText
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter((line) => line.endsWith('.json'));
+  const projectFiles = [
+    'example.project.json',
+    'example.project-2.json',
+    'example.project-3.json',
+    'example.project-4.json',
+    'example.project-5.json',
+    'example.project-6.json',
+    'example.project-7.json',
+  ];
 
   const projects = [];
   for (const file of projectFiles) {
-    const projectResponse = await fetch(`${BASE}data/projects/${file}`);
+    const projectResponse = await fetch(`${BASE}data/${file}`);
     if (projectResponse.ok) {
       projects.push(await projectResponse.json());
     }

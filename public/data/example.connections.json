@@ -1,0 +1,34 @@
+{
+  "connections": [
+    {
+      "from": "collective-memory",
+      "to": "cuaderno-pedagogico",
+      "type": "Infraestructura",
+      "description": "La capa de memoria sostiene la planeacion y el seguimiento de aula."
+    },
+    {
+      "from": "collective-memory",
+      "to": "bitacora-acompanamiento",
+      "type": "Seguimiento",
+      "description": "El registro local facilita trazabilidad emocional y pedagogica."
+    },
+    {
+      "from": "cuaderno-pedagogico",
+      "to": "bitacora-acompanamiento",
+      "type": "Acompanamiento",
+      "description": "La evaluacion formativa comparte estructura con el seguimiento individual."
+    },
+    {
+      "from": "articulo-tuberculosis",
+      "to": "cartografia-del-rumor",
+      "type": "Marco teorico",
+      "description": "Ambos proyectos trabajan evidencia, escritura y lectura sociologica."
+    },
+    {
+      "from": "atlas-caribe",
+      "to": "archivo-cuentos",
+      "type": "Narrativa",
+      "description": "La escritura creativa encuentra continuidad entre memoria oral y cuento."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "articulo-tuberculosis",
+  "name": "Articulo Tuberculosis",
+  "type": "Research",
+  "status": "Archivado",
+  "path": "~/demo/articulo-tuberculosis",
+  "description": "Articulo de investigacion sobre salud publica, evidencia y contexto territorial.",
+  "abstract": "Sintetiza hallazgos de campo y lectura critica para construir un articulo de base academica.",
+  "tags": [
+    "research",
+    "paper",
+    "analysis",
+    "investigacion",
+    "salud"
+  ],
+  "domains": [
+    "Public Health",
+    "Research"
+  ],
+  "themes": [
+    "Qualitative Research",
+    "Epidemiology"
+  ],
+  "technologies": [
+    "Markdown",
+    "Data Analysis"
+  ]
+}
