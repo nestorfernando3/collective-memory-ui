@@ -1,0 +1,12 @@
+{
+  "id": "kansas-barranquilla",
+  "name": "Estudio Kansas-Barranquilla",
+  "type": "Investigación",
+  "status": "Completo",
+  "path": "~/",
+  "tags": [
+    "investigación",
+    "datos",
+    "epidemiología"
+  ]
+}

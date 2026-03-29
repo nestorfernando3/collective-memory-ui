@@ -1,0 +1,12 @@
+{
+  "id": "examenes-planeacion",
+  "name": "Exámenes y Planeación",
+  "type": "Educación",
+  "status": "Activo",
+  "path": "~/Documents/Exámenes y Planeación clase",
+  "tags": [
+    "educación",
+    "secundaria",
+    "pedagogía"
+  ]
+}

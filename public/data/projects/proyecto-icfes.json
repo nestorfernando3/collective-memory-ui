@@ -1,0 +1,12 @@
+{
+  "id": "proyecto-icfes",
+  "name": "Proyecto ICFEs",
+  "type": "Educación",
+  "status": "Materiales listos",
+  "path": "~/Documents/Proyecto ICFEs",
+  "tags": [
+    "educación",
+    "pruebas de estado",
+    "instruccional"
+  ]
+}
