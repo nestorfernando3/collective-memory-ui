@@ -70,7 +70,7 @@ function FlowApp() {
         newNodes.push({
           id: 'user_profile',
           type: 'custom',
-          position: { x: window.innerWidth / 2 - 90, y: window.innerHeight / 2 - 90 },
+          position: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
           data: { label: profile.name, isCore: true, status: profile.affiliations?.[0]?.role || '' }
         });
 
@@ -94,8 +94,8 @@ function FlowApp() {
           !ACTIVE_STATUSES.some(s => (p.status || '').toLowerCase().includes(s.toLowerCase().split(' ')[0]))
         );
 
-        const cx = window.innerWidth / 2 - 90;
-        const cy = window.innerHeight / 2 - 90;
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
 
         const placeRing = (ring, radius, startAngle = 0) => {
           const step = (2 * Math.PI) / (ring.length || 1);
@@ -210,7 +210,7 @@ function FlowApp() {
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.1 }}
+        fitViewOptions={{ padding: 0.18 }}
       >
         <Background gap={40} color="var(--ink-black)" size={1} />
       </ReactFlow>
