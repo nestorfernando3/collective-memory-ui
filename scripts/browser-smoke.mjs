@@ -79,7 +79,9 @@ async function main() {
     await waitForServer(BASE_URL);
 
     browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext();
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 1000 },
+    });
     const page = await context.newPage();
 
     await page.goto(BASE_URL, { waitUntil: 'networkidle' });
@@ -93,27 +95,58 @@ async function main() {
       throw new Error(`Expected profile drawer mode, received ${profileMode || 'none'}`);
     }
 
-    await page.getByTestId('drawer-close-btn').click({ force: true });
-    await delay(200);
+    await page.keyboard.press('Escape');
+    await delay(150);
 
-    await page.getByTestId('project-node-cuaderno-pedagogico').dispatchEvent('click');
+    const emptyDrawerMode = await page.getByTestId('drawer').getAttribute('data-drawer-mode');
+    if (emptyDrawerMode !== 'empty') {
+      throw new Error(`Expected drawer to close with Escape, received ${emptyDrawerMode || 'none'}`);
+    }
+
+    await page.getByTestId('lens-btn-Tooling').click();
+    await page.getByTestId('project-node-collective-memory').waitFor({ state: 'visible' });
+
+    const toolingProjectCount = await page.locator('[data-testid^="project-node-"]').count();
+    if (toolingProjectCount !== 1) {
+      throw new Error(`Expected one tooling project, received ${toolingProjectCount}`);
+    }
+
+    await page.getByTestId('project-node-collective-memory').dispatchEvent('click');
     const projectMode = await page.getByTestId('drawer').getAttribute('data-drawer-mode');
     if (projectMode !== 'project') {
       throw new Error(`Expected project drawer mode, received ${projectMode || 'none'}`);
     }
 
     await page.getByTestId('exclude-project-btn').click();
-    await page.getByTestId('excluded-projects-list').waitFor({ state: 'visible' });
-    await delay(250);
+    await page.getByTestId('graph-empty-state').waitFor({ state: 'visible' });
 
-    const hiddenProjectCount = await page.getByTestId('restore-project-btn-cuaderno-pedagogico').count();
-    if (hiddenProjectCount === 0) {
-      throw new Error('Expected the excluded project to appear in the restore list');
+    const hiddenProjectCount = await page.getByTestId('restore-hidden-projects-btn').count();
+    if (hiddenProjectCount !== 1) {
+      throw new Error('Expected the empty-state recovery button to be visible');
     }
 
-    const nodeCount = await page.getByTestId('project-node-cuaderno-pedagogico').count();
+    const nodeCount = await page.locator('[data-testid^="project-node-"]').count();
     if (nodeCount !== 0) {
       throw new Error('Expected the excluded project to disappear from the graph');
+    }
+
+    await page.getByTestId('restore-hidden-projects-btn').click();
+    await page.getByTestId('graph-empty-state').waitFor({ state: 'hidden' });
+    await page.getByTestId('project-node-collective-memory').waitFor({ state: 'visible' });
+
+    await page.getByTestId('project-node-collective-memory').dispatchEvent('click');
+    await page.getByTestId('exclude-project-btn').click();
+    await page.getByTestId('graph-empty-state').waitFor({ state: 'visible' });
+
+    await page.getByTestId('reset-lens-btn').click();
+    await page.waitForFunction(() => document.querySelectorAll('[data-testid^="project-node-"]').length > 1, null, {
+      timeout: 5000,
+    });
+    await page.getByTestId('graph-empty-state').waitFor({ state: 'hidden' });
+
+    const recoveredNodeCount = await page.locator('[data-testid^="project-node-"]').count();
+    if (recoveredNodeCount <= 1) {
+      throw new Error('Expected reset lens to restore the graph beyond the empty state');
     }
 
     await browser.close();

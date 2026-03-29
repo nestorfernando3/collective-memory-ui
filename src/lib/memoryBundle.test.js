@@ -37,3 +37,27 @@ test('extracts profile, connections, and nested project files from a folder list
   );
   assert.equal(bundle.sourceLabel, 'Memory');
 });
+
+test('throws clearly on malformed JSON and missing profile.json', () => {
+  assert.throws(
+    () =>
+      extractMemoryBundleFromEntries([
+        {
+          path: 'Memory/projects/bad.json',
+          text: '{"id":"bad"',
+        },
+      ]),
+    /Invalid JSON in Memory\/projects\/bad\.json/i,
+  );
+
+  assert.throws(
+    () =>
+      extractMemoryBundleFromEntries([
+        {
+          path: 'Memory/projects/a.json',
+          text: '{"id":"a","name":"Project A"}',
+        },
+      ]),
+    /profile\.json not found in uploaded memory folder/i,
+  );
+});

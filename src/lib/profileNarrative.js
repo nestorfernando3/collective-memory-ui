@@ -318,7 +318,7 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
     },
     sections: [
       {
-        title: 'Trayectorias centrales',
+        title: 'Hilos dominantes',
         items: [
           profile?.site_subtitle ? `Eje principal: ${profile.site_subtitle}` : 'Eje principal sin subtítulo definido.',
           profile?.affiliations?.length
@@ -332,7 +332,7 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
         items: activeConnections.slice(0, 6).map((connection) => summarizeConnection(connection, projectById)),
       },
       {
-        title: 'Rutas posibles',
+        title: 'Rutas de proyecto',
         items: routes.map((route) => ({
           title: route.title,
           summary: route.summary,

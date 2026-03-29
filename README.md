@@ -11,6 +11,8 @@ Collective Memory renders your entire professional universe as an orbital map �
 **The Philosophy:** Your data stays local. The code is public.
 This interface is designed to let people build a private memory database, load it from their own machine, and keep the last imported snapshot in the browser with IndexedDB. When the browser supports it, the user can explicitly authorize a local folder and the app will re-read that folder automatically on revisit and while the tab remains active. The repository ships with a demo memory, but your uploaded memory replaces it for that browser only.
 
+On desktop, the onboarding rail stays visible so the import and sync flow is always one click away. On smaller screens, the rail collapses behind a toggle and the drawer becomes a full-screen sheet so the graph keeps priority.
+
 Follow these steps to launch your own universe:
 
 ### 1. Install the skill
@@ -54,9 +56,10 @@ Open [http://localhost:5173](http://localhost:5173) and choose one of the two fl
 In both cases the graph is restored from the last successful import on revisit.
 
 Once the graph is loaded:
-- Click the central node to open an extensive persona bio built from your profile, projects, and graph connections.
-- Open any project node to inspect its summary, tags, and a persistent action to exclude or restore it from the visible selection.
-- Run `npm run smoke` to verify the browser flow locally before shipping changes.
+- Click the central node to open an extensive persona bio drawer built from your profile, projects, and graph connections. It now surfaces the overview, dominant threads, project routes, and expansion ideas.
+- Open any project node to inspect its summary, tags, and a persistent action to exclude or restore it from the visible selection. Excluded projects also appear in a dedicated restore list.
+- If the current lens hides every visible project, the graph shows a deliberate empty state with `Restore hidden projects` and `Reset lens` actions instead of looking broken.
+- Run `npm run smoke` to verify the built app locally before shipping changes. The smoke covers the onboarding rail, the central bio drawer, project exclusion, the empty state, and the recovery path.
 
 ### 5. Publish When Ready
 When you are ready to publish, keep personal data outside the repository and deploy only the app shell. The included GitHub Pages workflow is configured to build the site from the tracked files.
@@ -82,6 +85,7 @@ This isn't another dashboard. It's a **brutalist research map**.
 - **IndexedDB** — local persistence for the last uploaded memory
 - **File System Access API** — authorized local-folder sync when the browser supports it
 - **Playwright** — browser smoke for the onboarding, profile drawer, and exclusion flow
+- **Playwright** — browser smoke for the onboarding, profile drawer, exclusion flow, and empty-state recovery
 - **Vanilla CSS** — Hand-crafted brutalism
 
 ## License

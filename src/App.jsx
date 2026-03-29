@@ -39,7 +39,7 @@ import {
   queryDirectoryPermission,
   readMemoryBundleFromDirectoryHandle,
 } from './lib/memorySync';
-import { filterVisibleProjects } from './lib/projectVisibility';
+import { filterVisibleProjects, normalizeHiddenProjectIds } from './lib/projectVisibility';
 import { buildProfileNarrative } from './lib/profileNarrative';
 
 const BASE = import.meta.env.BASE_URL;
@@ -53,6 +53,14 @@ const ACTIVE_STATUSES = [
   'en ejecución',
   'en postulación',
   'materiales listos',
+];
+
+const DEFAULT_LENSES = [
+  { id: 'All', label: 'Full Universe', filter: [] },
+  { id: 'Academic', label: 'Academic Lens', filter: ['research', 'academic', 'paper'] },
+  { id: 'Creative', label: 'Creative Lens', filter: ['creative', 'art', 'writing'] },
+  { id: 'Pedagogical', label: 'Pedagogical Lens', filter: ['education', 'tool', 'socioemotional'] },
+  { id: 'Tooling', label: 'Tooling Lens', filter: ['software', 'ui', 'markdown'] },
 ];
 
 const nodeTypes = {
@@ -164,6 +172,7 @@ function FlowApp() {
   const [directoryPickerSupported, setDirectoryPickerSupported] = useState(false);
   const [directoryPermission, setDirectoryPermission] = useState('none');
   const [hasAuthorizedDirectory, setHasAuthorizedDirectory] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(true);
   const [autoSyncActive, setAutoSyncActive] = useState(false);
   const [memorySummary, setMemorySummary] = useState({
     connectionCount: 0,
@@ -189,7 +198,38 @@ function FlowApp() {
   const syncIntervalRef = useRef(null);
   const syncInFlightRef = useRef(false);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return undefined;
+
+    const media = window.matchMedia('(max-width: 900px)');
+    const applyVisibility = () => {
+      setIsGuideOpen(!media.matches);
+    };
+
+    applyVisibility();
+    if (typeof media.addEventListener === 'function') {
+      media.addEventListener('change', applyVisibility);
+      return () => media.removeEventListener('change', applyVisibility);
+    }
+
+    media.addListener(applyVisibility);
+    return () => media.removeListener(applyVisibility);
+  }, []);
+
   const visibleProjects = filterVisibleProjects(rawProjects, hiddenProjectIds);
+  const profileLenses = rawProfile?.lenses || DEFAULT_LENSES;
+  const currentLens = profileLenses.find((lens) => lens.id === activeLens);
+  const renderedProjects =
+    currentLens && Array.isArray(currentLens.filter) && currentLens.filter.length > 0
+      ? visibleProjects.filter((project) => {
+          const tags = [...(project.tags || []), ...(project.domains || []), ...(project.themes || [])].map((tag) =>
+            typeof tag === 'string' ? tag.toLowerCase() : '',
+          );
+
+          return tags.some((tag) => currentLens.filter.includes(tag));
+        })
+      : visibleProjects;
+  const renderedProjectCount = renderedProjects.length;
   const personaNarrative = rawProfile
     ? buildProfileNarrative({
         profile: rawProfile,
@@ -215,13 +255,7 @@ function FlowApp() {
     setSiteTitle(profile.site_title || profile.name || 'Collective Memory');
     setSiteSubtitle(profile.site_subtitle || profile.affiliations?.[0]?.role || 'Personal Operating System');
     document.title = profile.site_title || profile.name || 'Collective Memory';
-    setLenses(
-      profile.lenses || [
-        { id: 'All', label: 'Full Universe', filter: [] },
-        { id: 'Academic', label: 'Academic Lens', filter: ['research', 'academic', 'paper'] },
-        { id: 'Creative', label: 'Creative Lens', filter: ['creative', 'art', 'writing'] },
-      ],
-    );
+    setLenses(profile.lenses || DEFAULT_LENSES);
     setActiveLens('All');
     setSelectedContext(null);
     setIsDrawerOpen(false);
@@ -329,7 +363,7 @@ function FlowApp() {
   }, [stopAutoSyncLoop, syncAuthorizedDirectory]);
 
   const persistHiddenProjects = useCallback(async (nextHiddenProjectIds) => {
-    const normalized = [...new Set((Array.isArray(nextHiddenProjectIds) ? nextHiddenProjectIds : []).map((value) => String(value || '').trim()).filter(Boolean))];
+    const normalized = normalizeHiddenProjectIds(nextHiddenProjectIds);
     setHiddenProjectIds(normalized);
 
     try {
@@ -416,12 +450,7 @@ function FlowApp() {
       setDirectoryPickerSupported(pickerSupported);
 
       try {
-        const [demo, persistedSnapshot, persistedHandle, persistedHiddenIds] = await Promise.all([
-          loadDemoBundle().catch((error) => ({ error })),
-          loadPersistedSnapshot().catch(() => null),
-          loadPersistedDirectoryHandle().catch(() => null),
-          loadPersistedHiddenProjectIds().catch(() => []),
-        ]);
+        const demo = await loadDemoBundle().catch((error) => ({ error }));
 
         if (cancelled) return;
 
@@ -434,6 +463,9 @@ function FlowApp() {
         } else {
           setDemoBundle(demo);
         }
+
+        const persistedSnapshot = await loadPersistedSnapshot().catch(() => null);
+        if (cancelled) return;
 
         if (persistedSnapshot?.profile) {
           hydrateBundle(persistedSnapshot, 'local');
@@ -449,10 +481,12 @@ function FlowApp() {
           });
         }
 
+        const persistedHiddenIds = await loadPersistedHiddenProjectIds().catch(() => []);
         if (!cancelled) {
-          setHiddenProjectIds(Array.isArray(persistedHiddenIds) ? persistedHiddenIds : []);
+          setHiddenProjectIds(normalizeHiddenProjectIds(persistedHiddenIds));
         }
 
+        const persistedHandle = await loadPersistedDirectoryHandle().catch(() => null);
         if (persistedHandle) {
           directoryHandleRef.current = persistedHandle;
           setHasAuthorizedDirectory(true);
@@ -555,12 +589,6 @@ function FlowApp() {
       },
     });
 
-    const profileLenses = rawProfile.lenses || [
-      { id: 'All', label: 'Full Universe', filter: [] },
-      { id: 'Academic', label: 'Academic Lens', filter: ['research', 'academic', 'paper'] },
-      { id: 'Creative', label: 'Creative Lens', filter: ['creative', 'art', 'writing'] },
-    ];
-
     const currentLens = profileLenses.find((lens) => lens.id === activeLens);
     const filteredProjects =
       currentLens && Array.isArray(currentLens.filter) && currentLens.filter.length > 0
@@ -646,7 +674,7 @@ function FlowApp() {
 
     const timer = window.setTimeout(() => fitView({ padding: 0.18 }), 50);
     return () => window.clearTimeout(timer);
-  }, [rawConnections, rawProfile, rawProjects, hiddenProjectIds, activeLens, fitView, setEdges, setNodes]);
+  }, [rawConnections, rawProfile, rawProjects, hiddenProjectIds, activeLens, fitView, profileLenses, setEdges, setNodes]);
 
   useEffect(() => {
     const onResize = () => fitView({ padding: 0.18 });
@@ -679,7 +707,7 @@ function FlowApp() {
     setCenter(node.position.x + 225, node.position.y, { zoom: 1, duration: 600 });
   };
 
-  const closeDrawer = () => {
+  const closeDrawer = useCallback(() => {
     setIsDrawerOpen(false);
     setNodes((currentNodes) =>
       currentNodes.map((currentNode) => ({
@@ -688,7 +716,17 @@ function FlowApp() {
       })),
     );
     setSelectedContext(null);
-  };
+  }, [setNodes]);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key !== 'Escape') return;
+      closeDrawer();
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [closeDrawer]);
 
   const excludeProjectFromSelection = async (projectId) => {
     const nextHiddenIds = await persistHiddenProjects([...hiddenProjectIds, projectId]);
@@ -707,6 +745,17 @@ function FlowApp() {
     setUploadFeedback({
       kind: 'info',
       text: `El proyecto ${projectId} volvió a la selección visible.`,
+    });
+    return nextHiddenIds;
+  };
+
+  const restoreHiddenProjects = async () => {
+    if (hiddenProjectIds.length === 0) return [];
+
+    const nextHiddenIds = await persistHiddenProjects([]);
+    setUploadFeedback({
+      kind: 'info',
+      text: 'Los proyectos ocultos volvieron a la selección visible.',
     });
     return nextHiddenIds;
   };
@@ -850,7 +899,7 @@ function FlowApp() {
     .filter(Boolean);
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${isGuideOpen ? 'guide-open' : 'guide-closed'}`}>
       <aside className="guide-panel" data-testid="guide-panel">
         <div className="guide-brand">
           <p className="guide-kicker">
@@ -1015,9 +1064,14 @@ function FlowApp() {
             <h1>{siteTitle}</h1>
             <p>{siteSubtitle}</p>
           </div>
-          <span className={`source-chip ${isLocalMemory ? 'local' : 'demo'}`}>
-            {isLocalMemory ? 'Memoria local activa' : 'Demo incluida'}
-          </span>
+          <div className="header-actions">
+            <button className="rail-toggle-btn" onClick={() => setIsGuideOpen((value) => !value)} data-testid="guide-toggle-btn">
+              {isGuideOpen ? 'Ocultar guía' : 'Abrir guía'}
+            </button>
+            <span className={`source-chip ${isLocalMemory ? 'local' : 'demo'}`}>
+              {isLocalMemory ? 'Memoria local activa' : 'Demo incluida'}
+            </span>
+          </div>
         </div>
 
         <div className="lens-controls">
@@ -1026,6 +1080,7 @@ function FlowApp() {
               key={lens.id}
               className={`lens-btn ${activeLens === lens.id ? 'active' : ''}`}
               onClick={() => setActiveLens(lens.id)}
+              data-testid={`lens-btn-${lens.id}`}
             >
               {lens.label}
             </button>
@@ -1044,6 +1099,33 @@ function FlowApp() {
         >
           <Background gap={40} color="var(--ink-black)" size={1} />
         </ReactFlow>
+
+        {renderedProjectCount === 0 && (
+          <section className="graph-empty-state" data-testid="graph-empty-state" aria-live="polite">
+            <p className="graph-empty-kicker">Sin proyectos visibles</p>
+            <h2>La selección quedó vacía</h2>
+            <p>
+              Restablece los proyectos ocultos o vuelve al lente completo para recuperar nodos en la vista.
+            </p>
+            <div className="graph-empty-actions">
+              <button
+                className="secondary-btn"
+                onClick={restoreHiddenProjects}
+                disabled={hiddenProjectIds.length === 0}
+                data-testid="restore-hidden-projects-btn"
+              >
+                Restaurar proyectos ocultos
+              </button>
+              <button
+                className="ghost-btn"
+                onClick={() => setActiveLens('All')}
+                data-testid="reset-lens-btn"
+              >
+                Reset lens
+              </button>
+            </div>
+          </section>
+        )}
 
         <div className={`drawer ${isDrawerOpen ? 'open' : ''}`} data-testid="drawer" data-drawer-mode={selectedContext?.type || 'empty'}>
           <button className="drawer-close" onClick={closeDrawer} data-testid="drawer-close-btn">

@@ -1,3 +1,5 @@
+import { normalizeHiddenProjectIds } from './projectVisibility.js';
+
 const DB_NAME = 'collective-memory-ui';
 const STORE_NAME = 'snapshots';
 const SNAPSHOT_KEY = 'active-snapshot';
@@ -60,6 +62,8 @@ async function withStore(mode, callback) {
 export async function savePersistedSnapshot(snapshot) {
   if (!snapshot) return null;
 
+  if (!hasIndexedDB()) return snapshot;
+
   return withStore('readwrite', (store) => {
     store.put(snapshot, SNAPSHOT_KEY);
     return snapshot;
@@ -84,6 +88,8 @@ export async function clearPersistedSnapshot() {
 export async function savePersistedDirectoryHandle(directoryHandle) {
   if (!directoryHandle) return null;
 
+  if (!hasIndexedDB()) return directoryHandle;
+
   return withStore('readwrite', (store) => {
     store.put(directoryHandle, DIRECTORY_HANDLE_KEY);
     return directoryHandle;
@@ -106,18 +112,24 @@ export async function clearPersistedDirectoryHandle() {
 }
 
 export async function savePersistedHiddenProjectIds(hiddenProjectIds) {
+  const normalized = normalizeHiddenProjectIds(hiddenProjectIds);
+
+  if (!hasIndexedDB()) return normalized;
+
   return withStore('readwrite', (store) => {
-    store.put(Array.isArray(hiddenProjectIds) ? hiddenProjectIds : [], HIDDEN_PROJECT_IDS_KEY);
-    return hiddenProjectIds;
+    store.put(normalized, HIDDEN_PROJECT_IDS_KEY);
+    return normalized;
   });
 }
 
 export async function loadPersistedHiddenProjectIds() {
-  return withStore('readonly', (store) => new Promise((resolve, reject) => {
+  const persisted = await withStore('readonly', (store) => new Promise((resolve, reject) => {
     const request = store.get(HIDDEN_PROJECT_IDS_KEY);
     request.onsuccess = () => resolve(Array.isArray(request.result) ? request.result : []);
     request.onerror = () => reject(request.error || new Error('Unable to read saved hidden project ids'));
   }));
+
+  return normalizeHiddenProjectIds(persisted);
 }
 
 export async function clearPersistedHiddenProjectIds() {

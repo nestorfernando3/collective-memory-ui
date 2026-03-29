@@ -43,12 +43,7 @@ export function extractMemoryBundleFromEntries(entries, options = {}) {
 
     if (!name.toLowerCase().endsWith(JSON_EXTENSION)) continue;
 
-    let json;
-    try {
-      json = parseJsonEntry(entry, path);
-    } catch {
-      continue;
-    }
+    const json = parseJsonEntry(entry, path);
 
     if (name === 'profile.json') {
       profile = json;

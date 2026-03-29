@@ -7,13 +7,14 @@
 - Local folder uploads are parsed into `profile.json`, `connections.json`, and `projects/*.json`.
 - The last uploaded memory is persisted in the browser with IndexedDB and auto-restored on revisit.
 - Authorized folders are stored as File System Access handles when the browser supports it, and the app auto-resyncs them on revisit and while the tab stays visible.
-- Clicking the central node opens a structured persona bio with routes, bridges, and expansion ideas synthesized from the graph.
-- Projects can be excluded from the visible selection and restored later without deleting their data.
-- `npm run smoke` now runs a Playwright browser smoke against the built app.
+- Clicking the central node opens a structured persona bio drawer with overview, dominant threads, project routes, and expansion ideas synthesized from the graph.
+- Projects can be excluded from the visible selection and restored later without deleting their data, and excluded projects are listed in the drawer for quick recovery.
+- When a lens hides every visible project, the graph shows a deliberate empty state with restore and reset actions.
+- `npm run smoke` now runs a Playwright browser smoke against the built app and checks the onboarding rail, bio drawer, exclusion flow, and empty-state recovery.
 - Demo memory still ships with the repo so the graph is visible before a user uploads their own snapshot.
 
 ## Next
-- Browser QA on the authorization/resync flow, permission revocation, hidden-project persistence, and the stacked mobile layout.
+- Browser QA on the authorization/resync flow, permission revocation, hidden-project persistence, empty-state recovery, and the stacked mobile layout.
 
 ## Key Paths
 - App: `src/App.jsx`

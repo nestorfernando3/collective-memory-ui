@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterVisibleProjects } from './projectVisibility.js';
+import { filterVisibleProjects, normalizeHiddenProjectIds } from './projectVisibility.js';
 
-test('filters hidden projects without mutating the original list', () => {
+test('normalizes hidden project ids and filters without mutating the original list', () => {
   const projects = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+  const hiddenProjectIds = [' b ', 'b', '', null, undefined];
 
-  const visible = filterVisibleProjects(projects, ['b']);
+  assert.deepEqual(normalizeHiddenProjectIds(hiddenProjectIds), ['b']);
+
+  const visible = filterVisibleProjects(projects, hiddenProjectIds);
 
   assert.deepEqual(
     visible.map((project) => project.id),

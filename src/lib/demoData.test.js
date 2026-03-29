@@ -55,6 +55,6 @@ test('demo bundle exists and supports the profile narrative', async () => {
 
   assert.equal(narrative.name, profile.name);
   assert.equal(narrative.stats.projectCount, projects.length);
-  assert.ok(narrative.sections.some((section) => section.title === 'Rutas posibles'));
+  assert.ok(narrative.sections.some((section) => section.title === 'Rutas de proyecto'));
   assert.ok(narrative.routes.length >= 1);
 });

@@ -38,17 +38,17 @@ Make the agent inspect README/docs/code for terse projects before writing the fi
 - Test: `/Users/nestor/Documents/ReMember2/collective-memory-ui/src/lib/profileNarrative.test.js`
 - Test: `/Users/nestor/Documents/ReMember2/collective-memory-ui/src/lib/projectVisibility.test.js`
 
-- [ ] **Step 1: Write the failing helper tests**
+- [x] **Step 1: Write the failing helper tests**
 
 Cover the two core behaviors:
 `buildProfileNarrative()` should surface the user overview, cluster routes, and expansion ideas from sample profile/project/connection data.
 `filterVisibleProjects()` should exclude hidden project IDs without mutating the original list.
 
-- [ ] **Step 2: Implement the helpers minimally**
+- [x] **Step 2: Implement the helpers minimally**
 
 Add pure functions for classification, route extraction, narrative sections, and hidden-project filtering. Extend storage helpers to persist hidden project IDs with the existing snapshot data.
 
-- [ ] **Step 3: Verify the helpers**
+- [x] **Step 3: Verify the helpers**
 
 Run the Node tests and confirm the narrative and visibility helpers behave deterministically.
 
@@ -58,19 +58,19 @@ Run the Node tests and confirm the narrative and visibility helpers behave deter
 - Modify: `/Users/nestor/Documents/ReMember2/collective-memory-ui/src/App.jsx`
 - Modify: `/Users/nestor/Documents/ReMember2/collective-memory-ui/src/index.css`
 
-- [ ] **Step 1: Wire the new data model into the app**
+- [x] **Step 1: Wire the new data model into the app**
 
 Use the visibility helper before lens filtering, hydrate persisted hidden projects on boot, and persist updates when a project is excluded or restored.
 
-- [ ] **Step 2: Add the profile drawer**
+- [x] **Step 2: Add the profile drawer**
 
 Clicking the center node should open a structured persona drawer built from the narrative helper, with sections for overview, dominant threads, project routes, and expansion ideas.
 
-- [ ] **Step 3: Add project exclusion controls**
+- [x] **Step 3: Add project exclusion controls**
 
 Add a project-level action to remove the project from the rendered selection, show an excluded-project list, and provide a restore action.
 
-- [ ] **Step 4: Add stable smoke hooks**
+- [x] **Step 4: Add stable smoke hooks**
 
 Add `data-testid` hooks for the guide panel, core node, project nodes, drawer, and selection controls so the smoke script can target the UI reliably.
 
@@ -82,15 +82,15 @@ Add `data-testid` hooks for the guide panel, core node, project nodes, drawer, a
 - Modify: `/Users/nestor/Documents/ReMember2/collective-memory-ui/README.md`
 - Modify: `/Users/nestor/Documents/ReMember2/collective-memory-ui/STATUS.md`
 
-- [ ] **Step 1: Add a failing smoke script entry**
+- [x] **Step 1: Add a failing smoke script entry**
 
 Add `npm run smoke` and make the script open the local preview server, verify the onboarding rail, open the central bio drawer, and open a project drawer.
 
-- [ ] **Step 2: Implement the smoke runner**
+- [x] **Step 2: Implement the smoke runner**
 
 Use Playwright in a plain Node script, not `@playwright/test`, and keep the assertions focused on the stable test ids.
 
-- [ ] **Step 3: Verify the smoke**
+- [x] **Step 3: Verify the smoke**
 
 Run the smoke locally against the built app and confirm it catches the expected UI surfaces.
 

@@ -101,3 +101,26 @@ test('builds a profile narrative with routes and expansion ideas', () => {
   assert.ok(narrative.expansionIdeas.some((idea) => idea.from === 'paideia' && idea.to === 'diario-emociones'));
   assert.ok(narrative.sections.some((section) => section.title === 'Puentes activos'));
 });
+
+test('excludes hidden projects from the visible narrative', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections,
+    hiddenProjectIds: ['paideia', 'paideia'],
+  });
+
+  assert.equal(narrative.stats.projectCount, projects.length - 1);
+  assert.equal(narrative.stats.hiddenCount, 1);
+  assert.ok(narrative.routes.every((route) => !route.projects.includes('paideia')));
+  assert.ok(narrative.expansionIdeas.every((idea) => idea.from !== 'paideia' && idea.to !== 'paideia'));
+});
+
+test('returns a sane fallback narrative when the profile is missing', () => {
+  const narrative = buildProfileNarrative();
+
+  assert.equal(narrative.name, 'Persona central');
+  assert.equal(narrative.stats.projectCount, 0);
+  assert.equal(narrative.stats.connectionCount, 0);
+  assert.match(narrative.overview, /sin proyectos visibles/i);
+});
