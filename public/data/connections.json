@@ -1,0 +1,28 @@
+{
+  "connections": [
+    {
+      "from": "paideia",
+      "to": "proyecto-icfes",
+      "type": "Metodol\u00f3gica",
+      "strength": "Alta",
+      "description": "Integrar m\u00f3dulos de pr\u00e1ctica ICFES usando Paideia."
+    },
+    {
+      "from": "estudio-kansas",
+      "to": "articulo-tuberculosis",
+      "type": "Datos",
+      "strength": "Media",
+      "description": "Metodolog\u00eda epidemiol\u00f3gica replicable del estudio de Kansas hacia Atl\u00e1ntico."
+    }
+  ],
+  "clusters": [
+    {
+      "name": "Ecosistema EdTech BDR",
+      "projects": ["paideia", "proyecto-icfes", "markdown-pedagogico"]
+    },
+    {
+      "name": "Investigaci\u00f3n en Salud P\u00fablica",
+      "projects": ["estudio-kansas", "articulo-tuberculosis"]
+    }
+  ]
+}

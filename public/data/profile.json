@@ -1,0 +1,45 @@
+{
+  "name": "N\u00e9stor De Le\u00f3n",
+  "identifiers": {
+    "orcid": "0000-0001-8430-7031",
+    "github": "nestorfernando3"
+  },
+  "affiliations": [
+    {
+      "institution": "Polit\u00e9cnico de la Costa Atl\u00e1ntica",
+      "role": "Docente / Investigador",
+      "current": true
+    },
+    {
+      "institution": "I.E.D. Brisas del R\u00edo",
+      "role": "Docente / Gestor",
+      "current": true
+    }
+  ],
+  "location": {
+    "city": "Barranquilla",
+    "region": "Caribe",
+    "country": "Colombia"
+  },
+  "domains": [
+    "Educaci\u00f3n",
+    "EdTech",
+    " Gesti\u00f3n Cultural",
+    "Investigaci\u00f3n Acad\u00e9mica",
+    "Tecnolog\u00eda",
+    "Semi\u00f3tica",
+    "Ense\u00f1anza Universitaria y Secundaria"
+  ],
+  "voice_profile": {
+    "style": "Intensa, reflexiva, directa, humana, con foco en el pragmatismo, utilitarismo y rechazo al minimalismo vac\u00edo. Valora lo contextual (lo sudaca, lo caribe, lo local).",
+    "master_prompt_path": "/Users/nestor/Documents/MASTER PROMPT \u2014 N\u00c9STOR DE LE\u00d3N.txt"
+  },
+  "skills": [
+    "Dise\u00f1o Instruccional",
+    "Programaci\u00f3n Web (JS, VITE, React, Supabase)",
+    "Redacci\u00f3n Acad\u00e9mica y Cient\u00edfica",
+    "Formulaci\u00f3n de Proyectos Cultura/Educaci\u00f3n",
+    "Docencia"
+  ],
+  "languages": ["espa\u00f1ol_nativo", "ingl\u00e9s_fluido"]
+}
