@@ -47,13 +47,13 @@ We have successfully pivoted the project from a hardcoded personal portfolio int
 
 ---
 
-## 🔧 PENDING (from your comments)
+## 🔄 UPDATED FROM YOUR COMMENTS
 
 | Item | Notes |
 |------|-------|
 | **Research Sync** | Local matcher/report generator implemented; `/memoria collect` now covers scan/register/profile/connections/build-readme in one pass |
-| `/memoria strengthen` | Use abstracts first, fallback to scanning actual `.docx`/`.md` files |
-| External data | Optional next step if you want the helper to call an LLM for richer prose |
+| `/memoria strengthen` | Uses abstracts first, then inspects actual `.docx`/`.md` prose for theoretical matrices, repeated citations, and data reuse |
+| External data | Optional LLM prose layer is now supported behind `OPENAI_API_KEY` with deterministic fallback; tune it with `OPENAI_NARRATIVE_MODEL` or `OPENAI_MODEL` |
 
 ## ✅ Recent UI/Skill Additions
 - Added richer project registration guidance so terse cards can be rebuilt from README/docs/source evidence.

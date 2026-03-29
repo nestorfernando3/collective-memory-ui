@@ -4,14 +4,16 @@
  *
  * Scores likely connections between project cards using:
  * - shared metadata fields (tags, domains, themes, frameworks, etc.)
- * - optional document text found under the project's path
+ * - document text found under the project's path, including .md and .docx prose
  * - local markdown notes in the collective-memory workspace
+ * - optional LLM prose rewriting with a deterministic local fallback
  *
  * By default this is a dry run that prints a markdown report.
  * Pass --apply to write validated suggestions back into connections.json.
  */
 
 const fs = require('fs');
+const https = require('https');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -21,7 +23,7 @@ const UI_DIR = path.join(ROOT_DIR, '..', 'collective-memory-ui');
 const PROJECTS_DIR = path.join(ROOT_DIR, 'projects');
 const CONNECTIONS_PATH = path.join(ROOT_DIR, 'connections.json');
 const UI_CONNECTIONS_PATH = path.join(UI_DIR, 'public', 'data', 'connections.json');
-const DEFAULT_DOCS_ROOT = path.join(os.homedir(), 'Documents');
+const DEFAULT_DOCS_ROOTS = getDefaultDocsRoots();
 
 const FIELD_WEIGHTS = {
   theoretical_frameworks: 9,
@@ -49,12 +51,53 @@ const STOPWORDS = new Set([
   'files', 'file', 'folder', 'folders', 'textos', 'selectos',
 ]);
 
+const THEORY_MARKERS = [
+  'marco teórico',
+  'marco conceptual',
+  'fenomenología',
+  'hermenéutica',
+  'semiótica',
+  'epistemología',
+  'teoría',
+  'rumor',
+  'chisme',
+  'trastienda',
+  'goffman',
+  'gluckman',
+  'elias',
+  'caribe',
+];
+
+const DATA_MARKERS = [
+  'datos',
+  'corpus',
+  'muestra',
+  'dataset',
+  'entrevista',
+  'registro',
+  'fuente',
+  'evidencia',
+  'base de datos',
+  'reuso',
+  'reutilización',
+  'caso',
+  'archivo',
+  'archivo fuente',
+];
+
+const EXISTING_REPORT_THRESHOLD = 20;
+const EXISTING_REFRESH_THRESHOLD = 10;
+const NEW_CONNECTION_THRESHOLD = 35;
+const REFRESH_SCORE_THRESHOLD = 35;
+
 function parseArgs(argv) {
   const args = {
     apply: false,
     focus: null,
+    llm: Boolean(process.env.OPENAI_API_KEY),
+    llmModel: process.env.OPENAI_NARRATIVE_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1-mini',
     top: 5,
-    docsRoot: DEFAULT_DOCS_ROOT,
+    docsRoot: DEFAULT_DOCS_ROOTS.slice(),
     report: null,
   };
 
@@ -70,6 +113,12 @@ function parseArgs(argv) {
       args.docsRoot = argv[++i];
     } else if (arg === '--report') {
       args.report = argv[++i];
+    } else if (arg === '--llm') {
+      args.llm = true;
+    } else if (arg === '--no-llm') {
+      args.llm = false;
+    } else if (arg === '--llm-model') {
+      args.llmModel = argv[++i];
     } else if (arg === '--help' || arg === '-h') {
       printHelp();
       process.exit(0);
@@ -84,10 +133,13 @@ function printHelp() {
     'Usage: node collective-memory/scripts/research_sync.js [options]',
     '',
     'Options:',
-    '  --focus <project-id>      Limit analysis to one project',
+    '  --focus <project-id>      Limit analysis to one project; otherwise it runs systemwide across all projects',
     '  --top <n>                 Number of suggestions to show (default: 5)',
-    '  --documents-root <path>   Root folder to scan for .md/.txt/.docx files',
+    '  --documents-root <path>   Override the default document roots (comma-separated list allowed)',
     '  --report <path>           Write the markdown report to a file',
+    '  --llm                      Use OpenAI for prose descriptions when available',
+    '  --no-llm                   Force local deterministic prose only',
+    '  --llm-model <name>         Override the OpenAI model used for prose generation',
     '  --apply                   Write validated suggestions to connections.json',
     '  --help                    Show this help text',
   ].join('\n'));
@@ -112,6 +164,37 @@ function expandHome(inputPath) {
     return path.join(os.homedir(), inputPath.slice(2));
   }
   return inputPath;
+}
+
+function getDefaultDocsRoots(platform = os.platform(), home = os.homedir()) {
+  const roots = [];
+
+  if (platform === 'win32') {
+    roots.push(path.join(home, 'Documents'));
+    roots.push(path.join(home, 'OneDrive', 'Documents'));
+    roots.push(path.join(home, 'OneDrive - Personal', 'Documents'));
+    roots.push(path.join(home, 'Desktop'));
+  } else if (platform === 'darwin') {
+    roots.push(path.join(home, 'Documents'));
+    roots.push(path.join(home, 'Desktop'));
+    roots.push(home);
+  } else {
+    roots.push(path.join(home, 'Documents'));
+    roots.push(path.join(home, 'Desktop'));
+    roots.push(home);
+  }
+
+  return uniq(roots);
+}
+
+function normalizeDocsRoots(docsRoot) {
+  const values = Array.isArray(docsRoot) ? docsRoot : [docsRoot];
+  return uniq(
+    values
+      .flatMap(value => String(value || '').split(','))
+      .map(value => expandHome(value.trim()))
+      .filter(Boolean)
+  );
 }
 
 function normalizeText(value) {
@@ -184,6 +267,381 @@ function readDocumentText(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   if (ext === '.docx') return readDocxText(filePath);
   return safeRead(filePath);
+}
+
+function normalizePhrase(value) {
+  return normalizeText(value).replace(/\s+/g, ' ').trim();
+}
+
+function cleanCitation(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .replace(/[.;:,]+$/g, '')
+    .trim();
+}
+
+function matchMarkers(text, markers) {
+  const normalized = normalizePhrase(text);
+  return uniq(
+    markers.filter(marker => normalized.includes(normalizePhrase(marker)))
+  );
+}
+
+function extractCitationStrings(text) {
+  const source = String(text || '');
+  const citations = [];
+  const patterns = [
+    /\b([A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñ'’.-]+(?:\s+[A-ZÁÉÍÓÚÑ][A-Za-zÁÉÍÓÚÑáéíóúñ'’.-]+){0,3}(?:\s+et al\.)?(?:,\s*|\s+)(?:19|20)\d{2}[a-z]?)\b/g,
+    /\(([A-ZÁÉÍÓÚÑ][^()]{0,70}?(?:19|20)\d{2}[a-z]?[^()]*)\)/g,
+  ];
+
+  patterns.forEach(pattern => {
+    for (const match of source.matchAll(pattern)) {
+      const value = cleanCitation(match[1] || match[0]);
+      if (value) citations.push(value);
+    }
+  });
+
+  return uniq(citations);
+}
+
+function isHeadingLike(line) {
+  return /^#{1,6}\s+/.test(line) || /^\d+(?:\.\d+)*[\).:-]?\s+\S+/.test(line);
+}
+
+function extractQuotedPhrases(text) {
+  const source = String(text || '');
+  const quoted = [];
+  const patterns = [
+    /"([^"\n]{4,120})"/g,
+    /“([^”\n]{4,120})”/g,
+    /‘([^’\n]{4,120})’/g,
+    /'([^'\n]{4,120})'/g,
+  ];
+
+  patterns.forEach(pattern => {
+    for (const match of source.matchAll(pattern)) {
+      const value = String(match[1] || '').trim();
+      if (value) quoted.push(value);
+    }
+  });
+
+  return uniq(quoted);
+}
+
+function collectHighlights(lines, signals) {
+  const normalizedSignals = uniq([
+    ...(signals.citations || []),
+    ...(signals.theoryTerms || []),
+    ...(signals.dataTerms || []),
+    ...(signals.headings || []),
+    ...(signals.quotedPhrases || []),
+  ]).map(value => normalizePhrase(value));
+
+  const highlights = [];
+  const bodyHighlights = [];
+
+  lines.forEach(line => {
+    const normalizedLine = normalizePhrase(line);
+    if (!normalizedLine) return;
+
+    const matched = normalizedSignals.some(signal => signal && normalizedLine.includes(signal));
+    if (matched) {
+      const cleaned = line
+        .replace(/[*_`]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      highlights.push(cleaned);
+      if (!isHeadingLike(cleaned)) {
+        bodyHighlights.push(cleaned);
+      }
+    }
+  });
+
+  const preferred = bodyHighlights.length ? bodyHighlights : highlights;
+  return uniq(preferred).slice(0, 6);
+}
+
+function extractDocumentSignals(text) {
+  const source = String(text || '');
+  const lines = source
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  const citations = extractCitationStrings(source);
+  const theoryTerms = matchMarkers(source, THEORY_MARKERS);
+  const dataTerms = matchMarkers(source, DATA_MARKERS);
+  const headings = uniq(lines.filter(isHeadingLike).map(line => line.replace(/^#{1,6}\s+/, '').trim()));
+  const quotedPhrases = extractQuotedPhrases(source);
+  const keyPhrases = uniq([
+    ...theoryTerms,
+    ...dataTerms,
+    ...headings,
+    ...quotedPhrases,
+  ]);
+
+  return {
+    citations,
+    theoryTerms,
+    dataTerms,
+    headings,
+    quotedPhrases,
+    keyPhrases,
+    highlights: collectHighlights(lines, {
+      citations,
+      theoryTerms,
+      dataTerms,
+      headings,
+      quotedPhrases,
+    }),
+  };
+}
+
+function mergeSignals(target, source) {
+  Object.keys(target).forEach(key => {
+    if (!(key in source)) return;
+    target[key] = uniq([...(target[key] || []), ...(source[key] || [])]);
+  });
+  return target;
+}
+
+function sharedSignalDetails(signalsA, signalsB) {
+  const fields = ['citations', 'theoryTerms', 'dataTerms', 'headings', 'quotedPhrases', 'keyPhrases'];
+  return fields.reduce((acc, field) => {
+    const a = new Set(signalsA[field] || []);
+    const b = new Set(signalsB[field] || []);
+    acc[field] = setIntersection(a, b);
+    return acc;
+  }, {});
+}
+
+function safePreview(value, limit = 140) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= limit) return text;
+  return `${text.slice(0, limit - 1).trim()}…`;
+}
+
+function buildConnectionContext(candidate, fromId, toId, profilesById) {
+  const fromProfile = profilesById.get(fromId);
+  const toProfile = profilesById.get(toId);
+  const fromProject = fromProfile.project;
+  const toProject = toProfile.project;
+
+  const sharedSummary = [];
+  ['theoretical_frameworks', 'domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators'].forEach(field => {
+    const values = candidate.shared[field] || [];
+    if (values.length) {
+      sharedSummary.push(`${field}: ${joinList(values.slice(0, 3))}`);
+    }
+  });
+
+  if (candidate.sharedMetadataTokens.length) {
+    sharedSummary.push(`shared tokens: ${joinList(candidate.sharedMetadataTokens.slice(0, 6))}`);
+  }
+
+  const docFiles = uniq([
+    ...(fromProfile.docEvidence.snippets || []).map(item => item.label),
+    ...(toProfile.docEvidence.snippets || []).map(item => item.label),
+  ]).slice(0, 3);
+
+  const docSignals = sharedSignalDetails(fromProfile.docSignals || {}, toProfile.docSignals || {});
+  const docHighlights = uniq([
+    ...((fromProfile.docEvidence.snippets || []).flatMap(item => item.highlights || [])),
+    ...((toProfile.docEvidence.snippets || []).flatMap(item => item.highlights || [])),
+  ]).slice(0, 4);
+
+  return {
+    candidate,
+    fromId,
+    toId,
+    fromName: fromProject.name || fromProject.id,
+    toName: toProject.name || toProject.id,
+    type: inferType(candidate),
+    strength: inferStrength(candidate.score),
+    score: Number(candidate.score.toFixed(1)),
+    sharedSummary,
+    docFiles,
+    docSignals,
+    docHighlights,
+    relationDirection: `${fromId} -> ${toId}`,
+  };
+}
+
+function buildLocalDescription(context) {
+  const clauses = [];
+  const lead = context.sharedSummary.length
+    ? `La relación entre ${context.fromName} y ${context.toName} se sostiene en ${joinList(context.sharedSummary.slice(0, 2))}.`
+    : `La relación entre ${context.fromName} y ${context.toName} nace de una lectura cruzada de sus evidencias locales.`;
+  clauses.push(lead);
+
+  const docBits = [];
+  if (context.docSignals.citations.length) {
+    docBits.push(`citas como ${joinList(context.docSignals.citations.slice(0, 2))}`);
+  }
+  if (context.docSignals.theoryTerms.length) {
+    docBits.push(`matrices teóricas como ${joinList(context.docSignals.theoryTerms.slice(0, 2))}`);
+  }
+  if (context.docSignals.dataTerms.length) {
+    docBits.push(`reuso de datos y corpus compartidos`);
+  }
+  if (context.docHighlights.length) {
+    docBits.push(`pasajes como ${safePreview(joinList(context.docHighlights.slice(0, 2)), 90)}`);
+  } else if (context.docFiles.length) {
+    docBits.push(`notas locales en ${joinList(context.docFiles.slice(0, 2))}`);
+  }
+
+  if (docBits.length) {
+    clauses.push(`La prosa de apoyo deja ver ${joinList(docBits)}.`);
+  }
+
+  clauses.push(`La dirección sugerida es ${context.relationDirection}, porque el cruce no es accidental sino orgánico y acumulativo.`);
+  return clauses.join(' ');
+}
+
+async function postJson(urlString, body, headers = {}) {
+  if (typeof fetch === 'function') {
+    const response = await fetch(urlString, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = payload?.error?.message || response.statusText || `HTTP ${response.status}`;
+      throw new Error(message);
+    }
+    return payload;
+  }
+
+  return new Promise((resolve, reject) => {
+    const target = new URL(urlString);
+    const request = https.request(
+      {
+        hostname: target.hostname,
+        path: `${target.pathname}${target.search}`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          ...headers,
+        },
+      },
+      response => {
+        let raw = '';
+        response.setEncoding('utf8');
+        response.on('data', chunk => {
+          raw += chunk;
+        });
+        response.on('end', () => {
+          let payload = {};
+          try {
+            payload = raw ? JSON.parse(raw) : {};
+          } catch (error) {
+            reject(error);
+            return;
+          }
+          if (response.statusCode && response.statusCode >= 200 && response.statusCode < 300) {
+            resolve(payload);
+          } else {
+            reject(new Error(payload?.error?.message || response.statusMessage || `HTTP ${response.statusCode}`));
+          }
+        });
+      }
+    );
+
+    request.on('error', reject);
+    request.write(JSON.stringify(body));
+    request.end();
+  });
+}
+
+function buildLLMPrompt(context) {
+  return [
+    'Escribe una justificación en español, con tono ensayístico pero precisa, para una conexión entre dos proyectos.',
+    'Devuelve solo JSON con la forma {"description":"..."} y nada más.',
+    'La descripción debe tener entre 2 y 4 oraciones, sonar orgánica, y explicar el vínculo como una continuidad de trabajo, no como una etiqueta técnica.',
+    'Prioriza teoría compartida, citas, reutilización de datos, vocabulario repetido y señales de prosa real antes que simples listas de campos.',
+    'Evita frases administrativas como "cruce por", "shared evidence" o "notas locales" y evita repetir la estructura de un reporte.',
+    `Proyecto origen: ${context.fromName} (${context.fromId})`,
+    `Proyecto destino: ${context.toName} (${context.toId})`,
+    `Tipo sugerido: ${context.type}`,
+    `Fuerza sugerida: ${context.strength}`,
+    `Evidencia compartida: ${context.sharedSummary.length ? context.sharedSummary.join(' | ') : 'sin metadatos compartidos fuertes'}`,
+    `Rastros documentales: ${context.docSignals.keyPhrases.length ? context.docSignals.keyPhrases.join(' | ') : 'sin señales textuales fuertes'}`,
+    `Citas detectadas: ${context.docSignals.citations.length ? context.docSignals.citations.join(' | ') : 'ninguna'}`,
+    `Pasajes o notas: ${context.docHighlights.length ? context.docHighlights.join(' | ') : context.docFiles.join(' | ') || 'ninguno'}`,
+    `Dirección: ${context.relationDirection}`,
+    'La respuesta debe explicar por qué el vínculo es orgánico, legible y defendible a nivel narrativo.',
+  ].join('\n');
+}
+
+async function buildLLMDescription(context, model) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+
+  const payload = {
+    model,
+    temperature: 0.7,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: 'Eres un editor narrativo que transforma evidencia de investigación en justificaciones claras y naturales.',
+      },
+      {
+        role: 'user',
+        content: buildLLMPrompt(context),
+      },
+    ],
+  };
+
+  const response = await postJson('https://api.openai.com/v1/chat/completions', payload, {
+    authorization: `Bearer ${apiKey}`,
+  });
+
+  const content = response?.choices?.[0]?.message?.content;
+  if (!content) return null;
+
+  try {
+    const parsed = JSON.parse(content);
+    const description = String(parsed.description || '').trim();
+    return description || null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveConnectionNarrative(candidate, fromId, toId, profilesById, options = {}, cache = new Map()) {
+  const cacheKey = `${candidate.pairKey || canonicalPairKey(fromId, toId)}::${options.llm ? 'llm' : 'local'}::${options.llmModel || ''}`;
+  if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+  const context = buildConnectionContext(candidate, fromId, toId, profilesById);
+  let description = buildLocalDescription(context);
+  let descriptionMode = 'local';
+
+  if (options.llm) {
+    try {
+      const llmDescription = await buildLLMDescription(context, options.llmModel);
+      if (llmDescription) {
+        description = llmDescription;
+        descriptionMode = 'llm';
+      }
+    } catch {
+      descriptionMode = 'local';
+    }
+  }
+
+  const narrative = {
+    ...context,
+    description,
+    descriptionMode,
+  };
+
+  cache.set(cacheKey, narrative);
+  return narrative;
 }
 
 function isIgnoredDir(dirName) {
@@ -325,10 +783,21 @@ function gatherDocumentFiles(project, docsRoot) {
   const seen = new Set();
   const tokens = uniq(tokenize(projectStrings(project).join(' ')));
   const pathsToCheck = [];
+  const expandedDocsRoots = normalizeDocsRoots(docsRoot || DEFAULT_DOCS_ROOTS);
+  const expandedDocsRootSet = new Set(expandedDocsRoots);
 
   const explicitPath = expandHome(project.path || '');
   if (explicitPath && fs.existsSync(explicitPath)) {
-    pathsToCheck.push(explicitPath);
+    const explicitStats = fs.statSync(explicitPath);
+    if (explicitStats.isFile()) {
+      const ext = path.extname(explicitPath).toLowerCase();
+      if (['.md', '.txt', '.docx'].includes(ext)) {
+        seen.add(explicitPath);
+        candidates.push({ filePath: explicitPath, score: 20 });
+      }
+    } else {
+      pathsToCheck.push(explicitPath);
+    }
   }
 
   const localNotesRoot = ROOT_DIR;
@@ -336,15 +805,16 @@ function gatherDocumentFiles(project, docsRoot) {
     pathsToCheck.push(localNotesRoot);
   }
 
-  const expandedDocsRoot = expandHome(docsRoot || DEFAULT_DOCS_ROOT);
-  if (expandedDocsRoot && fs.existsSync(expandedDocsRoot)) {
-    pathsToCheck.push(expandedDocsRoot);
-  }
+  expandedDocsRoots.forEach(root => {
+    if (fs.existsSync(root)) {
+      pathsToCheck.push(root);
+    }
+  });
 
   pathsToCheck.forEach(root => {
     const allowedExtensions = root === localNotesRoot ? ['.md'] : ['.md', '.txt', '.docx'];
-    const maxDepth = root === expandedDocsRoot ? 3 : 2;
-    const limit = root === expandedDocsRoot ? 24 : 12;
+    const maxDepth = expandedDocsRootSet.has(root) ? 3 : 2;
+    const limit = expandedDocsRootSet.has(root) ? 24 : 12;
     const files = walkFiles(root, maxDepth, allowedExtensions, limit, []);
     files.forEach(filePath => {
       if (seen.has(filePath)) return;
@@ -368,17 +838,29 @@ function gatherDocumentEvidence(project, docsRoot) {
   const files = gatherDocumentFiles(project, docsRoot);
   const snippets = [];
   const tokens = new Set();
+  const aggregatedSignals = {
+    citations: [],
+    theoryTerms: [],
+    dataTerms: [],
+    headings: [],
+    quotedPhrases: [],
+    keyPhrases: [],
+  };
 
   files.forEach(filePath => {
     const text = readDocumentText(filePath).slice(0, 12000);
     if (!text) return;
     const fileTokens = tokenize(text);
+    const signals = extractDocumentSignals(text);
     fileTokens.forEach(token => tokens.add(token));
+    mergeSignals(aggregatedSignals, signals);
     snippets.push({
       filePath,
       label: fileLabel(filePath),
       text,
       tokens: fileTokens,
+      signals,
+      highlights: signals.highlights,
     });
   });
 
@@ -386,6 +868,7 @@ function gatherDocumentEvidence(project, docsRoot) {
     files,
     snippets,
     tokens,
+    signals: aggregatedSignals,
   };
 }
 
@@ -410,6 +893,7 @@ function buildProjectProfile(project, docsRoot) {
     metadataTokens,
     docEvidence,
     docTokens,
+    docSignals: docEvidence.signals,
     combinedTokens,
     roleFlags,
   };
@@ -444,6 +928,7 @@ function scorePair(profileA, profileB, existingKeys) {
   const shared = sharedFieldDetails(profileA.metadataFields, profileB.metadataFields);
   const sharedMetadataTokens = setIntersection(profileA.metadataTokens, profileB.metadataTokens);
   const sharedDocTokens = setIntersection(profileA.docTokens, profileB.docTokens);
+  const sharedDocSignals = sharedSignalDetails(profileA.docSignals || {}, profileB.docSignals || {});
 
   let score = 0;
   const signals = [];
@@ -477,6 +962,56 @@ function scorePair(profileA, profileB, existingKeys) {
       field: 'document_tokens',
       values: sharedDocTokens.slice(0, 8),
       weight: docScore,
+    });
+  }
+
+  if (sharedDocSignals.citations.length) {
+    const citationScore = Math.min(8, sharedDocSignals.citations.length * 2.5);
+    score += citationScore;
+    signals.push({
+      field: 'document_citations',
+      values: sharedDocSignals.citations.slice(0, 5),
+      weight: citationScore,
+    });
+  }
+
+  if (sharedDocSignals.theoryTerms.length) {
+    const theoryScore = Math.min(6, sharedDocSignals.theoryTerms.length * 1.75);
+    score += theoryScore;
+    signals.push({
+      field: 'document_theory_terms',
+      values: sharedDocSignals.theoryTerms.slice(0, 5),
+      weight: theoryScore,
+    });
+  }
+
+  if (sharedDocSignals.dataTerms.length) {
+    const dataScore = Math.min(4, sharedDocSignals.dataTerms.length * 1.5);
+    score += dataScore;
+    signals.push({
+      field: 'document_data_terms',
+      values: sharedDocSignals.dataTerms.slice(0, 5),
+      weight: dataScore,
+    });
+  }
+
+  if (sharedDocSignals.headings.length) {
+    const headingScore = Math.min(3, sharedDocSignals.headings.length * 1.1);
+    score += headingScore;
+    signals.push({
+      field: 'document_headings',
+      values: sharedDocSignals.headings.slice(0, 5),
+      weight: headingScore,
+    });
+  }
+
+  if (sharedDocSignals.keyPhrases.length) {
+    const phraseScore = Math.min(5, sharedDocSignals.keyPhrases.length * 0.75);
+    score += phraseScore;
+    signals.push({
+      field: 'document_phrases',
+      values: sharedDocSignals.keyPhrases.slice(0, 6),
+      weight: phraseScore,
     });
   }
 
@@ -514,6 +1049,7 @@ function scorePair(profileA, profileB, existingKeys) {
     shared,
     sharedMetadataTokens,
     sharedDocTokens,
+    sharedDocSignals,
     roleA,
     roleB,
   };
@@ -688,44 +1224,16 @@ function inferStrength(score) {
   return 'Exploratoria';
 }
 
-function buildDescription(candidate, fromId, toId) {
-  const parts = [];
-  const fieldPriority = ['theoretical_frameworks', 'domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators'];
-
-  fieldPriority.forEach(field => {
-    const values = candidate.shared[field] || [];
-    if (values.length && parts.length < 2) {
-      parts.push(joinList(values.slice(0, 3)));
-    }
-  });
-
-  const docLabels = candidate.a.__docEvidence?.snippets?.map(item => item.label) || [];
-  const otherDocLabels = candidate.b.__docEvidence?.snippets?.map(item => item.label) || [];
-  const docNotes = uniq([...docLabels, ...otherDocLabels]).slice(0, 2);
-
-  let summary = parts.length
-    ? `Cruce por ${joinList(parts)}.`
-    : 'La lectura cruzada de metadatos y notas locales sugiere una relación útil.';
-
-  if (docNotes.length) {
-    summary += ` Las notas locales refuerzan el cruce con ${joinList(docNotes)}.`;
-  }
-
-  if (fromId && toId) {
-    summary += ` Dirección sugerida: ${fromId} -> ${toId}.`;
-  }
-
-  return summary;
-}
-
-function buildReport({ existingCandidates, newCandidates, profilesById, focusId, top }) {
+async function buildReport({ existingCandidates, newCandidates, profilesById, focusId, scopeLabel, top, narrativeCache, llm, llmModel }) {
   const lines = [];
   lines.push('# Research Sync');
   lines.push('');
-  lines.push(`- Focus: ${focusId || 'all projects'}`);
+  lines.push(`- Scope: ${scopeLabel || 'Systemwide (all projects)'}`);
+  lines.push(`- Focus: ${focusId || 'none'}`);
   lines.push(`- Existing connections reviewed: ${existingCandidates.length}`);
   lines.push(`- New suggestions reviewed: ${newCandidates.length}`);
   lines.push(`- Output limit: ${top}`);
+  lines.push(`- Narrative mode: ${llm ? `LLM (${llmModel}) with local fallback` : 'local deterministic fallback'}`);
   lines.push('');
 
   if (!existingCandidates.length && !newCandidates.length) {
@@ -733,58 +1241,50 @@ function buildReport({ existingCandidates, newCandidates, profilesById, focusId,
     return lines.join('\n');
   }
 
-  const renderSection = (title, candidates) => {
+  const renderSection = async (title, candidates) => {
     if (!candidates.length) return;
     lines.push(`## ${title}`);
     lines.push('');
 
-    candidates.slice(0, top).forEach((candidate, index) => {
+    for (const [index, candidate] of candidates.slice(0, top).entries()) {
       const [fromId, toId] = inferDirection(candidate, profilesById);
-      const strength = inferStrength(candidate.score);
-      const type = inferType(candidate);
       const fromProject = profilesById.get(fromId).project;
       const toProject = profilesById.get(toId).project;
-      const sharedSummary = [];
-
-      ['theoretical_frameworks', 'domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators'].forEach(field => {
-        const values = candidate.shared[field] || [];
-        if (values.length) {
-          sharedSummary.push(`${field}: ${joinList(values.slice(0, 3))}`);
-        }
-      });
-
-      if (candidate.sharedMetadataTokens.length) {
-        sharedSummary.push(`shared tokens: ${joinList(candidate.sharedMetadataTokens.slice(0, 6))}`);
-      }
-
-      const docFiles = uniq([
-        ...(profilesById.get(fromId).docEvidence.snippets || []).map(item => item.label),
-        ...(profilesById.get(toId).docEvidence.snippets || []).map(item => item.label),
-      ]).slice(0, 2);
+      const narrative = await resolveConnectionNarrative(
+        candidate,
+        fromId,
+        toId,
+        profilesById,
+        { llm, llmModel },
+        narrativeCache
+      );
 
       lines.push(`### ${index + 1}. ${fromProject.name || fromProject.id} -> ${toProject.name || toProject.id}`);
-      lines.push(`- Type: ${type}`);
-      lines.push(`- Strength: ${strength} (${candidate.score.toFixed(1)})`);
-      lines.push(`- From: ${fromId}`);
-      lines.push(`- To: ${toId}`);
+      lines.push(`- Type: ${narrative.type}`);
+      lines.push(`- Strength: ${narrative.strength} (${narrative.score.toFixed(1)})`);
+      lines.push(`- From: ${narrative.fromId}`);
+      lines.push(`- To: ${narrative.toId}`);
       lines.push(`- Status: ${candidate.alreadyConnected ? 'Existing connection' : 'New suggestion'}`);
-      if (sharedSummary.length) {
-        lines.push(`- Shared evidence: ${joinList(sharedSummary)}`);
+      if (narrative.sharedSummary.length) {
+        lines.push(`- Shared evidence: ${joinList(narrative.sharedSummary)}`);
       }
-      if (docFiles.length) {
-        lines.push(`- Local notes: ${joinList(docFiles)}`);
+      if (narrative.docFiles.length) {
+        lines.push(`- Local notes: ${joinList(narrative.docFiles)}`);
       }
-      lines.push(`- Draft description: ${buildDescription(candidate, fromId, toId)}`);
+      if (narrative.docHighlights.length) {
+        lines.push(`- Document evidence: ${joinList(narrative.docHighlights.slice(0, 2))}`);
+      }
+      lines.push(`- Draft description (${narrative.descriptionMode}): ${narrative.description}`);
       lines.push('');
-    });
+    }
   };
 
   if (existingCandidates.length) {
-    renderSection('Existing Connections to Strengthen', existingCandidates);
+    await renderSection('Existing Connections to Strengthen', existingCandidates);
   }
 
   if (newCandidates.length) {
-    renderSection('New Suggestions', newCandidates);
+    await renderSection('New Suggestions', newCandidates);
   }
 
   return lines.join('\n');
@@ -802,16 +1302,97 @@ function existingConnectionKeys(connectionsData) {
   return keys;
 }
 
-function applyCandidates(connectionsData, candidates, profilesById) {
+function isFallbackDescription(description) {
+  const text = normalizeText(description);
+  return [
+    'la relacion entre',
+    'la lectura cruzada',
+    'cruce por',
+    'la prosa de apoyo',
+    'direccion sugerida',
+    'shared evidence',
+    'notas locales refuerzan',
+    'porque el cruce no es accidental',
+  ].some(pattern => text.includes(pattern));
+}
+
+function shouldRefreshConnection(connection, candidate) {
+  const description = String(connection?.description || '').trim();
+  if (!description) return true;
+  const source = String(connection?.source || '').toLowerCase();
+  const mode = String(connection?.description_mode || '').toLowerCase();
+  const currentScore = Number(connection?.evidence?.score || 0);
+  const candidateScore = Number(candidate?.score || 0);
+  const hasFreshDocumentSignals = Boolean(
+    (candidate?.sharedDocSignals?.citations || []).length ||
+    (candidate?.sharedDocSignals?.theoryTerms || []).length ||
+    (candidate?.sharedDocSignals?.dataTerms || []).length ||
+    (candidate?.sharedDocSignals?.keyPhrases || []).length
+  );
+  const fallbackLike = source === 'research-sync' || mode === 'local' || mode === 'llm' || isFallbackDescription(description);
+
+  if (fallbackLike) {
+    return candidateScore >= REFRESH_SCORE_THRESHOLD || (candidateScore >= currentScore + 10 && hasFreshDocumentSignals);
+  }
+
+  if (description.length < 110) {
+    return candidateScore >= REFRESH_SCORE_THRESHOLD || (candidateScore >= currentScore + 10 && hasFreshDocumentSignals);
+  }
+
+  if (candidateScore >= currentScore + 10 && hasFreshDocumentSignals) {
+    return true;
+  }
+
+  return false;
+}
+
+async function applyCandidates(connectionsData, candidates, profilesById, options = {}, narrativeCache = new Map()) {
   const existingKeys = existingConnectionKeys(connectionsData);
   const existing = Array.isArray(connectionsData.connections) ? connectionsData.connections.slice() : [];
+  const byKey = new Map();
+  existing.forEach(connection => {
+    const from = String(connection.from || connection.source || '').trim();
+    const to = String(connection.to || connection.target || '').trim();
+    if (from && to) {
+      byKey.set(canonicalPairKey(from, to), connection);
+    }
+  });
   let added = 0;
+  let updated = 0;
 
-  candidates.forEach(candidate => {
-    if (candidate.score < 11 || candidate.alreadyConnected) return;
+  for (const candidate of candidates) {
+    if (candidate.alreadyConnected) {
+      if (candidate.score < EXISTING_REFRESH_THRESHOLD) continue;
+    } else if (candidate.score < NEW_CONNECTION_THRESHOLD) {
+      continue;
+    }
     const [fromId, toId] = inferDirection(candidate, profilesById);
     const pairKey = canonicalPairKey(fromId, toId);
-    if (existingKeys.has(pairKey)) return;
+    const narrative = await resolveConnectionNarrative(candidate, fromId, toId, profilesById, options, narrativeCache);
+    if (existingKeys.has(pairKey)) {
+      const current = byKey.get(pairKey);
+      if (current && shouldRefreshConnection(current, candidate)) {
+        current.from = current.from || fromId;
+        current.to = current.to || toId;
+        current.type = narrative.type;
+        current.strength = narrative.strength;
+        current.description = narrative.description;
+        current.description_mode = narrative.descriptionMode;
+        current.source = current.source || 'research-sync';
+        current.evidence = {
+          ...(current.evidence || {}),
+          score: Number(candidate.score.toFixed(2)),
+          shared_fields: candidate.shared,
+          shared_metadata_tokens: candidate.sharedMetadataTokens.slice(0, 20),
+          shared_document_tokens: candidate.sharedDocTokens.slice(0, 20),
+          shared_document_signals: candidate.sharedDocSignals,
+          document_files: narrative.docFiles,
+          document_highlights: narrative.docHighlights,
+        };
+        updated += 1;
+      }
+      continue;
+    }
 
     const type = inferType(candidate);
     const strength = inferStrength(candidate.score);
@@ -820,20 +1401,24 @@ function applyCandidates(connectionsData, candidates, profilesById) {
       to: toId,
       type,
       strength,
-      description: buildDescription(candidate, fromId, toId),
+      description: narrative.description,
+      description_mode: narrative.descriptionMode,
       source: 'research-sync',
       evidence: {
         score: Number(candidate.score.toFixed(2)),
         shared_fields: candidate.shared,
         shared_metadata_tokens: candidate.sharedMetadataTokens.slice(0, 20),
         shared_document_tokens: candidate.sharedDocTokens.slice(0, 20),
+        shared_document_signals: candidate.sharedDocSignals,
+        document_files: narrative.docFiles,
+        document_highlights: narrative.docHighlights,
       },
     };
 
     existing.push(connection);
     existingKeys.add(pairKey);
     added += 1;
-  });
+  }
 
   const nextConnections = {
     ...connectionsData,
@@ -844,16 +1429,17 @@ function applyCandidates(connectionsData, candidates, profilesById) {
     }),
   };
 
-  return { nextConnections, added };
+  return { nextConnections, added, updated };
 }
 
-function main() {
+async function main() {
   const args = parseArgs(process.argv.slice(2));
   const projects = loadProjects();
   const connectionsData = loadConnections();
   const existingKeys = existingConnectionKeys(connectionsData);
   const profilesById = new Map();
-  const documentsRoot = expandHome(args.docsRoot);
+  const documentsRoot = normalizeDocsRoots(args.docsRoot);
+  const narrativeCache = new Map();
 
   projects.forEach(project => {
     const profile = buildProjectProfile(project, documentsRoot);
@@ -873,10 +1459,10 @@ function main() {
     if (!candidate || seenCandidateKeys.has(candidate.pairKey)) return;
     seenCandidateKeys.add(candidate.pairKey);
     if (candidate.alreadyConnected) {
-      if (candidate.score >= 4) existingCandidates.push(candidate);
+      if (candidate.score >= EXISTING_REPORT_THRESHOLD) existingCandidates.push(candidate);
       return;
     }
-    if (candidate.score >= (args.focus ? 6 : 8)) {
+    if (candidate.score >= NEW_CONNECTION_THRESHOLD) {
       newCandidates.push(candidate);
     }
   };
@@ -909,25 +1495,66 @@ function main() {
     newCandidates,
     profilesById,
     focusId: args.focus,
+    scopeLabel: args.focus ? `Project-only (${args.focus})` : 'Systemwide (all projects)',
     top: args.top,
+    narrativeCache,
+    llm: args.llm,
+    llmModel: args.llmModel,
   });
 
   if (args.report) {
-    fs.writeFileSync(args.report, `${report}\n`, 'utf8');
+    const renderedReport = await report;
+    fs.writeFileSync(args.report, `${renderedReport}\n`, 'utf8');
   }
 
   if (args.apply) {
-    const { nextConnections, added } = applyCandidates(connectionsData, newCandidates, profilesById);
-    if (added > 0) {
+    const { nextConnections, added, updated } = await applyCandidates(connectionsData, [...existingCandidates, ...newCandidates], profilesById, {
+      llm: args.llm,
+      llmModel: args.llmModel,
+    }, narrativeCache);
+    if (added > 0 || updated > 0) {
       writeJson(CONNECTIONS_PATH, nextConnections);
       if (fs.existsSync(UI_CONNECTIONS_PATH)) {
         writeJson(UI_CONNECTIONS_PATH, nextConnections);
       }
     }
-    console.log(`Applied ${added} new connection${added === 1 ? '' : 's'}.\n`);
+    const updatedMessage = updated > 0 ? `, refreshed ${updated} existing connection${updated === 1 ? '' : 's'}` : '';
+    console.log(`Applied ${added} new connection${added === 1 ? '' : 's'}${updatedMessage}.\n`);
   }
 
-  console.log(report);
+  const renderedReport = await report;
+  console.log(renderedReport);
 }
 
-main();
+if (require.main === module) {
+  main().catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  buildConnectionContext,
+  buildLocalDescription,
+  buildLLMPrompt,
+  buildProjectProfile,
+  buildReport,
+  canonicalPairKey,
+  cleanCitation,
+  applyCandidates,
+  extractCitationStrings,
+  extractDocumentSignals,
+  gatherDocumentEvidence,
+  gatherDocumentFiles,
+  getDefaultDocsRoots,
+  inferDirection,
+  inferStrength,
+  inferType,
+  loadProjects,
+  parseArgs,
+  resolveConnectionNarrative,
+  scorePair,
+  sharedSignalDetails,
+  isFallbackDescription,
+  shouldRefreshConnection,
+};
