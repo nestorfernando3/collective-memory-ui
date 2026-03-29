@@ -95,6 +95,10 @@ function FlowApp() {
         );
 
         // Normalized coordinate space — small numbers, fitView handles the zoom
+        const NODE_W = 210; // approximate rendered node width in layout units
+        const innerRadius = Math.max(260, Math.ceil(innerRing.length * NODE_W / (2 * Math.PI)));
+        const outerRadius = Math.max(innerRadius + 200, Math.ceil(outerRing.length * NODE_W / (2 * Math.PI)));
+
         const placeRing = (ring, radius, startAngle = 0) => {
           const step = (2 * Math.PI) / (ring.length || 1);
           ring.forEach((proj, idx) => {
@@ -122,10 +126,11 @@ function FlowApp() {
           });
         };
 
-        // Inner ring: active Work (radius 230)
-        placeRing(innerRing, 230, -Math.PI / 2);
-        // Outer ring: submitted/complete (radius 420, rotated 22.5° to interleave)
-        placeRing(outerRing, 420, -Math.PI / 2 + Math.PI / 8);
+        // Inner ring: active work, top-centered
+        placeRing(innerRing, innerRadius, -Math.PI / 2);
+        // Outer ring: submitted/complete, staggered by half-step so they interleave
+        const outerOffset = outerRing.length > 1 ? Math.PI / outerRing.length : Math.PI / 8;
+        placeRing(outerRing, outerRadius, -Math.PI / 2 + outerOffset);
 
         // Inter-Project Synergies
         (connectionsData.connections || []).forEach((conn, index) => {
