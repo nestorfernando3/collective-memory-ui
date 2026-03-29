@@ -332,6 +332,123 @@ body {
 }
 
 /* ─────────────────────────────────────────
+   ONBOARDING / EMPTY STATE
+   ───────────────────────────────────────── */
+
+.onboarding-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-paper);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.onboarding-card {
+  background: var(--paper-white);
+  border: 4px solid var(--ink-black);
+  padding: 60px 40px;
+  max-width: 600px;
+  text-align: center;
+  box-shadow: 12px 12px 0px var(--accent-red);
+}
+
+.onboarding-card h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  color: var(--ink-black);
+}
+
+.onboarding-card .subtitle {
+  font-size: 1.2rem;
+  color: var(--ink-light);
+  margin-bottom: 40px;
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--ink-black);
+  color: var(--paper-white);
+  padding: 16px 32px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid var(--ink-black);
+  cursor: pointer;
+  box-shadow: 6px 6px 0px rgba(26,26,26,0.3);
+  transition: all 0.2s ease-out;
+}
+
+.upload-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px var(--accent-red);
+}
+
+.upload-section .hint {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  color: var(--ink-light);
+  max-width: 90%;
+  line-height: 1.4;
+}
+
+.upload-section code {
+  background: var(--bg-paper);
+  padding: 2px 6px;
+  font-weight: 600;
+  border: 1px solid var(--ink-black);
+  color: var(--ink-black);
+}
+
+.privacy-note {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--accent-blue);
+  margin-top: 10px;
+}
+
+/* Floating Upload Button */
+.floating-upload {
+  position: absolute;
+  top: 32px;
+  right: 40px;
+  z-index: 20;
+}
+
+.mini-upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--paper-white);
+  border: 2px solid var(--ink-black);
+  color: var(--ink-black);
+  cursor: pointer;
+  box-shadow: 3px 3px 0px var(--ink-black);
+  transition: all 0.2s;
+}
+
+.mini-upload-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px var(--accent-red);
+}
+
+/* ─────────────────────────────────────────
    RESPONSIVE / MOBILE
    ───────────────────────────────────────── */
 
