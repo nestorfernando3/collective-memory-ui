@@ -4,6 +4,7 @@
   "type": "Educación",
   "status": "Materiales listos",
   "path": "~/Documents/Proyecto ICFEs",
+  "description": "Banco de materiales de preparación para las pruebas de Estado ICFES Saber 11, desarrollado para estudiantes de grado 10 y 11 de la I.E.D. Brisas del Río. Incluye simulacros, guías de Lectura Crítica, Matemáticas y Ciencias Sociales.",
   "tags": [
     "educación",
     "pruebas de estado",
