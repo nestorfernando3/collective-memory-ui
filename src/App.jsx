@@ -28,15 +28,13 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 1. Fetch Profile
+        // Fetch Global Data
         const profRes = await fetch('/data/profile.json');
         const profile = await profRes.json();
         
-        // 2. Fetch Connections
         const connRes = await fetch('/data/connections.json');
         const connectionsData = await connRes.json();
 
-        // 3. Fetch Project Index
         const idxRes = await fetch('/data/projects_index.json');
         const idxText = await idxRes.text();
         const files = idxText.trim().split('\n').filter(f => f.endsWith('.json'));
@@ -47,11 +45,10 @@ export default function App() {
           projects.push(await res.json());
         }
 
-        // Build Graph
         const newNodes = [];
         const newEdges = [];
 
-        // Add Core Profile Node
+        // 1. Central Core Node
         newNodes.push({
           id: 'user_profile',
           type: 'custom',
@@ -59,19 +56,20 @@ export default function App() {
           data: { label: profile.name, isCore: true, status: profile.affiliations?.[0]?.role || 'Investigador' }
         });
 
-        // Filter Projects by Lens
+        // 2. Lenses Engine
         let filteredProjects = projects;
         if (activeLens === 'Academic') {
+          // Filtrar por investigación o académicos
           filteredProjects = projects.filter(p => {
-            const tags = p.tags || p.domains || p.themes || [];
-            return tags.some(t => ['research', 'academic', 'research-proposal', 'investigación académica', 'educación'].includes(t.toLowerCase()));
+            const tags = [...(p.tags || []), ...(p.domains || []), ...(p.themes || [])].map(t => t.toLowerCase());
+            return tags.some(t => ['research', 'academic', 'research-proposal', 'investigación', 'educación'].includes(t));
           });
         }
 
-        // Add Project Nodes in an orbit
         const radius = 350;
         const angleStep = (2 * Math.PI) / filteredProjects.length;
 
+        // 3. Populate Orbits
         filteredProjects.forEach((proj, idx) => {
           const angle = angleStep * idx;
           const x = (window.innerWidth / 2 - 90) + radius * Math.cos(angle);
@@ -82,25 +80,24 @@ export default function App() {
             type: 'custom',
             position: { x, y },
             data: { 
-              label: proj.name || proj.id, 
+              label: proj.name || proj.title || proj.id, 
               status: proj.status, 
               fullData: proj 
             }
           });
 
-          // Edge directly from Core to Project
+          // Invisible Orbital Links
           newEdges.push({
             id: `e-user-${proj.id}`,
             source: 'user_profile',
             target: proj.id,
             animated: true,
-            style: { stroke: 'rgba(255,255,255,0.2)' }
+            style: { stroke: 'rgba(26,26,26,0.15)', strokeWidth: 1 } // Brutalist subtle line
           });
         });
 
-        // Add Inter-Project Edges from connections.json
+        // 4. Inter-Project Synergies (Connections)
         connectionsData.connections.forEach((conn, index) => {
-          // Only add if both nodes are currently filtered/visible
           if(newNodes.find(n => n.id === conn.source) && newNodes.find(n => n.id === conn.target)) {
               newEdges.push({
                 id: `e-${conn.source}-${conn.target}-${index}`,
@@ -108,8 +105,8 @@ export default function App() {
                 target: conn.target,
                 animated: false,
                 label: conn.type,
-                markerEnd: { type: MarkerType.ArrowClosed, color: '#00F0FF' },
-                style: { stroke: '#00F0FF', strokeWidth: 2 }
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#E63946' }, // Accent Red
+                style: { stroke: '#E63946', strokeWidth: 2 }
               });
           }
         });
@@ -123,12 +120,11 @@ export default function App() {
     };
 
     loadData();
-  }, [activeLens, setNodes, setEdges]);
+  }, [activeLens, setNodes, setEdges]); // Only re-run if lens changes
 
   const onNodeClick = (event, node) => {
     if (node.id === 'user_profile') return;
     
-    // Highlight the node
     setNodes(nds => nds.map(n => ({
       ...n,
       data: { ...n.data, selected: n.id === node.id }
@@ -146,16 +142,18 @@ export default function App() {
     })));
   };
 
+  // Helper fallback para no reventar con arrays vacíos
+  const projectTags = selectedProject ? [...(selectedProject.tags || []), ...(selectedProject.themes || []), ...(selectedProject.domains || [])].map(t => t.trim()) : [];
+  const uniqueTags = [...new Set(projectTags)];
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       
-      {/* HUD Header */}
       <div className="header">
         <h1>Memoria Colectiva</h1>
         <p>Sistema Operativo Personal</p>
       </div>
 
-      {/* Lenses Controls */}
       <div className="lens-controls">
         <button 
           className={`lens-btn ${activeLens === 'All' ? 'active' : ''}`}
@@ -180,10 +178,9 @@ export default function App() {
         nodeTypes={nodeTypes}
         fitView
       >
-        <Background gap={32} color="rgba(255,255,255,0.05)" />
+        <Background gap={40} color="var(--ink-black)" size={1} />
       </ReactFlow>
 
-      {/* Slide-out Drawer */}
       <div className={`drawer ${isDrawerOpen ? 'open' : ''}`}>
         <button className="drawer-close" onClick={closeDrawer}><X size={24} /></button>
         
@@ -191,31 +188,36 @@ export default function App() {
           <>
             <div className="drawer-header">
               <span className="drawer-type">{selectedProject.status}</span>
-              <h2>{selectedProject.title}</h2>
+              <h2 style={{ marginTop: '0.5rem' }}>{selectedProject.name || selectedProject.title}</h2>
             </div>
 
             <div className="drawer-meta">
                <div className="meta-item">
-                  <FileText size={16} color="var(--accent-cyan)" />
+                  <FileText size={16} />
                   <span>{selectedProject.type}</span>
                </div>
                <div className="meta-item">
-                  <LinkIcon size={16} color="var(--accent-purple)" />
+                  <LinkIcon size={16} />
                   <span>{selectedProject.path}</span>
                </div>
             </div>
 
             <h3 className="drawer-section-title">Resumen</h3>
             <div className="drawer-content">
-              {selectedProject.abstract || selectedProject.description}
+              {/* Mostramos el abstract, o fallbackeamos a descripción */}
+              {selectedProject.abstract || selectedProject.description || "Sin descripción disponible."}
             </div>
 
-            <h3 className="drawer-section-title">Etiquetas</h3>
-            <div className="tag-list">
-              {selectedProject.tags?.map(t => (
-                <span key={t} className="tag">{t}</span>
-              ))}
-            </div>
+            {uniqueTags.length > 0 && (
+               <>
+                 <h3 className="drawer-section-title">Etiquetas</h3>
+                 <div className="tag-list">
+                   {uniqueTags.map(t => (
+                     <span key={t} className="tag">{t}</span>
+                   ))}
+                 </div>
+               </>
+            )}
           </>
         )}
       </div>
