@@ -1,96 +1,64 @@
-# 🧠 Collective Memory
+# 🧠 Collective Memory Framework
 
 **An interactive graph visualization of your research portfolio, projects, and creative work.**
 
 Collective Memory renders your entire professional universe as an orbital map — you at the center, your projects orbiting around you, connected by the relationships you define. Built with an **Editorial Brutalist** aesthetic that rejects generic AI design tropes.
 
-![Editorial Brutalism](https://img.shields.io/badge/Design-Editorial_Brutalism-1A1A1A?style=flat-square) ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square) ![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=flat-square) ![Deploy](https://img.shields.io/badge/Deploy-GitHub_Pages-222?style=flat-square)
-
 ---
 
-## ⚡ Quick Start (5 minutes)
+## ⚡ Onboarding: Build Your Own Memory
 
-### 1. Fork & Clone
+**The Philosophy:** Your data is private. The code is public. 
+This framework is designed so you can maintain a secret local database of JSON/Markdown files with your life's work, and automatically compile it into a stunning web portfolio—**without ever committing your personal data to the source code.** To protect you, this repository explicitly ignores personal data tracking via `.gitignore`.
 
+Follow these clear steps to launch your own universe:
+
+### 1. Clone the Framework
+Clone this generic User Interface template to your computer:
 ```bash
-# Fork this repo on GitHub, then:
 git clone https://github.com/YOUR_USERNAME/collective-memory-ui.git
 cd collective-memory-ui
 npm install
 ```
 
-### 2. Add Your Data
+### 2. Prepare your Secret Database
+The `public/data` folder in this repository is ignored by Git by design. 
+Create a completely separate folder anywhere on your computer (e.g., `~/Documents/My-Memory/`) to act as your private database.
 
-All your data lives in `public/data/`. Edit three files:
+Inside your private folder, create the following structure:
+- `profile.json` (Who you are and your filters/lenses)
+- `connections.json` (How your projects relate to each other)
+- `projects/` (A folder with one `.json` file per project)
 
-#### `profile.json` — Your identity
-```json
-{
-  "name": "Jane Doe",
-  "site_title": "Research Universe",
-  "site_subtitle": "PhD Candidate · MIT Media Lab",
-  "affiliations": [
-    { "institution": "MIT Media Lab", "role": "PhD Candidate", "current": true }
-  ],
-  "lenses": [
-    { "id": "All", "label": "Everything", "filter": [] },
-    { "id": "AI", "label": "AI Research", "filter": ["machine-learning", "nlp", "ai"] },
-    { "id": "Art", "label": "Creative Work", "filter": ["art", "installation", "creative"] }
-  ]
-}
-```
+*(Not sure how to structure them? View `public/data/example.profile.json` and `example.project.json` in this repository for the exact schemas).*
 
-#### `projects/*.json` — One file per project
-```json
-{
-  "id": "my-thesis",
-  "name": "Attention Mechanisms in Music Generation",
-  "type": "Research",
-  "status": "In Progress",
-  "description": "Exploring transformer architectures for real-time music composition.",
-  "tags": ["machine-learning", "music", "ai"]
-}
-```
+### 3. Sync and Test Locally
+Copy your private JSON files into the interface to see how they look. You can do this manually, or create a simple sync script that copies your private folder contents into `collective-memory-ui/public/data/`.
 
-#### `connections.json` — Links between projects
-```json
-{
-  "connections": [
-    { "from": "my-thesis", "to": "music-vae", "type": "Builds On" }
-  ]
-}
-```
-
-#### `projects_index.json` — List of project filenames
-```
-my-thesis.json
-music-vae.json
-art-installation.json
-```
-
-> **Tip:** See `public/data/example.profile.json` and `public/data/example.project.json` for complete field references.
-
-### 3. Preview Locally
-
+Once the data is in `public/data/`, start the local server:
 ```bash
 npm run dev
 ```
-
 Open [http://localhost:5173](http://localhost:5173) and see your universe.
 
-### 4. Deploy to GitHub Pages
+### 4. Deploy to GitHub Pages (The Secure Way)
+When you are ready to publish your portfolio, **do not commit your data to the `main` branch**. 
 
-1. Go to your repo → **Settings** → **Pages**
-2. Under **Source**, select **GitHub Actions**
-3. Push to `main`:
-
+Instead, compile a final version and push *only* the static website to a special `gh-pages` branch using these commands:
 ```bash
-git add .
-git commit -m "Add my data"
-git push origin main
+# Compile the website and your data into a production 'dist' folder
+npm run build
+
+# Push ONLY the compiled folder to a hidden gh-pages branch
+npx --yes gh-pages -d dist -t true -m "Deploying Collective Memory update"
 ```
 
-Your site will be live at `https://YOUR_USERNAME.github.io/collective-memory-ui/` within ~2 minutes.
+**Final step on GitHub:**
+1. Go to your repository **Settings** → **Pages**.
+2. Under **Source**, select **Deploy from a branch**.
+3. Select the **`gh-pages`** branch and save.
+
+Your site will be live at `https://YOUR_USERNAME.github.io/collective-memory-ui/` within a few minutes!
 
 ---
 
@@ -106,76 +74,11 @@ This isn't another dashboard. It's a **brutalist research map**.
 | Accents | Single red `#E63946` | Used surgically for active states and connections |
 | Shapes | Zero border-radius | Boxes are boxes. No pill buttons, no circles |
 
----
-
-## 📁 Data Schema
-
-### `profile.json`
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | ✅ | Your name (displayed on center node) |
-| `site_title` | string | — | Page header title (defaults to `name`) |
-| `site_subtitle` | string | — | Page header subtitle (defaults to first affiliation role) |
-| `affiliations` | array | — | Your institutional roles |
-| `lenses` | array | — | Filter views (see Lenses section) |
-| `domains` | array | — | Your areas of expertise |
-| `identifiers` | object | — | ORCID, GitHub, Scholar IDs |
-
-### `projects/*.json`
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | ✅ | Unique ID (must match filename without `.json`) |
-| `name` | string | ✅ | Display name |
-| `type` | string | — | Category (Research, Creative, EdTech, etc.) |
-| `status` | string | — | Current state (Active, Complete, Submitted, etc.) |
-| `description` | string | — | Short description |
-| `abstract` | string | — | Longer summary (shown in drawer) |
-| `tags` | array | — | Used for lens filtering |
-| `path` | string | — | Local filesystem path (optional) |
-
-### Lenses
-
-Lenses let you filter the graph by tag. Define them in `profile.json`:
-
-```json
-{
-  "lenses": [
-    { "id": "All", "label": "Everything", "filter": [] },
-    { "id": "Research", "label": "Research Only", "filter": ["research", "paper", "thesis"] }
-  ]
-}
-```
-
-- `filter: []` (empty) → shows all projects
-- `filter: ["tag1", "tag2"]` → shows only projects whose tags match any of these
-
----
-
-## 🚀 Deploying Elsewhere
-
-### Netlify / Vercel
-Just connect your repo. No config needed — the default `./` base path works out of the box.
-
-### Custom Base Path
-If deploying to a subpath (e.g., `example.com/portfolio/`):
-
-```bash
-VITE_BASE_PATH=/portfolio/ npm run build
-```
-
----
-
 ## 🛠 Tech Stack
-
-- **React 19** + **Vite 6** — fast dev, instant HMR
+- **React 19** + **Vite 6**
 - **@xyflow/react** — graph rendering engine
 - **Lucide React** — icon system
-- **Vanilla CSS** — no Tailwind, no utility classes. Hand-crafted brutalism
-
----
+- **Vanilla CSS** — Hand-crafted brutalism
 
 ## License
-
-MIT — use it, fork it, make it yours.
+MIT — use it, fork it, deploy it, make it yours.
