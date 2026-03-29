@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ReactFlow, Background, useNodesState, useEdgesState, MarkerType, Handle, Position } from '@xyflow/react';
+import { ReactFlow, ReactFlowProvider, Background, useNodesState, useEdgesState, MarkerType, Handle, Position, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { X, FileText, Link as LinkIcon } from 'lucide-react';
 
@@ -18,12 +18,14 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
-export default function App() {
+function FlowApp() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeLens, setActiveLens] = useState('All');
+  
+  const { setCenter } = useReactFlow(); // Used to offset viewport when drawer opens
 
   useEffect(() => {
     const loadData = async () => {
@@ -59,7 +61,6 @@ export default function App() {
         // 2. Lenses Engine
         let filteredProjects = projects;
         if (activeLens === 'Academic') {
-          // Filtrar por investigación o académicos
           filteredProjects = projects.filter(p => {
             const tags = [...(p.tags || []), ...(p.domains || []), ...(p.themes || [])].map(t => t.toLowerCase());
             return tags.some(t => ['research', 'academic', 'research-proposal', 'investigación', 'educación'].includes(t));
@@ -92,11 +93,11 @@ export default function App() {
             source: 'user_profile',
             target: proj.id,
             animated: true,
-            style: { stroke: 'rgba(26,26,26,0.15)', strokeWidth: 1 } // Brutalist subtle line
+            style: { stroke: 'rgba(26,26,26,0.15)', strokeWidth: 1 }
           });
         });
 
-        // 4. Inter-Project Synergies (Connections)
+        // 4. Inter-Project Synergies
         connectionsData.connections.forEach((conn, index) => {
           if(newNodes.find(n => n.id === conn.source) && newNodes.find(n => n.id === conn.target)) {
               newEdges.push({
@@ -105,7 +106,7 @@ export default function App() {
                 target: conn.target,
                 animated: false,
                 label: conn.type,
-                markerEnd: { type: MarkerType.ArrowClosed, color: '#E63946' }, // Accent Red
+                markerEnd: { type: MarkerType.ArrowClosed, color: '#E63946' },
                 style: { stroke: '#E63946', strokeWidth: 2 }
               });
           }
@@ -120,7 +121,7 @@ export default function App() {
     };
 
     loadData();
-  }, [activeLens, setNodes, setEdges]); // Only re-run if lens changes
+  }, [activeLens, setNodes, setEdges]); 
 
   const onNodeClick = (event, node) => {
     if (node.id === 'user_profile') return;
@@ -132,6 +133,9 @@ export default function App() {
 
     setSelectedProject(node.data.fullData);
     setIsDrawerOpen(true);
+    
+    // Offset view: drawer is 450px wide, so we offset the center to the left by ~225px to keep node visible
+    setCenter(node.position.x + 225, node.position.y, { zoom: 1, duration: 600 });
   };
 
   const closeDrawer = () => {
@@ -142,7 +146,6 @@ export default function App() {
     })));
   };
 
-  // Helper fallback para no reventar con arrays vacíos
   const projectTags = selectedProject ? [...(selectedProject.tags || []), ...(selectedProject.themes || []), ...(selectedProject.domains || [])].map(t => t.trim()) : [];
   const uniqueTags = [...new Set(projectTags)];
 
@@ -177,6 +180,7 @@ export default function App() {
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ padding: 0.1 }}
       >
         <Background gap={40} color="var(--ink-black)" size={1} />
       </ReactFlow>
@@ -204,7 +208,6 @@ export default function App() {
 
             <h3 className="drawer-section-title">Resumen</h3>
             <div className="drawer-content">
-              {/* Mostramos el abstract, o fallbackeamos a descripción */}
               {selectedProject.abstract || selectedProject.description || "Sin descripción disponible."}
             </div>
 
@@ -224,4 +227,13 @@ export default function App() {
 
     </div>
   );
+}
+
+// Wrapper to provide React Flow context hooks to inner App logic
+export default function App() {
+  return (
+    <ReactFlowProvider>
+      <FlowApp />
+    </ReactFlowProvider>
+  )
 }
