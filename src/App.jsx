@@ -18,59 +18,75 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
+const BASE = import.meta.env.BASE_URL;
+
 function FlowApp() {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeLens, setActiveLens] = useState('All');
+  const [siteTitle, setSiteTitle] = useState('Collective Memory');
+  const [siteSubtitle, setSiteSubtitle] = useState('Personal Operating System');
+  const [lenses, setLenses] = useState([]);
   
-  const { setCenter } = useReactFlow(); // Used to offset viewport when drawer opens
+  const { setCenter } = useReactFlow();
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Fetch Global Data
-        const profRes = await fetch('/data/profile.json');
+        const profRes = await fetch(`${BASE}data/profile.json`);
         const profile = await profRes.json();
         
-        const connRes = await fetch('/data/connections.json');
+        // Dynamic site title from profile
+        setSiteTitle(profile.site_title || profile.name || 'Collective Memory');
+        setSiteSubtitle(profile.site_subtitle || profile.affiliations?.[0]?.role || 'Personal Operating System');
+        document.title = profile.site_title || profile.name || 'Collective Memory';
+
+        // Dynamic lenses from profile
+        const profileLenses = profile.lenses || [
+          { id: 'All', label: 'Full Universe', filter: [] },
+          { id: 'Academic', label: 'Academic Lens', filter: ['research', 'academic', 'research-proposal'] }
+        ];
+        setLenses(profileLenses);
+
+        const connRes = await fetch(`${BASE}data/connections.json`);
         const connectionsData = await connRes.json();
 
-        const idxRes = await fetch('/data/projects_index.json');
+        const idxRes = await fetch(`${BASE}data/projects_index.json`);
         const idxText = await idxRes.text();
         const files = idxText.trim().split('\n').filter(f => f.endsWith('.json'));
         
         const projects = [];
         for (const file of files) {
-          const res = await fetch(`/data/projects/${file}`);
+          const res = await fetch(`${BASE}data/projects/${file}`);
           projects.push(await res.json());
         }
 
         const newNodes = [];
         const newEdges = [];
 
-        // 1. Central Core Node
+        // Central Core Node — uses profile name
         newNodes.push({
           id: 'user_profile',
           type: 'custom',
           position: { x: window.innerWidth / 2 - 90, y: window.innerHeight / 2 - 90 },
-          data: { label: profile.name, isCore: true, status: profile.affiliations?.[0]?.role || 'Investigador' }
+          data: { label: profile.name, isCore: true, status: profile.affiliations?.[0]?.role || '' }
         });
 
-        // 2. Lenses Engine
+        // Lenses Engine — uses the active lens filter tags
         let filteredProjects = projects;
-        if (activeLens === 'Academic') {
+        const currentLens = profileLenses.find(l => l.id === activeLens);
+        if (currentLens && currentLens.filter && currentLens.filter.length > 0) {
           filteredProjects = projects.filter(p => {
             const tags = [...(p.tags || []), ...(p.domains || []), ...(p.themes || [])].map(t => t.toLowerCase());
-            return tags.some(t => ['research', 'academic', 'research-proposal', 'investigación', 'educación'].includes(t));
+            return tags.some(t => currentLens.filter.includes(t));
           });
         }
 
         const radius = 350;
-        const angleStep = (2 * Math.PI) / filteredProjects.length;
+        const angleStep = (2 * Math.PI) / (filteredProjects.length || 1);
 
-        // 3. Populate Orbits
         filteredProjects.forEach((proj, idx) => {
           const angle = angleStep * idx;
           const x = (window.innerWidth / 2 - 90) + radius * Math.cos(angle);
@@ -87,7 +103,6 @@ function FlowApp() {
             }
           });
 
-          // Invisible Orbital Links
           newEdges.push({
             id: `e-user-${proj.id}`,
             source: 'user_profile',
@@ -97,13 +112,15 @@ function FlowApp() {
           });
         });
 
-        // 4. Inter-Project Synergies
-        connectionsData.connections.forEach((conn, index) => {
-          if(newNodes.find(n => n.id === conn.source) && newNodes.find(n => n.id === conn.target)) {
+        // Inter-Project Synergies
+        (connectionsData.connections || []).forEach((conn, index) => {
+          const src = conn.source || conn.from;
+          const tgt = conn.target || conn.to;
+          if(newNodes.find(n => n.id === src) && newNodes.find(n => n.id === tgt)) {
               newEdges.push({
-                id: `e-${conn.source}-${conn.target}-${index}`,
-                source: conn.source,
-                target: conn.target,
+                id: `e-${src}-${tgt}-${index}`,
+                source: src,
+                target: tgt,
                 animated: false,
                 label: conn.type,
                 markerEnd: { type: MarkerType.ArrowClosed, color: '#E63946' },
@@ -121,7 +138,7 @@ function FlowApp() {
     };
 
     loadData();
-  }, [activeLens, setNodes, setEdges]); 
+  }, [activeLens, setNodes, setEdges]);
 
   const onNodeClick = (event, node) => {
     if (node.id === 'user_profile') return;
@@ -133,8 +150,6 @@ function FlowApp() {
 
     setSelectedProject(node.data.fullData);
     setIsDrawerOpen(true);
-    
-    // Offset view: drawer is 450px wide, so we offset the center to the left by ~225px to keep node visible
     setCenter(node.position.x + 225, node.position.y, { zoom: 1, duration: 600 });
   };
 
@@ -153,23 +168,20 @@ function FlowApp() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       
       <div className="header">
-        <h1>Memoria Colectiva</h1>
-        <p>Sistema Operativo Personal</p>
+        <h1>{siteTitle}</h1>
+        <p>{siteSubtitle}</p>
       </div>
 
       <div className="lens-controls">
-        <button 
-          className={`lens-btn ${activeLens === 'All' ? 'active' : ''}`}
-          onClick={() => setActiveLens('All')}
-        >
-          Universo Completo
-        </button>
-        <button 
-          className={`lens-btn ${activeLens === 'Academic' ? 'active' : ''}`}
-          onClick={() => setActiveLens('Academic')}
-        >
-          Lente Académico
-        </button>
+        {lenses.map(lens => (
+          <button 
+            key={lens.id}
+            className={`lens-btn ${activeLens === lens.id ? 'active' : ''}`}
+            onClick={() => setActiveLens(lens.id)}
+          >
+            {lens.label}
+          </button>
+        ))}
       </div>
 
       <ReactFlow
@@ -200,20 +212,22 @@ function FlowApp() {
                   <FileText size={16} />
                   <span>{selectedProject.type}</span>
                </div>
-               <div className="meta-item">
-                  <LinkIcon size={16} />
-                  <span>{selectedProject.path}</span>
-               </div>
+               {selectedProject.path && (
+                 <div className="meta-item">
+                    <LinkIcon size={16} />
+                    <span>{selectedProject.path}</span>
+                 </div>
+               )}
             </div>
 
-            <h3 className="drawer-section-title">Resumen</h3>
+            <h3 className="drawer-section-title">Summary</h3>
             <div className="drawer-content">
-              {selectedProject.abstract || selectedProject.description || "Sin descripción disponible."}
+              {selectedProject.abstract || selectedProject.description || "No description available."}
             </div>
 
             {uniqueTags.length > 0 && (
                <>
-                 <h3 className="drawer-section-title">Etiquetas</h3>
+                 <h3 className="drawer-section-title">Tags</h3>
                  <div className="tag-list">
                    {uniqueTags.map(t => (
                      <span key={t} className="tag">{t}</span>
@@ -229,7 +243,6 @@ function FlowApp() {
   );
 }
 
-// Wrapper to provide React Flow context hooks to inner App logic
 export default function App() {
   return (
     <ReactFlowProvider>

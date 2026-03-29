@@ -1,0 +1,12 @@
+{
+  "id": "my-project",
+  "name": "My Project Name",
+  "type": "Research",
+  "status": "Active",
+  "path": "~/Documents/my-project",
+  "description": "A short description of what this project is about.",
+  "abstract": "A longer abstract or summary of the project goals and methodology.",
+  "tags": ["research", "data-science"],
+  "domains": ["Computer Science"],
+  "themes": ["Machine Learning"]
+}
