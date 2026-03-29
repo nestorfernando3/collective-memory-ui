@@ -45,7 +45,7 @@ Cuando el usuario pida orientación sobre qué comando ejecutar, responde con un
 | `/memoria collect` | Ejecuta el flujo completo: scan, register, profile, connections, build-readme y research sync. | Es la mejor opción cuando quieres dejar todo actualizado en una sola pasada. |
 | `/memoria strengthen [file_path]` | Usa la memoria previa para fortalecer un documento o app actual. | Úsalo al redactar artículos, propuestas o documentos que necesiten justificaciones y vínculos más ricos. Por defecto cruza toda la base de memoria; usa foco explícito solo si quieres acotarlo. |
 
-Si el usuario no sabe cuál elegir, recomienda primero `/memoria collect` para una actualización completa o `/memoria strengthen` si ya tiene un documento abierto.
+Si el usuario no especifica un comando, ejecuta `/memoria collect` por defecto y luego reporta el resultado. Usa `/memoria strengthen` solo cuando ya haya un documento abierto y el usuario pida reforzarlo.
 
 ## 💾 The Data Layer
 

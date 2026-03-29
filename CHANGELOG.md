@@ -6,6 +6,7 @@
 - `research_sync.js` now chooses document search roots by host platform instead of assuming a single folder layout.
 - Default document scanning covers common macOS, Linux, and Windows locations, with `--documents-root` available for explicit overrides.
 - The workspace README now explains the platform-aware search behavior.
+- The collective-memory skill now defaults to `/memoria collect` when no command is specified, instead of pausing for a follow-up question.
 
 ### Simplified
 - The UI onboarding copy was shortened so new users can understand the snapshot flow faster.
