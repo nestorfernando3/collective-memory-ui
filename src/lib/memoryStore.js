@@ -2,6 +2,7 @@ const DB_NAME = 'collective-memory-ui';
 const STORE_NAME = 'snapshots';
 const SNAPSHOT_KEY = 'active-snapshot';
 const DIRECTORY_HANDLE_KEY = 'authorized-directory-handle';
+const HIDDEN_PROJECT_IDS_KEY = 'hidden-project-ids';
 
 function hasIndexedDB() {
   return typeof globalThis.indexedDB !== 'undefined';
@@ -104,10 +105,33 @@ export async function clearPersistedDirectoryHandle() {
   });
 }
 
+export async function savePersistedHiddenProjectIds(hiddenProjectIds) {
+  return withStore('readwrite', (store) => {
+    store.put(Array.isArray(hiddenProjectIds) ? hiddenProjectIds : [], HIDDEN_PROJECT_IDS_KEY);
+    return hiddenProjectIds;
+  });
+}
+
+export async function loadPersistedHiddenProjectIds() {
+  return withStore('readonly', (store) => new Promise((resolve, reject) => {
+    const request = store.get(HIDDEN_PROJECT_IDS_KEY);
+    request.onsuccess = () => resolve(Array.isArray(request.result) ? request.result : []);
+    request.onerror = () => reject(request.error || new Error('Unable to read saved hidden project ids'));
+  }));
+}
+
+export async function clearPersistedHiddenProjectIds() {
+  return withStore('readwrite', (store) => {
+    store.delete(HIDDEN_PROJECT_IDS_KEY);
+    return null;
+  });
+}
+
 export async function clearPersistedMemory() {
   return withStore('readwrite', (store) => {
     store.delete(SNAPSHOT_KEY);
     store.delete(DIRECTORY_HANDLE_KEY);
+    store.delete(HIDDEN_PROJECT_IDS_KEY);
     return null;
   });
 }

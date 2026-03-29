@@ -25,9 +25,12 @@ import {
 import { extractMemoryBundleFromEntries } from './lib/memoryBundle';
 import {
   clearPersistedDirectoryHandle,
+  clearPersistedHiddenProjectIds,
   clearPersistedMemory,
+  loadPersistedHiddenProjectIds,
   loadPersistedDirectoryHandle,
   loadPersistedSnapshot,
+  savePersistedHiddenProjectIds,
   savePersistedDirectoryHandle,
   savePersistedSnapshot,
 } from './lib/memoryStore';
@@ -36,6 +39,8 @@ import {
   queryDirectoryPermission,
   readMemoryBundleFromDirectoryHandle,
 } from './lib/memorySync';
+import { filterVisibleProjects } from './lib/projectVisibility';
+import { buildProfileNarrative } from './lib/profileNarrative';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -56,7 +61,10 @@ const nodeTypes = {
 
 function CustomNode({ data }) {
   return (
-    <div className={`glass-node ${data.isCore ? 'core-node' : ''} ${data.selected ? 'selected' : ''}`}>
+    <div
+      className={`glass-node ${data.isCore ? 'core-node' : ''} ${data.selected ? 'selected' : ''}`}
+      data-testid={data.isCore ? 'core-node' : `project-node-${data.projectId || 'unknown'}`}
+    >
       <Handle
         type="target"
         position={Position.Top}
@@ -170,7 +178,8 @@ function FlowApp() {
     text: 'Cargando memoria inicial...',
   });
 
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedContext, setSelectedContext] = useState(null);
+  const [hiddenProjectIds, setHiddenProjectIds] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [activeLens, setActiveLens] = useState('All');
   const [siteTitle, setSiteTitle] = useState('Collective Memory');
@@ -181,6 +190,16 @@ function FlowApp() {
   const directoryHandleRef = useRef(null);
   const syncIntervalRef = useRef(null);
   const syncInFlightRef = useRef(false);
+
+  const visibleProjects = filterVisibleProjects(rawProjects, hiddenProjectIds);
+  const personaNarrative = rawProfile
+    ? buildProfileNarrative({
+        profile: rawProfile,
+        projects: rawProjects,
+        connections: rawConnections,
+        hiddenProjectIds,
+      })
+    : null;
 
   const hydrateBundle = useCallback((bundle, mode) => {
     if (!bundle?.profile) return;
@@ -206,7 +225,7 @@ function FlowApp() {
       ],
     );
     setActiveLens('All');
-    setSelectedProject(null);
+    setSelectedContext(null);
     setIsDrawerOpen(false);
   }, []);
 
@@ -311,6 +330,19 @@ function FlowApp() {
     setAutoSyncActive(true);
   }, [stopAutoSyncLoop, syncAuthorizedDirectory]);
 
+  const persistHiddenProjects = useCallback(async (nextHiddenProjectIds) => {
+    const normalized = [...new Set((Array.isArray(nextHiddenProjectIds) ? nextHiddenProjectIds : []).map((value) => String(value || '').trim()).filter(Boolean))];
+    setHiddenProjectIds(normalized);
+
+    try {
+      await savePersistedHiddenProjectIds(normalized);
+    } catch {
+      // Hidden selection is a local preference; the UI still works if persistence fails.
+    }
+
+    return normalized;
+  }, []);
+
   const handleDirectoryAction = useCallback(async () => {
     const savedHandle = directoryHandleRef.current;
 
@@ -386,10 +418,11 @@ function FlowApp() {
       setDirectoryPickerSupported(pickerSupported);
 
       try {
-        const [demo, persistedSnapshot, persistedHandle] = await Promise.all([
+        const [demo, persistedSnapshot, persistedHandle, persistedHiddenIds] = await Promise.all([
           loadDemoBundle().catch((error) => ({ error })),
           loadPersistedSnapshot().catch(() => null),
           loadPersistedDirectoryHandle().catch(() => null),
+          loadPersistedHiddenProjectIds().catch(() => []),
         ]);
 
         if (cancelled) return;
@@ -416,6 +449,10 @@ function FlowApp() {
             kind: 'info',
             text: 'Mostrando la demo incluida. Sube tu carpeta local para guardarla en este navegador.',
           });
+        }
+
+        if (!cancelled) {
+          setHiddenProjectIds(Array.isArray(persistedHiddenIds) ? persistedHiddenIds : []);
         }
 
         if (persistedHandle) {
@@ -506,6 +543,7 @@ function FlowApp() {
 
     const newNodes = [];
     const newEdges = [];
+    const projectsForGraph = filterVisibleProjects(rawProjects, hiddenProjectIds);
 
     newNodes.push({
       id: 'user_profile',
@@ -515,6 +553,7 @@ function FlowApp() {
         label: rawProfile.name,
         isCore: true,
         status: rawProfile.affiliations?.[0]?.role || '',
+        projectId: 'user_profile',
       },
     });
 
@@ -527,14 +566,14 @@ function FlowApp() {
     const currentLens = profileLenses.find((lens) => lens.id === activeLens);
     const filteredProjects =
       currentLens && Array.isArray(currentLens.filter) && currentLens.filter.length > 0
-        ? rawProjects.filter((project) => {
+        ? projectsForGraph.filter((project) => {
             const tags = [...(project.tags || []), ...(project.domains || []), ...(project.themes || [])].map((tag) =>
               typeof tag === 'string' ? tag.toLowerCase() : '',
             );
 
             return tags.some((tag) => currentLens.filter.includes(tag));
           })
-        : rawProjects;
+        : projectsForGraph;
 
     const innerRing = filteredProjects.filter((project) =>
       ACTIVE_STATUSES.some((status) =>
@@ -569,6 +608,7 @@ function FlowApp() {
             label: project.name || project.title || project.id,
             status: project.status,
             fullData: project,
+            projectId: project.id,
           },
         });
 
@@ -608,7 +648,7 @@ function FlowApp() {
 
     const timer = window.setTimeout(() => fitView({ padding: 0.18 }), 50);
     return () => window.clearTimeout(timer);
-  }, [rawConnections, rawProfile, rawProjects, activeLens, fitView, setEdges, setNodes]);
+  }, [rawConnections, rawProfile, rawProjects, hiddenProjectIds, activeLens, fitView, setEdges, setNodes]);
 
   useEffect(() => {
     const onResize = () => fitView({ padding: 0.18 });
@@ -617,8 +657,6 @@ function FlowApp() {
   }, [fitView]);
 
   const onNodeClick = (_, node) => {
-    if (node.id === 'user_profile') return;
-
     setNodes((currentNodes) =>
       currentNodes.map((currentNode) => ({
         ...currentNode,
@@ -626,7 +664,19 @@ function FlowApp() {
       })),
     );
 
-    setSelectedProject(node.data.fullData);
+    if (node.id === 'user_profile') {
+      setSelectedContext({
+        type: 'profile',
+      });
+      setIsDrawerOpen(true);
+      setCenter(node.position.x + 225, node.position.y, { zoom: 1, duration: 600 });
+      return;
+    }
+
+    setSelectedContext({
+      type: 'project',
+      data: node.data.fullData,
+    });
     setIsDrawerOpen(true);
     setCenter(node.position.x + 225, node.position.y, { zoom: 1, duration: 600 });
   };
@@ -639,6 +689,28 @@ function FlowApp() {
         data: { ...currentNode.data, selected: false },
       })),
     );
+    setSelectedContext(null);
+  };
+
+  const excludeProjectFromSelection = async (projectId) => {
+    const nextHiddenIds = await persistHiddenProjects([...hiddenProjectIds, projectId]);
+    if (selectedContext?.type === 'project' && selectedContext?.data?.id === projectId) {
+      closeDrawer();
+    }
+    setUploadFeedback({
+      kind: 'info',
+      text: `El proyecto ${projectId} quedó fuera de la selección visible.`,
+    });
+    return nextHiddenIds;
+  };
+
+  const restoreProjectToSelection = async (projectId) => {
+    const nextHiddenIds = await persistHiddenProjects(hiddenProjectIds.filter((hiddenId) => hiddenId !== projectId));
+    setUploadFeedback({
+      kind: 'info',
+      text: `El proyecto ${projectId} volvió a la selección visible.`,
+    });
+    return nextHiddenIds;
   };
 
   const handleFolderUpload = async (event) => {
@@ -686,6 +758,8 @@ function FlowApp() {
       directoryHandleRef.current = null;
       setHasAuthorizedDirectory(false);
       setDirectoryPermission('none');
+      setHiddenProjectIds([]);
+      await clearPersistedHiddenProjectIds().catch(() => null);
       await clearPersistedMemory();
 
       if (demoBundle) {
@@ -744,6 +818,8 @@ function FlowApp() {
     );
   }
 
+  const selectedProject = selectedContext?.type === 'project' ? selectedContext.data : null;
+  const selectedProfileNarrative = selectedContext?.type === 'profile' ? personaNarrative : null;
   const projectTags = selectedProject
     ? [...(selectedProject.tags || []), ...(selectedProject.themes || []), ...(selectedProject.domains || [])].map((tag) =>
         typeof tag === 'string' ? tag.trim() : '',
@@ -751,6 +827,8 @@ function FlowApp() {
     : [];
   const uniqueTags = [...new Set(projectTags)].filter(Boolean);
   const isLocalMemory = memoryMode === 'local';
+  const visibleProjectCount = visibleProjects.length;
+  const hiddenProjectCount = hiddenProjectIds.length;
   const directoryPermissionLabel = {
     none: 'Sin autorizar',
     granted: 'Concedido',
@@ -769,10 +847,13 @@ function FlowApp() {
       : 'Reautorizar carpeta'
     : 'Autorizar carpeta y sincronizar';
   const directoryActionDisabled = !hasAuthorizedDirectory && !directoryPickerSupported;
+  const hiddenProjects = hiddenProjectIds
+    .map((projectId) => rawProjects.find((project) => project.id === projectId) || { id: projectId })
+    .filter(Boolean);
 
   return (
     <div className="app-shell">
-      <aside className="guide-panel">
+      <aside className="guide-panel" data-testid="guide-panel">
         <div className="guide-brand">
           <p className="guide-kicker">
             <Sparkles size={14} />
@@ -818,12 +899,17 @@ function FlowApp() {
         </div>
 
         <div className="guide-actions">
-          <button className="secondary-btn" onClick={handleDirectoryAction} disabled={directoryActionDisabled && !hasAuthorizedDirectory}>
+          <button
+            className="secondary-btn"
+            onClick={handleDirectoryAction}
+            disabled={directoryActionDisabled && !hasAuthorizedDirectory}
+            data-testid="directory-action-btn"
+          >
             <FolderUp size={20} />
             {directoryActionLabel}
           </button>
 
-          <label className="upload-btn">
+          <label className="upload-btn" data-testid="import-button">
             <FolderUp size={20} />
             Importar carpeta local
             <input
@@ -836,12 +922,17 @@ function FlowApp() {
             />
           </label>
 
-          <button className="secondary-btn" onClick={clearLocalMemory} disabled={!isLocalMemory && !demoBundle}>
+          <button
+            className="secondary-btn"
+            onClick={clearLocalMemory}
+            disabled={!isLocalMemory && !demoBundle}
+            data-testid="clear-memory-btn"
+          >
             <Trash2 size={16} />
             Limpiar memoria local
           </button>
 
-          <button className="ghost-btn" onClick={returnToDemo} disabled={!isLocalMemory || !demoBundle}>
+          <button className="ghost-btn" onClick={returnToDemo} disabled={!isLocalMemory || !demoBundle} data-testid="demo-btn">
             <RotateCcw size={16} />
             Volver a demo
           </button>
@@ -871,7 +962,13 @@ function FlowApp() {
               <FileText size={14} />
               Proyectos
             </span>
-            <strong>{memorySummary.projectCount}</strong>
+            <strong>
+              {visibleProjectCount}/{memorySummary.projectCount}
+            </strong>
+          </div>
+          <div className="meta-row">
+            <span>Ocultos</span>
+            <strong>{hiddenProjectCount}</strong>
           </div>
           <div className="meta-row">
             <span>
@@ -890,6 +987,28 @@ function FlowApp() {
           Tus archivos se leen en el navegador. La memoria importada se guarda sólo en este dispositivo usando
           IndexedDB. Si autorizas una carpeta, el navegador conserva ese permiso y vuelve a leerla automáticamente.
         </p>
+
+        {hiddenProjects.length > 0 && (
+          <section className="hidden-projects">
+            <div className="hidden-projects-header">
+              <h2>Proyectos excluidos</h2>
+              <span>{hiddenProjects.length}</span>
+            </div>
+            <div className="hidden-projects-list" data-testid="excluded-projects-list">
+              {hiddenProjects.map((project) => (
+                <button
+                  key={project.id}
+                  className="hidden-project-chip"
+                  onClick={() => restoreProjectToSelection(project.id)}
+                  data-testid={`restore-project-btn-${project.id}`}
+                >
+                  <span>{project.name || project.id}</span>
+                  <X size={14} />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
       </aside>
 
       <main className="graph-panel">
@@ -928,10 +1047,62 @@ function FlowApp() {
           <Background gap={40} color="var(--ink-black)" size={1} />
         </ReactFlow>
 
-        <div className={`drawer ${isDrawerOpen ? 'open' : ''}`}>
-          <button className="drawer-close" onClick={closeDrawer}>
+        <div className={`drawer ${isDrawerOpen ? 'open' : ''}`} data-testid="drawer" data-drawer-mode={selectedContext?.type || 'empty'}>
+          <button className="drawer-close" onClick={closeDrawer} data-testid="drawer-close-btn">
             <X size={24} />
           </button>
+
+          {selectedProfileNarrative && (
+            <>
+              <div className="drawer-header">
+                <span className="drawer-type">Persona central</span>
+                <h2 style={{ marginTop: '0.5rem' }}>{selectedProfileNarrative.name}</h2>
+              </div>
+
+              <div className="drawer-meta">
+                <div className="meta-item">
+                  <FileText size={16} />
+                  <span>{selectedProfileNarrative.headline}</span>
+                </div>
+                <div className="meta-item">
+                  <LinkIcon size={16} />
+                  <span>
+                    {selectedProfileNarrative.stats.projectCount} proyectos · {selectedProfileNarrative.stats.connectionCount} conexiones
+                  </span>
+                </div>
+              </div>
+
+              <h3 className="drawer-section-title">Biografía</h3>
+              <div className="drawer-content drawer-profile-overview">{selectedProfileNarrative.overview}</div>
+
+              {selectedProfileNarrative.sections.map((section) => (
+                <div key={section.title}>
+                  <h3 className="drawer-section-title">{section.title}</h3>
+                  <div className="drawer-content">
+                    {section.items.length > 0 ? (
+                      <ul className="drawer-list">
+                        {section.items.map((item, index) => (
+                          <li key={`${section.title}-${index}`}>
+                            {typeof item === 'string' ? (
+                              item
+                            ) : (
+                              <>
+                                {item.label && <strong>{item.label}</strong>}
+                                {item.label && item.description ? ': ' : ''}
+                                {item.description || item.summary || item.reason || item.title || JSON.stringify(item)}
+                              </>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No hay contenido estructurado para esta sección.</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
 
           {selectedProject && (
             <>
@@ -951,6 +1122,20 @@ function FlowApp() {
                     <span>{selectedProject.path}</span>
                   </div>
                 )}
+              </div>
+
+              <div className="drawer-actions">
+                <button
+                  className="secondary-btn drawer-action-btn"
+                  onClick={() =>
+                    hiddenProjectIds.includes(selectedProject.id)
+                      ? restoreProjectToSelection(selectedProject.id)
+                      : excludeProjectFromSelection(selectedProject.id)
+                  }
+                  data-testid="exclude-project-btn"
+                >
+                  {hiddenProjectIds.includes(selectedProject.id) ? 'Restaurar en la selección' : 'Excluir de la selección'}
+                </button>
               </div>
 
               <h3 className="drawer-section-title">Summary</h3>

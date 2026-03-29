@@ -53,6 +53,11 @@ Open [http://localhost:5173](http://localhost:5173) and choose one of the two fl
 
 In both cases the graph is restored from the last successful import on revisit.
 
+Once the graph is loaded:
+- Click the central node to open an extensive persona bio built from your profile, projects, and graph connections.
+- Open any project node to inspect its summary, tags, and a persistent action to exclude or restore it from the visible selection.
+- Run `npm run smoke` to verify the browser flow locally before shipping changes.
+
 ### 5. Publish When Ready
 When you are ready to publish, keep personal data outside the repository and deploy only the app shell. The included GitHub Pages workflow is configured to build the site from the tracked files.
 
@@ -76,6 +81,7 @@ This isn't another dashboard. It's a **brutalist research map**.
 - **Lucide React** — icon system
 - **IndexedDB** — local persistence for the last uploaded memory
 - **File System Access API** — authorized local-folder sync when the browser supports it
+- **Playwright** — browser smoke for the onboarding, profile drawer, and exclusion flow
 - **Vanilla CSS** — Hand-crafted brutalism
 
 ## License
