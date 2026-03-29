@@ -1,0 +1,10 @@
+{
+  "name": "Néstor De León",
+  "data_dir": "/Users/nestor/Documents/ReMember2/collective-memory",
+  "scan_paths": [
+    "/Users/nestor/Documents",
+    "/Users/nestor/OneDrive"
+  ],
+  "master_prompt": "/Users/nestor/Documents/MASTER PROMPT \u2014 N\u00c9STOR DE LE\u00d3N.txt",
+  "language": "es"
+}
