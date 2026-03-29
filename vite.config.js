@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 // Set VITE_BASE_PATH env var to override, or leave empty for root deploys (Netlify/Vercel).
 export default defineConfig({
   plugins: [react()],
-  base: process.env.VITE_BASE_PATH || './',
+  base: globalThis.process?.env?.VITE_BASE_PATH || './',
 })

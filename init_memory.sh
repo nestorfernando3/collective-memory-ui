@@ -14,7 +14,6 @@ set -e
 # Config
 # ────────────────────────────────────────────
 DEFAULT_BRAIN_DIR="$HOME/.collective-memory"
-UI_REPO_URL="https://github.com/nestorfernando3/collective-memory-ui"
 
 echo ""
 echo "████████████████████████████████████████████████"
