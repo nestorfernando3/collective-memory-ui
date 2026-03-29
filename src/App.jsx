@@ -30,7 +30,7 @@ function FlowApp() {
   const [siteSubtitle, setSiteSubtitle] = useState('Personal Operating System');
   const [lenses, setLenses] = useState([]);
   
-  const { setCenter } = useReactFlow();
+  const { setCenter, fitView } = useReactFlow();
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,15 +66,15 @@ function FlowApp() {
         const newNodes = [];
         const newEdges = [];
 
-        // Central Core Node — uses profile name
+        // Central Core Node — anchored at origin for screen-size-independent layout
         newNodes.push({
           id: 'user_profile',
           type: 'custom',
-          position: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+          position: { x: 0, y: 0 },
           data: { label: profile.name, isCore: true, status: profile.affiliations?.[0]?.role || '' }
         });
 
-        // Lenses Engine — uses the active lens filter tags
+        // Lenses Engine
         let filteredProjects = projects;
         const currentLens = profileLenses.find(l => l.id === activeLens);
         if (currentLens && currentLens.filter && currentLens.filter.length > 0) {
@@ -84,51 +84,48 @@ function FlowApp() {
           });
         }
 
-        // Split projects into two rings by activity level
+        // Split into two rings by activity level
         const ACTIVE_STATUSES = ['activo', 'active', 'en desarrollo', 'en proceso', 'en construcción',
                                   'en ejecución', 'en postulación', 'materiales listos'];
         const innerRing = filteredProjects.filter(p =>
-          ACTIVE_STATUSES.some(s => (p.status || '').toLowerCase().includes(s.toLowerCase().split(' ')[0]))
+          ACTIVE_STATUSES.some(s => (p.status || '').toLowerCase().replace(/_/g, ' ').includes(s.split(' ')[0]))
         );
         const outerRing = filteredProjects.filter(p =>
-          !ACTIVE_STATUSES.some(s => (p.status || '').toLowerCase().includes(s.toLowerCase().split(' ')[0]))
+          !ACTIVE_STATUSES.some(s => (p.status || '').toLowerCase().replace(/_/g, ' ').includes(s.split(' ')[0]))
         );
 
-        const cx = window.innerWidth / 2;
-        const cy = window.innerHeight / 2;
-
+        // Normalized coordinate space — small numbers, fitView handles the zoom
         const placeRing = (ring, radius, startAngle = 0) => {
           const step = (2 * Math.PI) / (ring.length || 1);
           ring.forEach((proj, idx) => {
             const angle = startAngle + step * idx;
-            const x = cx + radius * Math.cos(angle);
-            const y = cy + radius * Math.sin(angle);
-
             newNodes.push({
               id: proj.id,
               type: 'custom',
-              position: { x, y },
+              position: {
+                x: radius * Math.cos(angle),
+                y: radius * Math.sin(angle),
+              },
               data: {
                 label: proj.name || proj.title || proj.id,
                 status: proj.status,
-                fullData: proj
-              }
+                fullData: proj,
+              },
             });
-
             newEdges.push({
               id: `e-user-${proj.id}`,
               source: 'user_profile',
               target: proj.id,
               animated: true,
-              style: { stroke: 'rgba(26,26,26,0.15)', strokeWidth: 1 }
+              style: { stroke: 'rgba(26,26,26,0.18)', strokeWidth: 1 },
             });
           });
         };
 
-        // Inner ring: active/in-progress (closer to center)
-        placeRing(innerRing, 290, Math.PI / innerRing.length || 0);
-        // Outer ring: submitted/complete (further out, staggered)
-        placeRing(outerRing, 520, Math.PI / (outerRing.length || 1) + Math.PI / 8);
+        // Inner ring: active Work (radius 230)
+        placeRing(innerRing, 230, -Math.PI / 2);
+        // Outer ring: submitted/complete (radius 420, rotated 22.5° to interleave)
+        placeRing(outerRing, 420, -Math.PI / 2 + Math.PI / 8);
 
         // Inter-Project Synergies
         (connectionsData.connections || []).forEach((conn, index) => {
@@ -149,14 +146,22 @@ function FlowApp() {
 
         setNodes(newNodes);
         setEdges(newEdges);
-        
+        // Fit the view after data loads — works at any screen size
+        setTimeout(() => fitView({ padding: 0.18 }), 50);
       } catch (err) {
         console.error('Failed to load memory data:', err);
       }
     };
 
     loadData();
-  }, [activeLens, setNodes, setEdges]);
+  }, [activeLens, setNodes, setEdges, fitView]);
+
+  // Re-fit when window resizes (handles DevTools open, rotation, etc.)
+  useEffect(() => {
+    const onResize = () => fitView({ padding: 0.18 });
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [fitView]);
 
   const onNodeClick = (event, node) => {
     if (node.id === 'user_profile') return;
@@ -183,7 +188,7 @@ function FlowApp() {
   const uniqueTags = [...new Set(projectTags)];
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    <div className="app-container">
       
       <div className="header">
         <h1>{siteTitle}</h1>
