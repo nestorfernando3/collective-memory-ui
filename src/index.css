@@ -28,6 +28,290 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
 }
 
+.app-shell {
+  width: 100vw;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: clamp(320px, 31vw, 440px) minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--bg-paper);
+}
+
+.guide-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 32px 28px;
+  border-right: 4px solid var(--ink-black);
+  background: var(--paper-white);
+  overflow-y: auto;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+.guide-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guide-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-red);
+}
+
+.guide-brand h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.1rem, 3vw, 3.15rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  color: var(--ink-black);
+}
+
+.guide-brand .subtitle {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--ink-light);
+  max-width: 26ch;
+}
+
+.status-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: 2px solid var(--ink-black);
+  padding: 14px 16px;
+  background: var(--bg-paper);
+  box-shadow: 4px 4px 0px var(--ink-black);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.status-box.info {
+  background: var(--bg-paper);
+}
+
+.status-box.success {
+  background: #eef7ed;
+}
+
+.status-box.error {
+  background: #fff1ef;
+}
+
+.guide-steps {
+  display: grid;
+  gap: 14px;
+}
+
+.guide-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 18px 18px 60px;
+  border: 2px solid var(--ink-black);
+  background: var(--bg-paper);
+  box-shadow: 4px 4px 0px var(--ink-black);
+}
+
+.guide-step-index {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ink-black);
+  background: var(--ink-black);
+  color: var(--paper-white);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.guide-step h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-black);
+}
+
+.guide-step p {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-black);
+}
+
+.guide-step code {
+  background: var(--paper-white);
+  padding: 2px 6px;
+  font-weight: 700;
+  border: 1px solid var(--ink-black);
+  color: var(--ink-black);
+}
+
+.guide-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.secondary-btn,
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--ink-black);
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background 0.15s ease-out;
+  box-shadow: 4px 4px 0px var(--ink-black);
+}
+
+.secondary-btn {
+  background: var(--ink-black);
+  color: var(--paper-white);
+}
+
+.ghost-btn {
+  background: var(--paper-white);
+  color: var(--ink-black);
+}
+
+.secondary-btn:hover:not(:disabled),
+.ghost-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px var(--accent-red);
+}
+
+.secondary-btn:disabled,
+.ghost-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  box-shadow: 2px 2px 0px rgba(26, 26, 26, 0.2);
+}
+
+.guide-meta {
+  display: grid;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 2px solid var(--ink-black);
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+}
+
+.meta-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-light);
+}
+
+.meta-row strong {
+  color: var(--ink-black);
+  text-align: right;
+}
+
+.privacy-note {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--accent-blue);
+}
+
+.graph-panel {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.source-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 2px solid var(--ink-black);
+  background: var(--paper-white);
+  box-shadow: 3px 3px 0px var(--ink-black);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.source-chip.local {
+  background: var(--ink-black);
+  color: var(--paper-white);
+  box-shadow: 3px 3px 0px var(--accent-red);
+}
+
+.source-chip.demo {
+  background: var(--paper-white);
+  color: var(--ink-black);
+}
+
+.loading-screen {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-paper);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+.loading-card {
+  max-width: 560px;
+  padding: 48px 42px;
+  border: 4px solid var(--ink-black);
+  background: var(--paper-white);
+  box-shadow: 12px 12px 0px var(--accent-red);
+}
+
+.loading-card h1 {
+  margin: 12px 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--ink-black);
+}
+
+.loading-card p {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink-light);
+}
+
 /* React Flow Theming */
 .react-flow__pane {
   background: transparent !important;
@@ -136,7 +420,21 @@ body {
   position: absolute;
   top: 32px;
   left: 40px;
+  width: calc(100% - 80px);
+  max-width: 760px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   z-index: 10;
+}
+
+.header > div {
+  max-width: 560px;
+}
+
+.header .source-chip {
+  flex-shrink: 0;
 }
 
 .header h1 {
@@ -460,6 +758,31 @@ body {
   overflow: hidden;
 }
 
+@media (max-width: 900px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .guide-panel {
+    border-right: none;
+    border-bottom: 4px solid var(--ink-black);
+    max-height: 42vh;
+    padding: 24px 20px;
+  }
+
+  .graph-panel {
+    min-height: 58vh;
+  }
+
+  .header {
+    top: 16px;
+    left: 16px;
+    width: calc(100% - 32px);
+    max-width: none;
+  }
+}
+
 @media (max-width: 640px) {
   /* Header scales down */
   .header {
@@ -475,6 +798,25 @@ body {
   .header p {
     font-size: 0.85rem;
     margin-top: 2px;
+  }
+
+  .guide-brand h1 {
+    font-size: 1.9rem;
+  }
+
+  .guide-brand .subtitle {
+    font-size: 0.92rem;
+  }
+
+  .guide-step {
+    padding: 16px 14px 16px 56px;
+  }
+
+  .guide-step-index {
+    top: 14px;
+    left: 14px;
+    width: 28px;
+    height: 28px;
   }
 
   /* Lens controls horizontal strip at the bottom */
@@ -572,5 +914,10 @@ body {
   .lens-btn {
     font-size: 0.55rem;
     padding: 6px 4px;
+  }
+
+  .guide-panel {
+    padding: 18px 16px;
+    max-height: 46vh;
   }
 }

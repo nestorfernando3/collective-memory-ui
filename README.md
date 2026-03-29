@@ -8,57 +8,48 @@ Collective Memory renders your entire professional universe as an orbital map �
 
 ## ⚡ Onboarding: Build Your Own Memory
 
-**The Philosophy:** Your data is private. The code is public. 
-This framework is designed so you can maintain a secret local database of JSON/Markdown files with your life's work, and automatically compile it into a stunning web portfolio—**without ever committing your personal data to the source code.** To protect you, this repository explicitly ignores personal data tracking via `.gitignore`.
+**The Philosophy:** Your data stays local. The code is public.
+This interface is designed to let people build a private memory database, load it from their own machine, and keep the last imported snapshot in the browser with IndexedDB. The repository ships with a demo memory, but your uploaded memory replaces it for that browser only.
 
-Follow these clear steps to launch your own universe:
+Follow these steps to launch your own universe:
 
-### 1. Clone the Framework
-Clone this generic User Interface template to your computer:
+### 1. Install the skill
+Install or activate the `collective-memory` skill in your agent environment, then use it to gather your data:
+```bash
+/memoria scan
+/memoria register [path]
+/memoria profile
+/memoria connections
+```
+Those commands should produce the folder you will import into the app.
+
+### 2. Clone the Interface
+Clone this UI template to your computer:
 ```bash
 git clone https://github.com/YOUR_USERNAME/collective-memory-ui.git
 cd collective-memory-ui
 npm install
 ```
 
-### 2. Prepare your Secret Database
-The `public/data` folder in this repository is ignored by Git by design. 
-Create a completely separate folder anywhere on your computer (e.g., `~/Documents/My-Memory/`) to act as your private database.
+### 3. Prepare your Memory Folder
+Create a private folder anywhere on your computer (for example `~/Documents/My-Memory/`) and keep the exported memory there.
 
-Inside your private folder, create the following structure:
+The folder should contain:
 - `profile.json` (Who you are and your filters/lenses)
 - `connections.json` (How your projects relate to each other)
 - `projects/` (A folder with one `.json` file per project)
 
 *(Not sure how to structure them? View `public/data/example.profile.json` and `example.project.json` in this repository for the exact schemas).*
 
-### 3. Sync and Test Locally
-Copy your private JSON files into the interface to see how they look. You can do this manually, or create a simple sync script that copies your private folder contents into `collective-memory-ui/public/data/`.
-
-Once the data is in `public/data/`, start the local server:
+### 4. Open the App and Upload
+Start the local server:
 ```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) and see your universe.
+Open [http://localhost:5173](http://localhost:5173) and use **Cargar carpeta local**. The app will parse the folder, render the graph, and keep the last imported memory on this browser.
 
-### 4. Deploy to GitHub Pages (The Secure Way)
-When you are ready to publish your portfolio, **do not commit your data to the `main` branch**. 
-
-Instead, compile a final version and push *only* the static website to a special `gh-pages` branch using these commands:
-```bash
-# Compile the website and your data into a production 'dist' folder
-npm run build
-
-# Push ONLY the compiled folder to a hidden gh-pages branch
-npx --yes gh-pages -d dist -t true -m "Deploying Collective Memory update"
-```
-
-**Final step on GitHub:**
-1. Go to your repository **Settings** → **Pages**.
-2. Under **Source**, select **Deploy from a branch**.
-3. Select the **`gh-pages`** branch and save.
-
-Your site will be live at `https://YOUR_USERNAME.github.io/collective-memory-ui/` within a few minutes!
+### 5. Publish When Ready
+When you are ready to publish, keep personal data outside the repository and deploy only the app shell. The included GitHub Pages workflow is configured to build the site from the tracked files.
 
 ---
 
@@ -75,9 +66,10 @@ This isn't another dashboard. It's a **brutalist research map**.
 | Shapes | Zero border-radius | Boxes are boxes. No pill buttons, no circles |
 
 ## 🛠 Tech Stack
-- **React 19** + **Vite 6**
+- **React 19** + **Vite 8**
 - **@xyflow/react** — graph rendering engine
 - **Lucide React** — icon system
+- **IndexedDB** — local persistence for the last uploaded memory
 - **Vanilla CSS** — Hand-crafted brutalism
 
 ## License

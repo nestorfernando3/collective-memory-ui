@@ -3,15 +3,16 @@
 
 ## Completed
 - UI build and lint are green.
-- Data in `public/data/` parses cleanly after the migration cleanup.
-- Project cards and graph connections are synced from `../collective-memory/`.
-- Research Sync helper now ranks existing links and proposes new ones from local metadata and notes.
+- The app now starts with an in-screen onboarding rail that explains the skill install and upload flow.
+- Local folder uploads are parsed into `profile.json`, `connections.json`, and `projects/*.json`.
+- The last uploaded memory is persisted in the browser with IndexedDB and auto-restored on revisit.
+- Demo memory still ships with the repo so the graph is visible before a user uploads their own snapshot.
 
 ## Next
-- Mobile QA on the graph layout.
+- Browser QA on the upload/restore flow and the stacked mobile layout.
 
 ## Key Paths
-- App: `./`
-- Synced data: `public/data/`
-- Source data: `../collective-memory/`
-- Sync script: `../collective-memory/scripts/sync.sh`
+- App: `src/App.jsx`
+- Parser: `src/lib/memoryBundle.js`
+- Storage: `src/lib/memoryStore.js`
+- Styling: `src/index.css`
