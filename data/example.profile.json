@@ -1,0 +1,46 @@
+{
+  "name": "Your Name",
+  "site_title": "Collective Memory",
+  "site_subtitle": "Personal Operating System",
+  "identifiers": {
+    "orcid": "",
+    "github": ""
+  },
+  "affiliations": [
+    {
+      "institution": "Your Institution",
+      "role": "Your Role",
+      "current": true
+    }
+  ],
+  "location": {
+    "city": "Your City",
+    "country": "Your Country"
+  },
+  "domains": [
+    "Domain 1",
+    "Domain 2"
+  ],
+  "skills": [
+    "Skill 1",
+    "Skill 2"
+  ],
+  "languages": ["english"],
+  "lenses": [
+    {
+      "id": "All",
+      "label": "Full Universe",
+      "filter": []
+    },
+    {
+      "id": "Academic",
+      "label": "Academic Lens",
+      "filter": ["research", "academic", "paper"]
+    },
+    {
+      "id": "Creative",
+      "label": "Creative Lens",
+      "filter": ["creative", "art", "writing"]
+    }
+  ]
+}

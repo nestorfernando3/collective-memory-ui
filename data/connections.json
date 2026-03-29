@@ -1,0 +1,128 @@
+{
+  "connections": [
+    {
+      "from": "paideia",
+      "to": "markdown-pedagogico",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "Ambas plataformas EdTech comparten ecosistema visual (UI) y filosofía metacognitiva."
+    },
+    {
+      "from": "markdown-pedagogico",
+      "to": "examenes-planeacion",
+      "type": "Metodológica",
+      "strength": "Alta",
+      "description": "El editor Markdown es la herramienta ideal para digitalizar y estructurar el repositorio de planeaciones de la IED."
+    },
+    {
+      "from": "examenes-planeacion",
+      "to": "proyecto-icfes",
+      "type": "Curricular",
+      "strength": "Media",
+      "description": "Las evaluaciones sumativas nutren directamente el banco de entrenamiento para pruebas ICFES."
+    },
+    {
+      "from": "pei-brisas-del-rio",
+      "to": "gestiones-brisas",
+      "type": "Institucional",
+      "strength": "Alta",
+      "description": "El rediseño del PEI dicta y organiza la documentación y seguimiento administrativo de gestiones."
+    },
+    {
+      "from": "paideia",
+      "to": "diario-emociones",
+      "type": "Socioemocional",
+      "strength": "Media",
+      "description": "El diario de emociones aporta la capa de autoconocimiento que complementa la evaluación formativa."
+    },
+    {
+      "from": "fenomenologia-rumor",
+      "to": "las-camilas",
+      "type": "Teórica",
+      "strength": "Alta",
+      "description": "Las dinámicas del chisme/rumor oral en el Caribe funcionan como semilleros teóricos para el análisis mítico de Las Camilas."
+    },
+    {
+      "from": "las-camilas",
+      "to": "dos-cuentos-hermanos",
+      "type": "Creativa",
+      "strength": "Media",
+      "description": "Ambos proyectos de escritura consolidan una estética literaria enfocada en el imaginario Caribe."
+    },
+    {
+      "from": "pca-mincultura",
+      "to": "concertacion-mincultura",
+      "type": "Gestión Pública",
+      "strength": "Alta",
+      "description": "Línea de continuidad en financiamiento estatal y política pública (MinCultura) para la región."
+    },
+    {
+      "from": "generacion-2030",
+      "to": "pca-mincultura",
+      "type": "Estratégica",
+      "strength": "Alta",
+      "description": "El diseño instruccional de Generación 2030 (artes) ejecuta las visiones narrativas gestadas en proyectos PCA."
+    },
+    {
+      "from": "picnic-semiotico",
+      "to": "fenomenologia-rumor",
+      "type": "Epistemológica",
+      "strength": "Media",
+      "description": "Cruce de matrices teóricas semióticas aplicadas a interacciones sociales cotidianas."
+    },
+    {
+      "from": "kansas-barranquilla",
+      "to": "articulo-tuberculosis",
+      "type": "Datos",
+      "strength": "Alta",
+      "description": "Metodología epidemiológica replicable del estudio de Kansas transferida hacia el análisis del Atlántico."
+    },
+    {
+      "from": "articulo-kevin-cerra",
+      "to": "fenomenologia-rumor",
+      "type": "Investigativa",
+      "strength": "Media",
+      "description": "Integración de perspectivas sociológicas de lo urbano y lo Caribe en artículos académicos."
+    }
+  ],
+  "clusters": [
+    {
+      "name": "Ecosistema Educativo / Brisas del Río",
+      "projects": [
+        "paideia",
+        "markdown-pedagogico",
+        "examenes-planeacion",
+        "proyecto-icfes",
+        "pei-brisas-del-rio",
+        "gestiones-brisas",
+        "diario-emociones"
+      ]
+    },
+    {
+      "name": "Memoria, Identidad y Cultura Caribe",
+      "projects": [
+        "fenomenologia-rumor",
+        "las-camilas",
+        "dos-cuentos-hermanos",
+        "pca-mincultura",
+        "concertacion-mincultura",
+        "generacion-2030",
+        "articulo-kevin-cerra"
+      ]
+    },
+    {
+      "name": "Análisis Semiótico",
+      "projects": [
+        "picnic-semiotico",
+        "fenomenologia-rumor"
+      ]
+    },
+    {
+      "name": "Epidemiología del Atlántico",
+      "projects": [
+        "kansas-barranquilla",
+        "articulo-tuberculosis"
+      ]
+    }
+  ]
+}

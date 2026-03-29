@@ -1,0 +1,26 @@
+{
+  "id": "articulo-tuberculosis",
+  "name": "Art\u00edculo Tuberculosis en el Atl\u00e1ntico",
+  "type": "investigacion",
+  "status": "en_proceso",
+  "path": "/Users/nestor/Documents/Art\u00edculo Kevin Cerra",
+  "description": "An\u00e1lisis de prevalencia, diagn\u00f3stico y factores asociados a la tuberculosis en el departamento del Atl\u00e1ntico. Redactado en coautor\u00eda.",
+  "dates": {
+    "last_updated": "2026-03-21"
+  },
+  "domains": ["salud p\u00fablica", "epidemiolog\u00eda"],
+  "themes": ["tuberculosis", "caribe", "atl\u00e1ntico"],
+  "outputs": [
+    {
+      "type": "article",
+      "title": "Tuberculosis (TB) Analysis",
+      "format": "manuscript",
+      "status": "in_progress"
+    }
+  ],
+  "technologies": ["Estad\u00edstica"],
+  "collaborators": ["Kevin Cerra"],
+  "institutions": ["Polit\u00e9cnico de la Costa Atl\u00e1ntica"],
+  "theoretical_frameworks": ["Epidemiolog\u00eda local"],
+  "related_projects": ["kansas-barranquilla"]
+}
