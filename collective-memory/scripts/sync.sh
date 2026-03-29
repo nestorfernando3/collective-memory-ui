@@ -44,13 +44,11 @@ if [ ! -d ".git" ]; then
   exit 0
 fi
 
-git add public/data/
-if git diff-index --quiet HEAD --; then
-  echo "  ⏸ No changes to sync."
-else
-  git commit -m "🧠 Auto-sync: Memory updated"
-  git push origin main 2>/dev/null && echo "  🚀 Pushed to main → GitHub Pages deploying!" \
-    || echo "  ⚠️ Push failed — check git remote."
-fi
+echo "  🏗️ Building static PWA bundle..."
+npx build >/dev/null 2>&1 || npm run build >/dev/null 2>&1
+
+echo "  🚀 Deploying private data to GitHub Pages (gh-pages branch)..."
+npx --yes gh-pages -d dist -t true -m "🧠 Auto-sync: Memory updated" && echo "  ✅ Successfully deployed memory to GitHub Pages!" \
+  || echo "  ⚠️ Deploy failed — check git remote or npm setup."
 
 echo "✨ Done!"
