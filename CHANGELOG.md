@@ -3,8 +3,9 @@
 ## Unreleased - 2026-03-30
 
 ### Changed
-- Connection text cleanup now lives in a shared helper used by both `connectionInsights` and `profileNarrative`, so sanitization rules stop drifting inside the UI source tree.
-- Added focused UI tests for legacy noisy prose cleanup and generic-bridge detection.
+- Added a balanced connection-engine redesign spec and implementation plan that split graph links into `strong` and `exploratory` tiers, add a coverage-floor policy for isolated projects, and document the need to restore an editable `src/App.jsx` before tier-aware UI work lands.
+- Connection text cleanup now lives in a shared helper used by both `connectionInsights` and `profileNarrative`, so sanitization rules stop drifting between the graph card and the profile narrative.
+- Added focused tests for legacy noisy prose cleanup and generic-bridge detection, and ignored `/.context/` so local retro snapshots do not dirty the repo.
 - `research_sync.js` now chooses document search roots by host platform instead of assuming a single folder layout.
 - Default document scanning covers common macOS, Linux, and Windows locations, with `--documents-root` available for explicit overrides.
 - The workspace README now explains the platform-aware search behavior.
