@@ -14,6 +14,7 @@
 - The collective-memory UI now has a global connections toggle, clickable edges that open a connection drawer, and a project drawer that surfaces principal connections first.
 - Lenses are now dynamic: empty lenses are hidden, and type-based lenses are generated from the currently visible project set.
 - The browser smoke test now verifies the project connection list, the connection visibility toggle, and the connection drawer flow.
+- The local memory snapshot now keeps `Archivo vivo de trabajo` as platform metadata and trims the biography/profile summary so it reads as prose instead of a repeated label dump.
 
 ### Simplified
 - The UI onboarding copy was shortened so new users can understand the snapshot flow faster.
