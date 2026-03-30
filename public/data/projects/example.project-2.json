@@ -1,0 +1,43 @@
+{
+  "id": "archivo-lecturas",
+  "name": "Archivo de Lecturas",
+  "type": "research",
+  "status": "en desarrollo",
+  "path": "~/demo/archivo-lecturas",
+  "description": "Cuaderno de síntesis y anotaciones de fuentes seleccionadas.",
+  "abstract": "Reúne lecturas, comentarios y ejes de análisis para un archivo público.",
+  "tags": [
+    "research",
+    "analysis",
+    "writing",
+    "bibliography"
+  ],
+  "domains": [
+    "Investigación",
+    "Escritura"
+  ],
+  "themes": [
+    "Síntesis",
+    "Archivo"
+  ],
+  "technologies": [
+    "Markdown"
+  ],
+  "theoretical_frameworks": [
+    "Lectura crítica"
+  ],
+  "outputs": [
+    {
+      "type": "document",
+      "title": "Archivo de Lecturas",
+      "status": "draft"
+    }
+  ],
+  "collaborators": [],
+  "institutions": [],
+  "related_projects": [
+    "atlas-trabajo",
+    "cuaderno-creacion",
+    "cartografia-publica"
+  ]
+}
