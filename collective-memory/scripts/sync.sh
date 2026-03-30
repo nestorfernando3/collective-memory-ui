@@ -1,6 +1,6 @@
 #!/bin/bash
 # sync.sh — Collective Memory Auto-Sync
-# Copies data from collective-memory/ → collective-memory-ui/public/data/
+# Copies data from the clean snapshot root → collective-memory-ui/public/data/
 # then commits and pushes to trigger GitHub Pages deploy.
 #
 # Usage: bash ~/Documents/ReMember2/collective-memory/scripts/sync.sh
@@ -8,7 +8,10 @@
 set -e
 
 BASE_DIR="$HOME/Documents/ReMember2"
-DATA_DIR="$BASE_DIR/collective-memory"
+SNAPSHOT_DIR="${MEMORIA_OUTPUT_DIR:-$HOME/Documents/Collective Memory}"
+if [ ! -d "$SNAPSHOT_DIR" ]; then
+  SNAPSHOT_DIR="$BASE_DIR/collective-memory"
+fi
 UI_DIR="$BASE_DIR/collective-memory-ui"
 UI_DATA="$UI_DIR/public/data"
 
@@ -18,21 +21,21 @@ echo "🔄 Syncing Collective Memory..."
 mkdir -p "$UI_DATA/projects"
 
 # Sync profile
-if [ -f "$DATA_DIR/profile.json" ]; then
-  cp "$DATA_DIR/profile.json" "$UI_DATA/profile.json"
+if [ -f "$SNAPSHOT_DIR/profile.json" ]; then
+  cp "$SNAPSHOT_DIR/profile.json" "$UI_DATA/profile.json"
   echo "  ✅ profile.json synced"
 fi
 
 # Sync connections
-if [ -f "$DATA_DIR/connections.json" ]; then
-  cp "$DATA_DIR/connections.json" "$UI_DATA/connections.json"
+if [ -f "$SNAPSHOT_DIR/connections.json" ]; then
+  cp "$SNAPSHOT_DIR/connections.json" "$UI_DATA/connections.json"
   echo "  ✅ connections.json synced"
 fi
 
 # Sync projects + regenerate index
-if [ -d "$DATA_DIR/projects" ]; then
-  rsync -a --delete "$DATA_DIR/projects/" "$UI_DATA/projects/"
-  ls -1 "$DATA_DIR/projects" | grep '\.json$' > "$UI_DATA/projects_index.json"
+if [ -d "$SNAPSHOT_DIR/projects" ]; then
+  rsync -a --delete "$SNAPSHOT_DIR/projects/" "$UI_DATA/projects/"
+  ls -1 "$SNAPSHOT_DIR/projects" | grep '\.json$' > "$UI_DATA/projects_index.json"
   echo "  ✅ Projects synced and index regenerated"
 fi
 

@@ -1,79 +1,195 @@
 {
-  "name": "Persona de demostracion",
-  "site_title": "Collective Memory",
-  "site_subtitle": "Living Work Archive",
+  "name": "Néstor De León",
+  "site_title": "Memoria Colectiva",
+  "site_subtitle": "Archivo vivo de trabajo",
   "identifiers": {
-    "orcid": "",
-    "github": ""
+    "orcid": "0000-0001-8430-7031",
+    "github": "nestorfernando3"
   },
   "affiliations": [
     {
-      "institution": "Lab de demostración",
-      "role": "Diseño de conocimiento",
+      "institution": "Politécnico de la Costa Atlántica",
+      "role": "Docente / Investigador",
+      "current": true
+    },
+    {
+      "institution": "I.E.D. Brisas del Río",
+      "role": "Docente / Gestor",
       "current": true
     }
   ],
   "location": {
-    "city": "Bogotá",
+    "city": "Barranquilla",
+    "region": "Caribe",
     "country": "Colombia"
   },
   "domains": [
-    "educacion",
+    "Educación",
+    "EdTech",
+    "Gestión Cultural",
+    "Investigación Académica",
+    "Tecnología",
+    "Semiótica",
+    "Enseñanza Universitaria y Secundaria",
+    "Investigación",
     "investigacion",
-    "escritura",
-    "software"
+    "Desarrollo de Software",
+    "Cultural",
+    "Desarrollo",
+    "Creativo",
+    "Institucional",
+    "salud pública",
+    "epidemiología",
+    "productividad",
+    "metacognición",
+    "cultura",
+    "mito",
+    "tuberculosis",
+    "caribe",
+    "atlántico",
+    "pedagogía",
+    "formación integral",
+    "evaluación formativa",
+    "comida",
+    "simulacro",
+    "análisis semiótico",
+    "propuesta institucional",
+    "co-autoría",
+    "académico",
+    "frontend",
+    "ai-memory",
+    "portafolio",
+    "personal-os",
+    "ejecución",
+    "psicología",
+    "literatura",
+    "infantil",
+    "datos",
+    "secundaria",
+    "sociología urbana",
+    "artes",
+    "gestión escolar",
+    "tecnología educativa",
+    "gestión",
+    "estado",
+    "educación pública",
+    "diseño instruccional",
+    "pruebas de estado",
+    "instruccional",
+    "Writing",
+    "Research",
+    "Support",
+    "Software",
+    "Education",
+    "Public Health",
+    "Creative Work",
+    "Wellbeing",
+    "Sociology",
+    "Design System",
+    "Knowledge Management",
+    "Teaching",
+    "Narrative",
+    "Fiction",
+    "Qualitative Research",
+    "Epidemiology",
+    "Storytelling",
+    "Oral Memory",
+    "Mentorship",
+    "Memory",
+    "Narrative Analysis",
+    "Local Sync",
+    "Graph Navigation",
+    "Formative Assessment",
+    "Class Planning",
+    "creative",
+    "art",
+    "cuento",
+    "paper",
+    "analysis",
+    "salud",
+    "memoria oral",
+    "socioemotional",
+    "acompanamiento",
+    "emotion",
+    "analisis",
+    "tool",
+    "ui",
+    "markdown",
+    "pedagogia",
+    "evaluacion",
+    "aprendizaje"
   ],
   "skills": [
-    "sintesis de investigación",
-    "arquitectura de informacion",
-    "diseno pedagogico",
-    "escritura analitica"
+    "Diseño Instruccional",
+    "Programación Web (JS, VITE, React, Supabase)",
+    "Redacción Académica y Científica",
+    "Formulación de Proyectos Cultura/Educación",
+    "Docencia",
+    "Estadística",
+    "React",
+    "Vite",
+    "React Flow",
+    "Lucide React",
+    "Github Actions",
+    "JavaScript",
+    "Supabase",
+    "CSS",
+    "Markdown",
+    "Docx",
+    "Epidemiología local",
+    "Metacognición (Flavell)",
+    "Evaluación formativa (Black & Wiliam)",
+    "Semiótica",
+    "Mito y Simulacro",
+    "Data Analysis",
+    "IndexedDB"
   ],
   "languages": [
-    "spanish",
-    "english"
+    "español_nativo",
+    "inglés_fluido"
   ],
   "lenses": [
     {
       "id": "All",
-      "label": "Full Universe",
+      "label": "Universo completo",
       "filter": []
     },
     {
-      "id": "Academic",
-      "label": "Academic Lens",
+      "id": "Investigacion",
+      "label": "Investigación",
       "filter": [
-        "research",
-        "paper",
-        "analysis"
+        "investigación",
+        "investigacion",
+        "académico",
+        "semiotica",
+        "epidemiología"
       ]
     },
     {
-      "id": "Creative",
-      "label": "Creative Lens",
+      "id": "Educacion",
+      "label": "Educación",
       "filter": [
-        "creative",
-        "writing",
-        "art"
+        "educación",
+        "pedagogía",
+        "edtech",
+        "icfes",
+        "institucional"
       ]
     },
     {
-      "id": "Pedagogical",
-      "label": "Pedagogical Lens",
+      "id": "Cultura",
+      "label": "Cultura y creación",
       "filter": [
-        "education",
-        "tool",
-        "socioemotional"
-      ]
-    },
-    {
-      "id": "Tooling",
-      "label": "Tooling Lens",
-      "filter": [
-        "software",
-        "ui",
-        "markdown"
+        "cultural",
+        "literatura",
+        "caribe",
+        "artes",
+        "gestión cultural"
       ]
     }
-  ]
+  ],
+  "stats": {
+    "total_projects": 18,
+    "generated_at": "2026-03-30T17:20:26.525Z"
+  }
 }

@@ -2,7 +2,7 @@
 name: collective-memory
 description: Use when working with the collective-memory filesystem database, `/memoria` commands, portfolio snapshots, or cross-project relationship graphs.
 tags: [knowledge-management, memory, orchestration, portfolio]
-version: 1.2.0
+version: 1.3.0
 ---
 
 # Collective Memory Skill
@@ -30,6 +30,7 @@ When you execute this skill, include three concrete details in your response:
 3. The next step for using it inside the platform.
 
 Use clear, natural Spanish in generated summaries, project descriptions, and connection narratives. Prefer phrases like `se basa en`, `comparte`, `se entiende por`, and `palabras compartidas` instead of internal labels or English jargon such as `shared tokens` or `theoretical_frameworks`.
+Treat raw filesystem routes, truncated file paths, and field-like fragments such as `Ruta Objetivo:` or `Base Teórica Inyectada:` as internal evidence markers, not as user-facing prose; summarize the relationship they imply and omit the noise.
 
 The folder imported into the UI is the **snapshot root**, not a loose JSON file. By default that root lives at `~/Documents/Collective Memory/`, even if the user is working from a specific project.
 
@@ -115,7 +116,7 @@ Whenever the user runs one of the following slash commands, execute the correspo
 **Action:**
 1. Read all JSON files in the `projects/` directory.
 2. Identify cross-pollination opportunities, such as project A using a method that project B needs, or project C and D sharing data sources.
-3. Update `connections.json` with the resulting graph.
+3. Update `connections.json` with the resulting graph, keeping descriptions semantically focused and free of raw path fragments, field names, or document scaffolding.
 4. Present the user with a markdown table showing the discovered connections and suggesting concrete next steps to merge efforts or leverage past work in current projects.
 
 ### `/memoria collect`

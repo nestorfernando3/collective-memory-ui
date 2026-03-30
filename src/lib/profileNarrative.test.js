@@ -111,7 +111,7 @@ test('builds a profile narrative with routes and expansion ideas', () => {
   assert.ok(narrative.routes.some((route) => route.projects.includes('proyecto-icfes')));
   assert.equal(
     narrative.sections.find((section) => section.title === 'Active bridges').items[0].description,
-    'La relación entre Paideia y Markdown Pedagógico se entiende mejor por las señales que repiten sus textos. En los textos aparecen matrices teóricas como pedagogía y evaluación.',
+    'La relación entre Paideia y Markdown Pedagógico se entiende mejor por las señales que repiten sus textos.',
   );
   assert.ok(narrative.expansionIdeas.some((idea) => idea.from === 'paideia' && idea.to === 'diario-emociones'));
   assert.ok(narrative.sections.some((section) => section.title === 'Active bridges'));
@@ -144,6 +144,27 @@ test('excludes hidden projects from the visible narrative', () => {
   assert.equal(narrative.stats.hiddenCount, 1);
   assert.ok(narrative.routes.every((route) => !route.projects.includes('paideia')));
   assert.ok(narrative.expansionIdeas.every((idea) => idea.from !== 'paideia' && idea.to !== 'paideia'));
+});
+
+test('hides demo projects from the visible narrative even without an explicit hidden list', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects: [
+      ...projects,
+      {
+        id: 'demo-archivo',
+        name: 'Archivo Demo',
+        path: '~/demo/archivo-demo',
+        type: 'demo',
+        status: 'activo',
+        description: 'Proyecto de prueba que no debe aparecer en la memoria personal.',
+      },
+    ],
+    connections,
+  });
+
+  assert.equal(narrative.stats.projectCount, projects.length);
+  assert.ok(narrative.routes.every((route) => !route.projects.includes('demo-archivo')));
 });
 
 test('returns a sane fallback narrative when the profile is missing', () => {

@@ -104,6 +104,10 @@ function loadProjects() {
     .filter(file => file.endsWith('.json'))
     .map(file => readJson(path.join(PROJECTS_DIR, file), {}))
     .filter(project => project && project.id && project.name)
+    .filter(project => {
+      const normalizedPath = String(project.path || '').replace(/\\/g, '/');
+      return !(normalizedPath.includes('/demo/') || normalizedPath.startsWith('~/demo'));
+    })
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 }
 

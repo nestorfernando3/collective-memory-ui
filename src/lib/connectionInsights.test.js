@@ -51,14 +51,14 @@ test('localizes fallback labels when no strength is provided', () => {
   assert.equal(insights[0].type, 'Sinérgica');
 });
 
-test('removes route and base-theory noise from connection descriptions', () => {
+test('removes route, boilerplate, and legacy memory noise from connection descriptions', () => {
   const connections = {
     connections: [
       {
         from: 'alpha',
         to: 'beta',
         description:
-          'La relación entre Alpha y Beta se entiende mejor por las señales que repiten sus textos. En los textos aparecen matrices teóricas como fenomenología y teoría y pasajes como Ruta Objetivo: ~/Documents/Las Camilas - Textos selectos/... y Base Teórica Inyectada: Fe…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central.',
+          'La relación entre Alpha y Beta se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y teoría, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, pedagógicos y culturales. La lectura sugerida va de Alpha hacia Beta, porque el vínculo parece acumulativo y no accidental.',
       },
     ],
   };
@@ -69,6 +69,35 @@ test('removes route and base-theory noise from connection descriptions', () => {
     connections: connections.connections,
   });
 
-  assert.equal(insights[0].description, 'La relación entre Alpha y Beta se entiende mejor por las señales que repiten sus textos. En los textos aparecen matrices teóricas como fenomenología y teoría. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central.');
-  assert.doesNotMatch(insights[0].description, /Ruta Objetivo|Base Teórica Inyectada|Las Camilas - Textos selectos/i);
+  assert.equal(
+    insights[0].description,
+    'Cruce provisional: la evidencia compartida todavía no alcanza para sostenerlo.',
+  );
+  assert.doesNotMatch(insights[0].description, /Ruta Objetivo|Base Teórica Inyectada|Las Camilas - Textos selectos|Generación 2030|Archivo vivo de trabajo|Este perfil se entiende/i);
+});
+
+test('replaces weak generic fallback descriptions with exploratory copy', () => {
+  const connections = {
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        description:
+          'La relación entre Alpha y Beta se entiende mejor por las señales que repiten sus textos. La lectura sugerida va de Alpha hacia Beta, porque el vínculo parece acumulativo y no accidental.',
+        evidence: { score: 14 },
+      },
+    ],
+  };
+
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: connections.connections,
+  });
+
+  assert.equal(
+    insights[0].description,
+    'Cruce provisional: la evidencia compartida todavía no alcanza para sostenerlo.',
+  );
+  assert.doesNotMatch(insights[0].description, /se entiende mejor por las señales/i);
 });

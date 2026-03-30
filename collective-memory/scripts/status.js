@@ -52,7 +52,11 @@ function loadProjects() {
     } catch {
       return null;
     }
-  }).filter(Boolean);
+  }).filter(project => {
+    if (!project) return false;
+    const normalizedPath = String(project.path || '').replace(/\\/g, '/');
+    return !(normalizedPath.includes('/demo/') || normalizedPath.startsWith('~/demo'));
+  });
 }
 
 function truncate(str, len) {
