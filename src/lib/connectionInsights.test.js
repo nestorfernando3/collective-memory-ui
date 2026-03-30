@@ -69,7 +69,7 @@ test('removes route, boilerplate, and legacy memory noise from connection descri
     connections: connections.connections,
   });
 
-  assert.match(insights[0].description, /visible in the main graph|Vínculo activo/i);
+  assert.equal(insights[0].description, '');
   assert.doesNotMatch(insights[0].description, /Ruta Objetivo|Base Teórica Inyectada|Las Camilas - Textos selectos|Generación 2030|Archivo vivo de trabajo|Este perfil se entiende/i);
 });
 
@@ -92,7 +92,7 @@ test('replaces weak generic fallback descriptions with exploratory copy', () => 
     connections: connections.connections,
   });
 
-  assert.match(insights[0].description, /visible in the main graph|Vínculo activo/i);
+  assert.equal(insights[0].description, '');
   assert.doesNotMatch(insights[0].description, /se entiende mejor por las señales/i);
 });
 

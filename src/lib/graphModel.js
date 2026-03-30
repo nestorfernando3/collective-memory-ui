@@ -119,7 +119,7 @@ function buildCoreEdge(projectId) {
     source: 'user_profile',
     target: projectId,
     animated: true,
-    type: 'smoothstep',
+    type: 'default',
     style: {
       stroke: 'rgba(26, 26, 26, 0.4)',
       strokeWidth: 1.5,
@@ -146,7 +146,7 @@ function buildConnectionEdges({ visibleProjects, allProjects, connections, local
     id: `connection:${item.source}:${item.target}`,
     source: item.source,
     target: item.target,
-    type: 'smoothstep',
+    type: 'default',
     label: item.type,
     style: {
       stroke: item.tier === 'exploratory' ? '#1d3557' : '#e63946',

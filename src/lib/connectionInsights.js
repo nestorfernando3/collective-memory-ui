@@ -62,25 +62,12 @@ function normalizeVisibility(value) {
 function buildFallbackDescription(connection, locale) {
   const normalizedLocale = normalizeLocale(locale);
   const tier = normalizeTier(connection?.tier);
-  const type = String(connection?.type || '').trim();
-  const evidenceScore = Number(connection?.evidence?.score);
-  const scoreLabel = Number.isFinite(evidenceScore) ? ` (${Math.round(evidenceScore)})` : '';
 
   if (tier === 'exploratory') {
-    if (type) {
-      return normalizedLocale === 'es'
-        ? `Puente exploratorio ${type.toLowerCase()}${scoreLabel}: hay señales útiles, pero todavía falta evidencia para consolidarlo.`
-        : `Exploratory ${type.toLowerCase()} bridge${scoreLabel}: there are useful signals, but more evidence is needed to consolidate it.`;
-    }
-
-    return normalizedLocale === 'es'
-      ? `Puente exploratorio${scoreLabel}: hay señales útiles, pero todavía falta evidencia para consolidarlo.`
-      : `Exploratory bridge${scoreLabel}: there are useful signals, but more evidence is needed to consolidate it.`;
+    return normalizedLocale === 'es' ? 'Sin descripción revisada' : 'No reviewed description';
   }
 
-  return normalizedLocale === 'es'
-    ? `Vínculo activo${scoreLabel}: la relación está visible en el grafo principal, aunque la descripción original necesita revisión.`
-    : `Active link${scoreLabel}: this relationship is visible in the main graph, although the original description needs revision.`;
+  return '';
 }
 
 export function buildConnectionInsight(connection, projectById, fallbackId = '', locale = 'en') {

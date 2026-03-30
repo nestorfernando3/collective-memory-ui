@@ -1,17 +1,22 @@
-import { startTransition, useEffect, useMemo, useState } from 'react';
 import {
   Background,
+  ConnectionLineType,
   Handle,
   Position,
   ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
   Eye,
   EyeOff,
   FileText,
+  FolderUp,
   Languages,
   Link2,
+  Menu,
+  RotateCcw,
   UserRound,
   X,
 } from 'lucide-react';
@@ -34,6 +39,10 @@ const STORAGE_KEYS = {
   visibilityMode: 'collective-memory-visibility-mode',
 };
 
+const MEMORY_DB_NAME = 'collective-memory-ui';
+const MEMORY_STORE_NAME = 'snapshots';
+const ACTIVE_SNAPSHOT_KEY = 'active-snapshot';
+
 const FALLBACK_LENS = {
   id: 'All',
   label: 'Universo completo',
@@ -42,6 +51,7 @@ const FALLBACK_LENS = {
 
 const COPY = {
   es: {
+    atlasLabel: 'Atlas de memoria',
     subtitleFallback: 'Archivo vivo de trabajo',
     instructionsTitle: 'Importa o sincroniza tu snapshot para explorar la memoria.',
     instructionsBody:
@@ -64,7 +74,7 @@ const COPY = {
     visibilityAll: 'Mostrar exploratorios',
     languageLabel: 'Idioma',
     sourceLabel: 'Fuente',
-    sourceDemo: 'Demo local',
+    sourceDemo: 'Proyectos personales · demo local',
     visibleProjects: 'proyectos visibles',
     visibleConnections: 'puentes visibles',
     directConnections: 'conexiones directas',
@@ -87,8 +97,13 @@ const COPY = {
     optionalBadge: 'Exploratoria',
     defaultBadge: 'Activa',
     hiddenCount: 'ocultos',
+    lensLabel: 'Lentes',
+    importFolder: 'Cargar carpeta local',
+    restorePublished: 'Usar snapshot publicado',
+    localMemoryActive: 'memoria local activa',
   },
   en: {
+    atlasLabel: 'Memory atlas',
     subtitleFallback: 'Living archive of work',
     instructionsTitle: 'Import or sync your snapshot to explore the memory graph.',
     instructionsBody:
@@ -111,7 +126,7 @@ const COPY = {
     visibilityAll: 'Show exploratory',
     languageLabel: 'Language',
     sourceLabel: 'Source',
-    sourceDemo: 'Local demo',
+    sourceDemo: 'Personal projects · local demo',
     visibleProjects: 'visible projects',
     visibleConnections: 'visible bridges',
     directConnections: 'direct connections',
@@ -134,6 +149,10 @@ const COPY = {
     optionalBadge: 'Exploratory',
     defaultBadge: 'Active',
     hiddenCount: 'hidden',
+    lensLabel: 'Lenses',
+    importFolder: 'Load local folder',
+    restorePublished: 'Use published snapshot',
+    localMemoryActive: 'local memory active',
   },
 };
 
@@ -161,6 +180,9 @@ function ProfileNode({ data }) {
 const hiddenHandleStyle = {
   opacity: 0,
   pointerEvents: 'none',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
 };
 
 function parseStoredJson(key, fallbackValue) {
@@ -221,6 +243,161 @@ async function loadMemoryDataset(basePath) {
   };
 }
 
+function openMemoryDatabase() {
+  if (typeof window === 'undefined' || !window.indexedDB) {
+    return Promise.resolve(null);
+  }
+
+  return new Promise((resolve, reject) => {
+    const request = window.indexedDB.open(MEMORY_DB_NAME, 1);
+
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(MEMORY_STORE_NAME)) {
+        db.createObjectStore(MEMORY_STORE_NAME);
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error('Unable to open memory database'));
+  });
+}
+
+async function readStoredSnapshot() {
+  const db = await openMemoryDatabase();
+  if (!db) return null;
+
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(MEMORY_STORE_NAME, 'readonly');
+    const store = tx.objectStore(MEMORY_STORE_NAME);
+    const request = store.get(ACTIVE_SNAPSHOT_KEY);
+
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error || new Error('Unable to read stored snapshot'));
+    tx.oncomplete = () => db.close();
+  });
+}
+
+async function writeStoredSnapshot(snapshot) {
+  const db = await openMemoryDatabase();
+  if (!db) return;
+
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(MEMORY_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(MEMORY_STORE_NAME);
+    store.put(snapshot, ACTIVE_SNAPSHOT_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error || new Error('Unable to store snapshot'));
+  });
+
+  db.close();
+}
+
+async function clearStoredSnapshot() {
+  const db = await openMemoryDatabase();
+  if (!db) return;
+
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(MEMORY_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(MEMORY_STORE_NAME);
+    store.delete(ACTIVE_SNAPSHOT_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error || new Error('Unable to clear stored snapshot'));
+  });
+
+  db.close();
+}
+
+function inferFolderName(paths, fallback = 'Local memory') {
+  const firstPath = paths.find(Boolean);
+  if (!firstPath) return fallback;
+
+  const segments = String(firstPath).replaceAll('\\', '/').split('/').filter(Boolean);
+  return segments.length > 1 ? segments[0] : fallback;
+}
+
+function parseImportedEntries(entries, sourceName) {
+  const jsonEntries = Array.isArray(entries)
+    ? entries.filter((entry) => entry?.path?.toLowerCase?.().endsWith('.json'))
+    : [];
+
+  let profile = null;
+  let connections = { connections: [] };
+  const projects = [];
+
+  for (const entry of jsonEntries) {
+    let parsed = null;
+
+    try {
+      parsed = JSON.parse(entry.text);
+    } catch (error) {
+      throw new Error(`JSON inválido en ${entry.path}: ${error instanceof Error ? error.message : 'error desconocido'}`);
+    }
+
+    const normalizedPath = entry.path.replaceAll('\\', '/');
+
+    if (normalizedPath.endsWith('/profile.json') || normalizedPath === 'profile.json') {
+      profile = parsed;
+      continue;
+    }
+
+    if (normalizedPath.endsWith('/connections.json') || normalizedPath === 'connections.json') {
+      connections = parsed?.connections ? parsed : { connections: [] };
+      continue;
+    }
+
+    if (normalizedPath.includes('/projects/') || normalizedPath.startsWith('projects/')) {
+      projects.push(parsed);
+    }
+  }
+
+  if (!profile) {
+    throw new Error('No encontré profile.json en la carpeta seleccionada.');
+  }
+
+  return {
+    profile,
+    connections,
+    projects,
+    source: 'local',
+    sourceName,
+    importedAt: new Date().toISOString(),
+  };
+}
+
+async function readDirectoryHandleEntries(handle, prefix = handle.name) {
+  const entries = [];
+
+  for await (const entry of handle.values()) {
+    if (entry.kind === 'file') {
+      const file = await entry.getFile();
+      entries.push({
+        path: `${prefix}/${entry.name}`,
+        text: await file.text(),
+      });
+      continue;
+    }
+
+    if (entry.kind === 'directory') {
+      const nestedEntries = await readDirectoryHandleEntries(entry, `${prefix}/${entry.name}`);
+      entries.push(...nestedEntries);
+    }
+  }
+
+  return entries;
+}
+
+async function readInputEntries(fileList) {
+  const files = Array.from(fileList || []);
+
+  return Promise.all(
+    files.map(async (file) => ({
+      path: file.webkitRelativePath || file.name,
+      text: await file.text(),
+    })),
+  );
+}
+
 function App() {
   const [dataset, setDataset] = useState(null);
   const [loadingError, setLoadingError] = useState('');
@@ -238,6 +415,10 @@ function App() {
   const [activeLensId, setActiveLensId] = useState('All');
   const [projectConnectionMode, setProjectConnectionMode] = useState('principal');
   const [drawer, setDrawer] = useState(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const fileInputRef = useRef(null);
+  const [viewMode, setViewMode] = useState('graph');
 
   const language = normalizeLocale(locale);
   const text = COPY[language];
@@ -246,17 +427,28 @@ function App() {
   useEffect(() => {
     let cancelled = false;
 
-    loadMemoryDataset(basePath)
-      .then((nextDataset) => {
+    (async () => {
+      try {
+        const storedSnapshot = await readStoredSnapshot();
+
+        if (cancelled) return;
+
+        if (storedSnapshot) {
+          setDataset(storedSnapshot);
+          setLoadingError('');
+          return;
+        }
+
+        const nextDataset = await loadMemoryDataset(basePath);
         if (cancelled) return;
         setDataset(nextDataset);
         setLoadingError('');
-      })
-      .catch((error) => {
+      } catch (error) {
         if (cancelled) return;
         setDataset(null);
         setLoadingError(error instanceof Error ? error.message : 'Unable to load data');
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -278,7 +470,10 @@ function App() {
     window.localStorage.setItem(STORAGE_KEYS.visibilityMode, visibilityMode);
   }, [visibilityMode]);
 
-  const availableLenses = dataset?.profile?.lenses?.length ? dataset.profile.lenses : [FALLBACK_LENS];
+  const availableLenses = useMemo(
+    () => (dataset?.profile?.lenses?.length ? dataset.profile.lenses : [FALLBACK_LENS]),
+    [dataset],
+  );
   const safeLensId = availableLenses.some((lens) => lens.id === activeLensId) ? activeLensId : availableLenses[0].id;
 
   useEffect(() => {
@@ -287,23 +482,24 @@ function App() {
     }
   }, [activeLensId, safeLensId]);
 
-  const graph = useMemo(() => {
-    if (!dataset) return null;
-
-    return buildGraphModel({
-      profile: dataset.profile,
-      projects: dataset.projects,
-      connections: dataset.connections,
-      hiddenProjectIds,
-      locale: language,
-      activeLensId: safeLensId,
-      visibilityMode,
-    });
-  }, [dataset, hiddenProjectIds, language, safeLensId, visibilityMode]);
+  const graph = useMemo(
+    () =>
+      dataset
+        ? buildGraphModel({
+            profile: dataset.profile,
+            projects: dataset.projects,
+            connections: dataset.connections,
+            hiddenProjectIds,
+            locale: language,
+            activeLensId: safeLensId,
+            visibilityMode,
+          })
+        : null,
+    [dataset, hiddenProjectIds, language, safeLensId, visibilityMode],
+  );
 
   const renderedNodes = useMemo(() => {
     if (!graph) return [];
-
     return graph.nodes.map((node) => ({
       ...node,
       data: {
@@ -361,6 +557,13 @@ function App() {
     translateAppSubtitle(dataset?.profile?.site_subtitle, language) ||
     dataset?.profile?.site_subtitle ||
     text.subtitleFallback;
+  const activeConnectionsLabel = `${graph?.meta.visibleConnectionCount || 0} ${text.visibleConnections}`;
+  const sourceDisplayLabel =
+    dataset?.source === 'local'
+      ? `${dataset.sourceName || 'Local memory'} · ${text.localMemoryActive}`
+      : text.sourceDemo;
+  const showGraph = Boolean(graph);
+  const showInstructions = viewMode === 'instructions' || !graph;
 
   function openProfile() {
     if (!profileNarrative) return;
@@ -411,92 +614,252 @@ function App() {
     }
   }
 
+  async function handleImportEntries(entries, sourceName) {
+    const importedDataset = parseImportedEntries(entries, sourceName);
+    await writeStoredSnapshot(importedDataset);
+    setDataset(importedDataset);
+    setLoadingError('');
+    setDrawer(null);
+  }
+
+  async function handleImportFolder() {
+    try {
+      if (typeof window !== 'undefined' && 'showDirectoryPicker' in window) {
+        const handle = await window.showDirectoryPicker();
+        const entries = await readDirectoryHandleEntries(handle);
+        await handleImportEntries(entries, handle.name);
+        return;
+      }
+
+      fileInputRef.current?.click();
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      setLoadingError(error instanceof Error ? error.message : 'No pude cargar la carpeta local');
+    }
+  }
+
+  async function handleFileInputChange(event) {
+    const files = event.target.files;
+    if (!files?.length) return;
+
+    try {
+      const entries = await readInputEntries(files);
+      await handleImportEntries(entries, inferFolderName(entries.map((entry) => entry.path)));
+    } catch (error) {
+      setLoadingError(error instanceof Error ? error.message : 'No pude importar la carpeta local');
+    } finally {
+      event.target.value = '';
+    }
+  }
+
+  async function handleRestorePublished() {
+    try {
+      await clearStoredSnapshot();
+      const publishedDataset = await loadMemoryDataset(basePath);
+      setDataset(publishedDataset);
+      setLoadingError('');
+      setDrawer(null);
+    } catch (error) {
+      setLoadingError(error instanceof Error ? error.message : 'No pude restaurar el snapshot publicado');
+    }
+  }
+
   const flowKey = [safeLensId, visibilityMode, hiddenProjectIds.join(','), language].join('::');
 
   return (
     <div className="app-shell">
-      <header className="header">
-        <div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".json"
+        webkitdirectory=""
+        directory=""
+        className="hidden-folder-input"
+        onChange={handleFileInputChange}
+      />
+
+      <aside className="sidebar">
+        <div className="sidebar-copy">
+          <span className="header-kicker">{text.atlasLabel}</span>
           <h1>{title}</h1>
           <p>{subtitle}</p>
         </div>
-        <div className="header-actions">
-          <button className="ghost-chip" type="button" onClick={openProfile}>
-            <UserRound size={14} />
-            {text.openProfile}
-          </button>
-          <button
-            className="ghost-chip"
-            type="button"
-            onClick={() => setLocale((current) => (normalizeLocale(current) === 'es' ? 'en' : 'es'))}
-          >
-            <Languages size={14} />
-            {text.languageLabel}: {language.toUpperCase()}
-          </button>
-          <button
-            className="ghost-chip"
-            type="button"
-            onClick={() =>
-              startTransition(() => {
-                setVisibilityMode((current) => (current === 'default' ? 'all' : 'default'));
-              })
-            }
-          >
-            {visibilityMode === 'default' ? <Eye size={14} /> : <EyeOff size={14} />}
-            {visibilityMode === 'default' ? text.visibilityAll : text.visibilityDefault}
-          </button>
-        </div>
-      </header>
 
-      <section className="hud-panel hud-top">
-        <div className="stats-grid">
-          <StatCard
-            label={text.visibleProjects}
-            value={graph?.meta.visibleProjectCount || 0}
-            note={
-              hiddenProjectIds.length
-                ? `${hiddenProjectIds.length} ${text.hiddenCount}`
-                : null
-            }
-          />
-          <StatCard
-            label={text.visibleConnections}
-            value={graph?.meta.visibleConnectionCount || 0}
-            note={`${graph?.meta.strongConnectionCount || 0} ${text.active} · ${graph?.meta.exploratoryConnectionCount || 0} ${text.reserve}`}
-          />
-          <StatCard
-            label={text.sourceLabel}
-            value={text.sourceDemo}
-            note={visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
-          />
+        <div className="header-chips">
+          <span className="header-chip">{activeConnectionsLabel}</span>
+          <span className="header-chip">{sourceDisplayLabel}</span>
+          {dataset?.source === 'local' ? <span className="header-chip local">{text.localMemoryActive}</span> : null}
         </div>
-      </section>
 
-      <section className="hud-panel hud-bottom">
-        <div className="lens-controls">
-          {availableLenses.map((lens) => (
+        {showInstructions ? (
+          <>
+            <section className="sidebar-card">
+              <h2>{text.instructionsTitle}</h2>
+              <p>{text.instructionsBody}</p>
+              {loadingError ? <p className="error-line">{loadingError}</p> : null}
+              <ol className="instructions-list">
+                {text.onboarding.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ol>
+            </section>
+            <section className="sidebar-card">
+              <h3>{text.commandsTitle}</h3>
+              <div className="command-list">
+                {text.commands.map((item) => (
+                  <div className="command-row" key={item.command}>
+                    <code>{item.command}</code>
+                    <span>{item.note}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </>
+        ) : (
+          <>
+            <section className="sidebar-card sidebar-card-notice">
+              <p>
+                {dataset?.source === 'local'
+                  ? `${text.localMemoryActive}. ${text.sourceLabel}: ${sourceDisplayLabel}.`
+                  : `${text.sourceLabel}: ${sourceDisplayLabel}.`}
+              </p>
+            </section>
+            <section className="sidebar-card">
+              <h3>{text.importFolder}</h3>
+              <p>{subtitle}</p>
+              <button className="secondary-btn sidebar-card-action" type="button" onClick={handleImportFolder}>
+                <FolderUp size={14} />
+                {text.importFolder}
+              </button>
+            </section>
+            <section className="sidebar-card">
+              <h3>{text.openProfile}</h3>
+              <p>{text.visibleProjects} · {text.visibleConnections}</p>
+              <button className="secondary-btn sidebar-card-action" type="button" onClick={openProfile}>
+                <UserRound size={14} />
+                {text.openProfile}
+              </button>
+            </section>
+          </>
+        )}
+      </aside>
+
+      <main className="stage">
+        <div className="stage-toolbar">
+          <div className="mode-switch">
             <button
-              key={lens.id}
-              className={`lens-btn ${safeLensId === lens.id ? 'active' : ''}`}
+              className={`mode-tab ${viewMode === 'graph' ? 'active' : ''}`}
+              type="button"
+              onClick={() => setViewMode('graph')}
+            >
+              <Menu size={14} />
+              GRAPH
+            </button>
+            <button
+              className={`mode-tab ${viewMode === 'instructions' ? 'active' : ''}`}
+              type="button"
+              onClick={() => setViewMode('instructions')}
+            >
+              INSTRUCTIONS AND TIPS
+            </button>
+          </div>
+          <div className="toolbar-actions">
+            <button className="ghost-chip" type="button" onClick={handleImportFolder}>
+              <FolderUp size={14} />
+              {text.importFolder}
+            </button>
+            {dataset?.source === 'local' ? (
+              <button className="ghost-chip" type="button" onClick={handleRestorePublished}>
+                <RotateCcw size={14} />
+                {text.restorePublished}
+              </button>
+            ) : null}
+            <button
+              className="ghost-chip"
+              type="button"
+              onClick={() => setLocale((current) => (normalizeLocale(current) === 'es' ? 'en' : 'es'))}
+            >
+              <Languages size={14} />
+              {text.languageLabel}: {language.toUpperCase()}
+            </button>
+            <button
+              className="ghost-chip"
               type="button"
               onClick={() =>
                 startTransition(() => {
-                  setActiveLensId(lens.id);
+                  setVisibilityMode((current) => (current === 'default' ? 'all' : 'default'));
                 })
               }
             >
-              {lens.label}
+              {visibilityMode === 'default' ? <Eye size={14} /> : <EyeOff size={14} />}
+              {visibilityMode === 'default' ? text.visibilityAll : text.visibilityDefault}
             </button>
-          ))}
+          </div>
+        </div>
+
+      {showGraph ? (
+        <section className="hud-panel hud-top">
+          <div className="stats-grid">
+            <StatCard
+              label={text.visibleProjects}
+              value={graph?.meta.visibleProjectCount || 0}
+              note={
+                hiddenProjectIds.length
+                  ? `${hiddenProjectIds.length} ${text.hiddenCount}`
+                  : null
+              }
+            />
+            <StatCard
+              label={text.visibleConnections}
+              value={graph?.meta.visibleConnectionCount || 0}
+              note={`${graph?.meta.strongConnectionCount || 0} ${text.active} · ${graph?.meta.exploratoryConnectionCount || 0} ${text.reserve}`}
+            />
+            <StatCard
+              label={text.sourceLabel}
+              value={sourceDisplayLabel}
+              note={visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      <section className="hud-panel hud-bottom">
+        <div className="lens-panel">
+          <div className="lens-panel-header">
+            <span className="lens-panel-title">{text.lensLabel}</span>
+            <span className="lens-panel-note">
+              {visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
+            </span>
+          </div>
+          <div className="lens-controls">
+            {availableLenses.map((lens) => (
+              <button
+                key={lens.id}
+                className={`lens-btn ${safeLensId === lens.id ? 'active' : ''}`}
+                type="button"
+                onClick={() =>
+                  startTransition(() => {
+                    setActiveLensId(lens.id);
+                  })
+                }
+              >
+                {lens.label}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
-      {graph ? (
+      {showGraph ? (
         <ReactFlow
           key={flowKey}
           nodes={renderedNodes}
           edges={renderedEdges}
           nodeTypes={nodeTypes}
+          connectionLineType={ConnectionLineType.Bezier}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
           onNodeClick={handleNodeClick}
           onEdgeClick={handleEdgeClick}
           fitView
@@ -506,31 +869,8 @@ function App() {
         >
           <Background gap={36} color="rgba(26, 26, 26, 0.12)" size={1.1} />
         </ReactFlow>
-      ) : (
-        <section className="instructions-page">
-          <div className="instructions-card">
-            <h2>{text.instructionsTitle}</h2>
-            <p>{text.instructionsBody}</p>
-            {loadingError ? <p className="error-line">{loadingError}</p> : null}
-            <ol className="instructions-list">
-              {text.onboarding.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ol>
-          </div>
-          <div className="instructions-card">
-            <h3>{text.commandsTitle}</h3>
-            <div className="command-list">
-              {text.commands.map((item) => (
-                <div className="command-row" key={item.command}>
-                  <code>{item.command}</code>
-                  <span>{item.note}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      ) : null}
+      </main>
 
       <aside className={`drawer ${drawer ? 'open' : ''}`}>
         <button className="drawer-close" type="button" onClick={() => setDrawer(null)}>
