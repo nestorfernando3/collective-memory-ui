@@ -428,6 +428,7 @@ function buildExpansionIdeas(projects, activeConnections, locale) {
       ideas.push({
         from: left.id,
         to: right.id,
+        pairLabel: `${projectLabel(left, locale)} + ${projectLabel(right, locale)}`,
         label: candidate.label,
         reason: candidate.reason,
         score: candidate.score,
@@ -551,6 +552,7 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
         items: expansionIdeas.map((idea) => ({
           from: idea.from,
           to: idea.to,
+          pairLabel: idea.pairLabel,
           label: idea.label,
           reason: idea.reason,
         })),

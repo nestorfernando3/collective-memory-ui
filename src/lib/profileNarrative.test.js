@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { buildProfileNarrative } from './profileNarrative.js';
 
 const profile = {
@@ -167,6 +168,34 @@ test('builds a spanish profile narrative when requested', () => {
   assert.doesNotMatch(narrative.overview, /Personal Operating System|Sistema Operativo Personal|Archivo vivo de trabajo/i);
   assert.match(narrative.overview, /docencia|investigación|desarrollo de herramientas/i);
   assert.ok(narrative.sections.some((section) => section.items.some((item) => typeof item === 'string' && /coautor|terceros/i.test(item))));
+});
+
+test('expansion ideas identify the project pair in the real dataset', () => {
+  const realProfile = JSON.parse(fs.readFileSync(new URL('../../public/data/profile.json', import.meta.url), 'utf8'));
+  const projectsIndex = fs
+    .readFileSync(new URL('../../public/data/projects_index.json', import.meta.url), 'utf8')
+    .split(/\r?\n/)
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .filter((value) => value.endsWith('.json'));
+  const realProjects = projectsIndex.map((fileName) =>
+    JSON.parse(fs.readFileSync(new URL(`../../public/data/projects/${fileName}`, import.meta.url), 'utf8')),
+  );
+  const realConnections = JSON.parse(fs.readFileSync(new URL('../../public/data/connections.json', import.meta.url), 'utf8'));
+
+  const narrative = buildProfileNarrative({
+    profile: realProfile,
+    projects: realProjects,
+    connections: realConnections,
+    locale: 'es',
+  });
+
+  const expansionSection = narrative.sections.find((section) => section.title === 'Ideas de expansión');
+
+  assert.ok(expansionSection);
+  assert.ok(expansionSection.items.length > 0);
+  assert.ok(expansionSection.items.every((item) => typeof item.pairLabel === 'string' && item.pairLabel.includes(' + ')));
+  assert.equal(new Set(expansionSection.items.map((item) => item.pairLabel)).size, expansionSection.items.length);
 });
 
 test('excludes hidden projects from the visible narrative', () => {

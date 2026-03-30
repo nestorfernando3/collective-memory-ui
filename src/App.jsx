@@ -567,7 +567,9 @@ function App() {
                         <li key={`${section.title}-${index}`}>
                           {typeof item === 'string'
                             ? item
-                            : item.label || item.title
+                            : item.pairLabel
+                              ? `${item.pairLabel}${item.label ? ` · ${item.label}` : ''}: ${item.description || item.summary || item.reason || item.type || ''}`
+                              : item.label || item.title
                               ? `${item.label || item.title}: ${item.description || item.summary || item.reason || item.type || ''}`
                               : JSON.stringify(item)}
                         </li>
