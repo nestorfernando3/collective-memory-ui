@@ -85,6 +85,76 @@ const DATA_MARKERS = [
   'archivo fuente',
 ];
 
+const WEAK_SHARED_TOKENS = new Set([
+  'academic',
+  'academico',
+  'analisis',
+  'analysis',
+  'article',
+  'articulo',
+  'current',
+  'data',
+  'datos',
+  'development',
+  'desarrollo',
+  'document',
+  'documento',
+  'education',
+  'educacion',
+  'edtech',
+  'estudio',
+  'investigation',
+  'investigacion',
+  'paper',
+  'project',
+  'proyecto',
+  'research',
+  'study',
+  'web',
+  'app',
+  'platform',
+  'plataforma',
+  'software',
+  'tool',
+  'tools',
+  'ui',
+  'frontend',
+  'management',
+  'gestion',
+  'institutional',
+  'institucional',
+  'creative',
+  'creativo',
+  'cultural',
+  'pedagogia',
+  'pedagogico',
+  'pedagogica',
+  'technology',
+  'tecnologia',
+  'public',
+  'publica',
+  'publico',
+  'active',
+  'activo',
+]);
+
+const PROVENANCE_MARKERS = [
+  'co-autoría',
+  'coautoría',
+  'co autoria',
+  'coautor',
+  'autoría ajena',
+  'fuente externa',
+  'material de terceros',
+  'third party',
+  'third-party',
+  'research claw',
+  'citado',
+  'cita textual',
+  'adaptado',
+  'compilación',
+];
+
 const EXISTING_REPORT_THRESHOLD = 20;
 const EXISTING_REFRESH_THRESHOLD = 10;
 const NEW_CONNECTION_THRESHOLD = 35;
@@ -216,6 +286,13 @@ function uniq(values) {
   return [...new Set(values.filter(Boolean))];
 }
 
+function filterMeaningfulSharedTokens(tokens) {
+  return uniq(tokens)
+    .map(token => String(token || '').trim())
+    .filter(token => token.length > 2)
+    .filter(token => !WEAK_SHARED_TOKENS.has(token));
+}
+
 function joinList(values) {
   const items = uniq(values);
   if (!items.length) return '';
@@ -334,6 +411,7 @@ function collectHighlights(lines, signals) {
     ...(signals.citations || []),
     ...(signals.theoryTerms || []),
     ...(signals.dataTerms || []),
+    ...(signals.provenanceTerms || []),
     ...(signals.headings || []),
     ...(signals.quotedPhrases || []),
   ]).map(value => normalizePhrase(value));
@@ -372,11 +450,13 @@ function extractDocumentSignals(text) {
   const citations = extractCitationStrings(source);
   const theoryTerms = matchMarkers(source, THEORY_MARKERS);
   const dataTerms = matchMarkers(source, DATA_MARKERS);
+  const provenanceTerms = matchMarkers(source, PROVENANCE_MARKERS);
   const headings = uniq(lines.filter(isHeadingLike).map(line => line.replace(/^#{1,6}\s+/, '').trim()));
   const quotedPhrases = extractQuotedPhrases(source);
   const keyPhrases = uniq([
     ...theoryTerms,
     ...dataTerms,
+    ...provenanceTerms,
     ...headings,
     ...quotedPhrases,
   ]);
@@ -385,6 +465,7 @@ function extractDocumentSignals(text) {
     citations,
     theoryTerms,
     dataTerms,
+    provenanceTerms,
     headings,
     quotedPhrases,
     keyPhrases,
@@ -407,7 +488,7 @@ function mergeSignals(target, source) {
 }
 
 function sharedSignalDetails(signalsA, signalsB) {
-  const fields = ['citations', 'theoryTerms', 'dataTerms', 'headings', 'quotedPhrases', 'keyPhrases'];
+  const fields = ['citations', 'theoryTerms', 'dataTerms', 'provenanceTerms', 'headings', 'quotedPhrases', 'keyPhrases'];
   return fields.reduce((acc, field) => {
     const a = new Set(signalsA[field] || []);
     const b = new Set(signalsB[field] || []);
@@ -427,6 +508,9 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
   const toProfile = profilesById.get(toId);
   const fromProject = fromProfile.project;
   const toProject = toProfile.project;
+  const fromDocEvidence = fromProfile.docEvidence || { snippets: [] };
+  const toDocEvidence = toProfile.docEvidence || { snippets: [] };
+  const meaningfulTokens = filterMeaningfulSharedTokens(candidate.sharedMetadataTokens || []);
 
   const sharedSummary = [];
   ['theoretical_frameworks', 'domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators'].forEach(field => {
@@ -436,19 +520,19 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
     }
   });
 
-  if (candidate.sharedMetadataTokens.length) {
-    sharedSummary.push(`shared tokens: ${joinList(candidate.sharedMetadataTokens.slice(0, 6))}`);
+  if (meaningfulTokens.length) {
+    sharedSummary.push(`vocabulario específico: ${joinList(meaningfulTokens.slice(0, 4))}`);
   }
 
   const docFiles = uniq([
-    ...(fromProfile.docEvidence.snippets || []).map(item => item.label),
-    ...(toProfile.docEvidence.snippets || []).map(item => item.label),
+    ...(fromDocEvidence.snippets || []).map(item => item.label),
+    ...(toDocEvidence.snippets || []).map(item => item.label),
   ]).slice(0, 3);
 
   const docSignals = sharedSignalDetails(fromProfile.docSignals || {}, toProfile.docSignals || {});
   const docHighlights = uniq([
-    ...((fromProfile.docEvidence.snippets || []).flatMap(item => item.highlights || [])),
-    ...((toProfile.docEvidence.snippets || []).flatMap(item => item.highlights || [])),
+    ...((fromDocEvidence.snippets || []).flatMap(item => item.highlights || [])),
+    ...((toDocEvidence.snippets || []).flatMap(item => item.highlights || [])),
   ]).slice(0, 4);
 
   return {
@@ -470,9 +554,21 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
 
 function buildLocalDescription(context) {
   const clauses = [];
-  const lead = context.sharedSummary.length
-    ? `La relación entre ${context.fromName} y ${context.toName} se sostiene en ${joinList(context.sharedSummary.slice(0, 2))}.`
-    : `La relación entre ${context.fromName} y ${context.toName} nace de una lectura cruzada de sus evidencias locales.`;
+  const hasStrongSharedSignals = context.sharedSummary.length > 0;
+  const hasDocumentSignals = Boolean(
+    context.docSignals.citations.length ||
+    context.docSignals.theoryTerms.length ||
+    context.docSignals.dataTerms.length ||
+    context.docSignals.provenanceTerms.length ||
+    context.docSignals.quotedPhrases.length ||
+    context.docHighlights.length
+  );
+
+  const lead = hasStrongSharedSignals
+    ? `La relación entre ${context.fromName} y ${context.toName} se apoya en ${joinList(context.sharedSummary.slice(0, 2))}.`
+    : hasDocumentSignals
+      ? `La relación entre ${context.fromName} y ${context.toName} se lee mejor como una continuidad documental que como una coincidencia léxica.`
+      : `La relación entre ${context.fromName} y ${context.toName} es todavía exploratoria y no se sostiene en una señal compartida fuerte.`;
   clauses.push(lead);
 
   const docBits = [];
@@ -485,6 +581,9 @@ function buildLocalDescription(context) {
   if (context.docSignals.dataTerms.length) {
     docBits.push(`reuso de datos y corpus compartidos`);
   }
+  if (context.docSignals.provenanceTerms.length) {
+    docBits.push(`marcas de procedencia como ${joinList(context.docSignals.provenanceTerms.slice(0, 2))}`);
+  }
   if (context.docHighlights.length) {
     docBits.push(`pasajes como ${safePreview(joinList(context.docHighlights.slice(0, 2)), 90)}`);
   } else if (context.docFiles.length) {
@@ -493,6 +592,10 @@ function buildLocalDescription(context) {
 
   if (docBits.length) {
     clauses.push(`La prosa de apoyo deja ver ${joinList(docBits)}.`);
+  }
+
+  if (context.docSignals.provenanceTerms.length || context.docSignals.citations.length || context.docSignals.quotedPhrases.length) {
+    clauses.push('La evidencia conserva material citado o de procedencia ajena, así que conviene separarlo de la voz principal antes de atribuirlo al perfil central.');
   }
 
   clauses.push(`La dirección sugerida es ${context.relationDirection}, porque el cruce no es accidental sino orgánico y acumulativo.`);
@@ -564,6 +667,7 @@ function buildLLMPrompt(context) {
     'Devuelve solo JSON con la forma {"description":"..."} y nada más.',
     'La descripción debe tener entre 2 y 4 oraciones, sonar orgánica, y explicar el vínculo como una continuidad de trabajo, no como una etiqueta técnica.',
     'Prioriza teoría compartida, citas, reutilización de datos, vocabulario repetido y señales de prosa real antes que simples listas de campos.',
+    'Si aparecen citas, coautorías o marcas de procedencia, trátalas como material de terceros o coautoría y no como autoría principal del perfil.',
     'Evita frases administrativas como "cruce por", "shared evidence" o "notas locales" y evita repetir la estructura de un reporte.',
     `Proyecto origen: ${context.fromName} (${context.fromId})`,
     `Proyecto destino: ${context.toName} (${context.toId})`,
@@ -572,6 +676,7 @@ function buildLLMPrompt(context) {
     `Evidencia compartida: ${context.sharedSummary.length ? context.sharedSummary.join(' | ') : 'sin metadatos compartidos fuertes'}`,
     `Rastros documentales: ${context.docSignals.keyPhrases.length ? context.docSignals.keyPhrases.join(' | ') : 'sin señales textuales fuertes'}`,
     `Citas detectadas: ${context.docSignals.citations.length ? context.docSignals.citations.join(' | ') : 'ninguna'}`,
+    `Procedencia: ${context.docSignals.provenanceTerms.length ? context.docSignals.provenanceTerms.join(' | ') : 'ninguna señal explícita de terceros'}`,
     `Pasajes o notas: ${context.docHighlights.length ? context.docHighlights.join(' | ') : context.docFiles.join(' | ') || 'ninguno'}`,
     `Dirección: ${context.relationDirection}`,
     'La respuesta debe explicar por qué el vínculo es orgánico, legible y defendible a nivel narrativo.',
@@ -901,8 +1006,10 @@ function buildProjectProfile(project, docsRoot) {
 
 function setIntersection(a, b) {
   const out = [];
-  a.forEach(value => {
-    if (b.has(value)) out.push(value);
+  const left = a instanceof Set ? a : new Set(a || []);
+  const right = b instanceof Set ? b : new Set(b || []);
+  left.forEach(value => {
+    if (right.has(value)) out.push(value);
   });
   return uniq(out);
 }
@@ -929,6 +1036,7 @@ function scorePair(profileA, profileB, existingKeys) {
   const sharedMetadataTokens = setIntersection(profileA.metadataTokens, profileB.metadataTokens);
   const sharedDocTokens = setIntersection(profileA.docTokens, profileB.docTokens);
   const sharedDocSignals = sharedSignalDetails(profileA.docSignals || {}, profileB.docSignals || {});
+  const meaningfulSharedTokens = filterMeaningfulSharedTokens(sharedMetadataTokens);
 
   let score = 0;
   const signals = [];
@@ -945,14 +1053,17 @@ function scorePair(profileA, profileB, existingKeys) {
     });
   });
 
-  if (sharedMetadataTokens.length) {
-    const tokenScore = Math.min(6, sharedMetadataTokens.length * 0.45);
+  if (meaningfulSharedTokens.length) {
+    const tokenScore = Math.min(4, meaningfulSharedTokens.length * 0.75);
     score += tokenScore;
     signals.push({
       field: 'metadata_tokens',
-      values: sharedMetadataTokens.slice(0, 8),
+      values: meaningfulSharedTokens.slice(0, 8),
       weight: tokenScore,
     });
+  } else if (sharedMetadataTokens.length) {
+    const tokenScore = Math.min(1, sharedMetadataTokens.length * 0.15);
+    score += tokenScore;
   }
 
   if (sharedDocTokens.length) {
@@ -992,6 +1103,16 @@ function scorePair(profileA, profileB, existingKeys) {
       field: 'document_data_terms',
       values: sharedDocSignals.dataTerms.slice(0, 5),
       weight: dataScore,
+    });
+  }
+
+  if (sharedDocSignals.provenanceTerms.length) {
+    const provenanceScore = Math.min(3, sharedDocSignals.provenanceTerms.length * 1.5);
+    score += provenanceScore;
+    signals.push({
+      field: 'document_provenance_terms',
+      values: sharedDocSignals.provenanceTerms.slice(0, 5),
+      weight: provenanceScore,
     });
   }
 
