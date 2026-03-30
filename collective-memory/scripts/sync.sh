@@ -48,10 +48,10 @@ if [ ! -d ".git" ]; then
 fi
 
 echo "  🏗️ Building static PWA bundle..."
-npx build >/dev/null 2>&1 || npm run build >/dev/null 2>&1
+npm run build >/dev/null 2>&1
 
 echo "  🚀 Deploying private data to GitHub Pages (gh-pages branch)..."
-npx --yes gh-pages -d dist -t true -m "🧠 Auto-sync: Memory updated" && echo "  ✅ Successfully deployed memory to GitHub Pages!" \
+npx --yes gh-pages -d dist -t -m "🧠 Auto-sync: Memory updated" && echo "  ✅ Successfully deployed memory to GitHub Pages!" \
   || echo "  ⚠️ Deploy failed — check git remote or npm setup."
 
 echo "✨ Done!"
