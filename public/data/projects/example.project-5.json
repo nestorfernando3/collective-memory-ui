@@ -1,0 +1,44 @@
+{
+  "id": "mesa-institucional",
+  "name": "Mesa Institucional",
+  "type": "institutional",
+  "status": "materiales listos",
+  "path": "~/demo/mesa-institucional",
+  "description": "Seguimiento de trámites, acuerdos y documentos de gestión pública.",
+  "abstract": "Organiza actas, comunicados y rutas de trabajo institucional.",
+  "tags": [
+    "institutional",
+    "management",
+    "policy",
+    "administration"
+  ],
+  "domains": [
+    "Gestión",
+    "Política pública"
+  ],
+  "themes": [
+    "Seguimiento",
+    "Trazabilidad"
+  ],
+  "technologies": [
+    "Documentos",
+    "Tablas"
+  ],
+  "theoretical_frameworks": [
+    "Gestión pública"
+  ],
+  "outputs": [
+    {
+      "type": "dossier",
+      "title": "Mesa Institucional",
+      "status": "ready"
+    }
+  ],
+  "collaborators": [],
+  "institutions": [],
+  "related_projects": [
+    "atlas-trabajo",
+    "aula-laboratorio",
+    "bitacora-acompanamiento"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "connections": [
+    {
+      "from": "atlas-trabajo",
+      "to": "archivo-lecturas",
+      "type": "Teórica",
+      "description": "Comparte síntesis de fuentes, organización de notas y criterios de lectura pública."
+    },
+    {
+      "from": "atlas-trabajo",
+      "to": "aula-laboratorio",
+      "type": "Técnica/Diseño",
+      "description": "La navegación, los formularios y la persistencia local comparten una misma capa de producto."
+    },
+    {
+      "from": "atlas-trabajo",
+      "to": "cartografia-publica",
+      "type": "Técnica/Diseño",
+      "description": "Ambos proyectos usan el mapa como interfaz para leer relaciones y rutas."
+    },
+    {
+      "from": "archivo-lecturas",
+      "to": "cuaderno-creacion",
+      "type": "Narrativa",
+      "description": "La lectura crítica alimenta fragmentos, voces y ejercicios de escritura."
+    },
+    {
+      "from": "archivo-lecturas",
+      "to": "mesa-institucional",
+      "type": "Investigativa",
+      "description": "Los materiales se organizan como evidencia, expediente y trazabilidad."
+    },
+    {
+      "from": "archivo-lecturas",
+      "to": "cartografia-publica",
+      "type": "Teórica",
+      "description": "La lectura se convierte en una superficie de relación y consulta abierta."
+    },
+    {
+      "from": "aula-laboratorio",
+      "to": "bitacora-acompanamiento",
+      "type": "Pedagógica",
+      "description": "La herramienta de aula incorpora seguimiento, acuerdos y observación formativa."
+    },
+    {
+      "from": "aula-laboratorio",
+      "to": "mesa-institucional",
+      "type": "Gestión Pública",
+      "description": "Comparten flujos de registro, revisión y preparación de materiales."
+    },
+    {
+      "from": "aula-laboratorio",
+      "to": "cartografia-publica",
+      "type": "Técnica/Diseño",
+      "description": "La visualización y la navegación del mapa reutilizan la misma estructura de interfaz."
+    },
+    {
+      "from": "cuaderno-creacion",
+      "to": "bitacora-acompanamiento",
+      "type": "Acompañamiento",
+      "description": "El archivo creativo también guarda estados, avances y conversaciones."
+    },
+    {
+      "from": "cuaderno-creacion",
+      "to": "cartografia-publica",
+      "type": "Narrativa",
+      "description": "La escritura breve encuentra una lectura pública dentro del mapa general."
+    },
+    {
+      "from": "mesa-institucional",
+      "to": "bitacora-acompanamiento",
+      "type": "Gestión Pública",
+      "description": "Ambos siguen trámites, acuerdos y seguimiento de procesos."
+    },
+    {
+      "from": "mesa-institucional",
+      "to": "cartografia-publica",
+      "type": "Gestión Pública",
+      "description": "La capa pública ordena actas, documentos y rutas de trabajo."
+    },
+    {
+      "from": "bitacora-acompanamiento",
+      "to": "cartografia-publica",
+      "type": "Seguimiento",
+      "description": "El registro de observaciones se conecta con la visualización de relaciones."
+    },
+    {
+      "from": "atlas-trabajo",
+      "to": "mesa-institucional",
+      "type": "Gestión",
+      "description": "La interfaz central también organiza materiales de gestión y seguimiento."
+    }
+  ]
+}

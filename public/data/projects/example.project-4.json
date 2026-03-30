@@ -1,0 +1,43 @@
+{
+  "id": "cuaderno-creacion",
+  "name": "Cuaderno de Creación",
+  "type": "creative",
+  "status": "en proceso",
+  "path": "~/demo/cuaderno-creacion",
+  "description": "Borradores narrativos y ejercicios breves de escritura.",
+  "abstract": "Explora escenas, voces y fragmentos para un archivo de creación.",
+  "tags": [
+    "creative",
+    "writing",
+    "memory",
+    "story"
+  ],
+  "domains": [
+    "Escritura",
+    "Memoria"
+  ],
+  "themes": [
+    "Narrativa breve",
+    "Archivo personal"
+  ],
+  "technologies": [
+    "Markdown"
+  ],
+  "theoretical_frameworks": [
+    "Narratología"
+  ],
+  "outputs": [
+    {
+      "type": "draft",
+      "title": "Cuaderno de Creación",
+      "status": "in progress"
+    }
+  ],
+  "collaborators": [],
+  "institutions": [],
+  "related_projects": [
+    "archivo-lecturas",
+    "bitacora-acompanamiento",
+    "cartografia-publica"
+  ]
+}

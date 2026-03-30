@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f2efe9" />
+    <meta
+      name="description"
+      content="Memoria Colectiva: archivo vivo de trabajo con vista demo pública, mapa de relaciones e instrucciones de uso."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="stylesheet" href="./memoria-colectiva.css" />
+    <title>Memoria Colectiva</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      try {
+        if (!localStorage.getItem('collective-memory-locale')) {
+          localStorage.setItem('collective-memory-locale', 'es');
+        }
+      } catch (error) {}
+    </script>
+    <script type="module" src="./memoria-colectiva.js"></script>
+  </body>
+</html>

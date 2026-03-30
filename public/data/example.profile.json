@@ -1,0 +1,79 @@
+{
+  "name": "Persona de demostración",
+  "site_title": "Memoria Colectiva",
+  "site_subtitle": "Archivo vivo de trabajo",
+  "identifiers": {
+    "orcid": "",
+    "github": ""
+  },
+  "affiliations": [
+    {
+      "institution": "Laboratorio de demostración",
+      "role": "Diseño de conocimiento",
+      "current": true
+    }
+  ],
+  "location": {
+    "city": "Bogotá",
+    "country": "Colombia"
+  },
+  "domains": [
+    "educación",
+    "investigación",
+    "escritura",
+    "software"
+  ],
+  "skills": [
+    "síntesis de investigación",
+    "arquitectura de información",
+    "diseño pedagógico",
+    "escritura analítica"
+  ],
+  "languages": [
+    "spanish",
+    "english"
+  ],
+  "lenses": [
+    {
+      "id": "All",
+      "label": "Universo completo",
+      "filter": []
+    },
+    {
+      "id": "Academic",
+      "label": "Investigación",
+      "filter": [
+        "research",
+        "analysis",
+        "paper"
+      ]
+    },
+    {
+      "id": "Creative",
+      "label": "Cultura y creación",
+      "filter": [
+        "creative",
+        "writing",
+        "memory"
+      ]
+    },
+    {
+      "id": "Pedagogical",
+      "label": "Educación",
+      "filter": [
+        "education",
+        "tool",
+        "socioemotional"
+      ]
+    },
+    {
+      "id": "Tooling",
+      "label": "Desarrollo de software",
+      "filter": [
+        "software",
+        "ui",
+        "markdown"
+      ]
+    }
+  ]
+}

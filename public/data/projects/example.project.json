@@ -1,0 +1,43 @@
+{
+  "id": "atlas-trabajo",
+  "name": "Atlas de Trabajo",
+  "type": "software development",
+  "status": "activo",
+  "path": "~/demo/atlas-trabajo",
+  "description": "Mapa vivo para organizar notas, rutas y materiales de trabajo.",
+  "abstract": "Interfaz central para navegar, clasificar y conectar piezas de memoria local.",
+  "tags": [
+    "software",
+    "ui",
+    "memory",
+    "markdown"
+  ],
+  "domains": [
+    "Diseño de información",
+    "Gestión del conocimiento"
+  ],
+  "themes": [
+    "Navegación por grafos",
+    "Captura local"
+  ],
+  "technologies": [
+    "React",
+    "IndexedDB"
+  ],
+  "theoretical_frameworks": [
+    "Arquitectura de información"
+  ],
+  "outputs": [
+    {
+      "type": "web_app",
+      "title": "Atlas de Trabajo v1",
+      "status": "deployed"
+    }
+  ],
+  "collaborators": [],
+  "institutions": [],
+  "related_projects": [
+    "archivo-lecturas",
+    "cartografia-publica"
+  ]
+}

@@ -75,7 +75,49 @@
     "educación pública",
     "diseño instruccional",
     "pruebas de estado",
-    "instruccional"
+    "instruccional",
+    "Writing",
+    "Research",
+    "Support",
+    "Software",
+    "Education",
+    "Public Health",
+    "Creative Work",
+    "Wellbeing",
+    "Sociology",
+    "Design System",
+    "Knowledge Management",
+    "Teaching",
+    "Narrative",
+    "Fiction",
+    "Qualitative Research",
+    "Epidemiology",
+    "Storytelling",
+    "Oral Memory",
+    "Mentorship",
+    "Memory",
+    "Narrative Analysis",
+    "Local Sync",
+    "Graph Navigation",
+    "Formative Assessment",
+    "Class Planning",
+    "creative",
+    "art",
+    "cuento",
+    "paper",
+    "analysis",
+    "salud",
+    "memoria oral",
+    "socioemotional",
+    "acompanamiento",
+    "emotion",
+    "analisis",
+    "tool",
+    "ui",
+    "markdown",
+    "pedagogia",
+    "evaluacion",
+    "aprendizaje"
   ],
   "skills": [
     "Diseño Instruccional",
@@ -98,7 +140,9 @@
     "Metacognición (Flavell)",
     "Evaluación formativa (Black & Wiliam)",
     "Semiótica",
-    "Mito y Simulacro"
+    "Mito y Simulacro",
+    "Data Analysis",
+    "IndexedDB"
   ],
   "languages": [
     "español_nativo",
@@ -145,7 +189,7 @@
     }
   ],
   "stats": {
-    "total_projects": 19,
-    "generated_at": "2026-03-30T15:27:04.169Z"
+    "total_projects": 18,
+    "generated_at": "2026-03-30T17:44:17.367Z"
   }
 }
