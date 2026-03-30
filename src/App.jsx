@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ReactFlow, Background, useNodesState, useEdgesState, MarkerType, Handle, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { X, FileText, Link as LinkIcon } from 'lucide-react';
+import { joinBasePath } from './lib/resourcePath.js';
 
 const CustomNode = ({ data }) => {
   return (
@@ -28,22 +29,28 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        const basePath = import.meta.env.BASE_URL || './';
+        const profilePath = joinBasePath(basePath, 'data/profile.json');
+        const connectionsPath = joinBasePath(basePath, 'data/connections.json');
+        const projectsIndexPath = joinBasePath(basePath, 'data/projects_index.json');
+
         // 1. Fetch Profile
-        const profRes = await fetch('/data/profile.json');
+        const profRes = await fetch(profilePath);
         const profile = await profRes.json();
         
         // 2. Fetch Connections
-        const connRes = await fetch('/data/connections.json');
+        const connRes = await fetch(connectionsPath);
         const connectionsData = await connRes.json();
 
         // 3. Fetch Project Index
-        const idxRes = await fetch('/data/projects_index.json');
+        const idxRes = await fetch(projectsIndexPath);
         const idxText = await idxRes.text();
         const files = idxText.trim().split('\n').filter(f => f.endsWith('.json'));
         
         const projects = [];
         for (const file of files) {
-          const res = await fetch(`/data/projects/${file}`);
+          const projectPath = joinBasePath(basePath, `data/projects/${file}`);
+          const res = await fetch(projectPath);
           projects.push(await res.json());
         }
 
