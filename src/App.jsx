@@ -2,11 +2,8 @@ import { startTransition, useEffect, useState } from 'react';
 import {
   Background,
   Handle,
-  MarkerType,
   Position,
   ReactFlow,
-  useEdgesState,
-  useNodesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
@@ -241,8 +238,6 @@ function App() {
   const [activeLensId, setActiveLensId] = useState('All');
   const [projectConnectionMode, setProjectConnectionMode] = useState('principal');
   const [drawer, setDrawer] = useState(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   const language = normalizeLocale(locale);
   const text = COPY[language];
@@ -304,15 +299,8 @@ function App() {
       })
     : null;
 
-  useEffect(() => {
-    if (!graph) {
-      setNodes([]);
-      setEdges([]);
-      return;
-    }
-
-    setNodes(
-      graph.nodes.map((node) => ({
+  const renderedNodes = graph
+    ? graph.nodes.map((node) => ({
         ...node,
         data: {
           ...node.data,
@@ -320,21 +308,15 @@ function App() {
             (drawer?.type === 'profile' && node.id === 'user_profile') ||
             (drawer?.type === 'project' && node.id === drawer.project.id),
         },
-      })),
-    );
-    setEdges(
-      graph.edges.map((edge) => ({
+      }))
+    : [];
+
+  const renderedEdges = graph
+    ? graph.edges.map((edge) => ({
         ...edge,
-        markerEnd: edge.data?.kind === 'connection'
-          ? {
-              type: MarkerType.ArrowClosed,
-              color: edge.style?.stroke || '#1a1a1a',
-            }
-          : undefined,
         animated: edge.data?.kind === 'profile-link',
-      })),
-    );
-  }, [drawer, graph, setEdges, setNodes]);
+      }))
+    : [];
 
   const profileNarrative = dataset
     ? buildProfileNarrative({
@@ -502,11 +484,9 @@ function App() {
       {graph ? (
         <ReactFlow
           key={flowKey}
-          nodes={nodes}
-          edges={edges}
+          nodes={renderedNodes}
+          edges={renderedEdges}
           nodeTypes={nodeTypes}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
           onNodeClick={handleNodeClick}
           onEdgeClick={handleEdgeClick}
           fitView
