@@ -1,0 +1,79 @@
+{
+  "name": "Persona de demostracion",
+  "site_title": "Collective Memory",
+  "site_subtitle": "Living Work Archive",
+  "identifiers": {
+    "orcid": "",
+    "github": ""
+  },
+  "affiliations": [
+    {
+      "institution": "Lab de demostración",
+      "role": "Diseño de conocimiento",
+      "current": true
+    }
+  ],
+  "location": {
+    "city": "Bogotá",
+    "country": "Colombia"
+  },
+  "domains": [
+    "educacion",
+    "investigacion",
+    "escritura",
+    "software"
+  ],
+  "skills": [
+    "sintesis de investigación",
+    "arquitectura de informacion",
+    "diseno pedagogico",
+    "escritura analitica"
+  ],
+  "languages": [
+    "spanish",
+    "english"
+  ],
+  "lenses": [
+    {
+      "id": "All",
+      "label": "Full Universe",
+      "filter": []
+    },
+    {
+      "id": "Academic",
+      "label": "Academic Lens",
+      "filter": [
+        "research",
+        "paper",
+        "analysis"
+      ]
+    },
+    {
+      "id": "Creative",
+      "label": "Creative Lens",
+      "filter": [
+        "creative",
+        "writing",
+        "art"
+      ]
+    },
+    {
+      "id": "Pedagogical",
+      "label": "Pedagogical Lens",
+      "filter": [
+        "education",
+        "tool",
+        "socioemotional"
+      ]
+    },
+    {
+      "id": "Tooling",
+      "label": "Tooling Lens",
+      "filter": [
+        "software",
+        "ui",
+        "markdown"
+      ]
+    }
+  ]
+}
