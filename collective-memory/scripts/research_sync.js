@@ -439,9 +439,11 @@ function collectHighlights(lines, signals) {
         .replace(/[*_`]/g, '')
         .replace(/\s+/g, ' ')
         .trim();
-      highlights.push(cleaned);
+      const narrativeSnippet = cleanNarrativeSnippet(cleaned);
+      if (!narrativeSnippet) return;
+      highlights.push(narrativeSnippet);
       if (!isHeadingLike(cleaned)) {
-        bodyHighlights.push(cleaned);
+        bodyHighlights.push(narrativeSnippet);
       }
     }
   });
@@ -461,15 +463,21 @@ function extractDocumentSignals(text) {
   const theoryTerms = matchMarkers(source, THEORY_MARKERS);
   const dataTerms = matchMarkers(source, DATA_MARKERS);
   const provenanceTerms = matchMarkers(source, PROVENANCE_MARKERS);
-  const headings = uniq(lines.filter(isHeadingLike).map(line => line.replace(/^#{1,6}\s+/, '').trim()));
-  const quotedPhrases = extractQuotedPhrases(source);
+  const headings = uniq(lines.filter(isHeadingLike).map(line => line.replace(/^#{1,6}\s+/, '').trim()))
+    .map(cleanNarrativeSnippet)
+    .filter(Boolean);
+  const quotedPhrases = extractQuotedPhrases(source)
+    .map(cleanNarrativeSnippet)
+    .filter(Boolean);
   const keyPhrases = uniq([
     ...theoryTerms,
     ...dataTerms,
     ...provenanceTerms,
     ...headings,
     ...quotedPhrases,
-  ]);
+  ])
+    .map(cleanNarrativeSnippet)
+    .filter(Boolean);
 
   return {
     citations,
@@ -513,6 +521,30 @@ function safePreview(value, limit = 140) {
   return `${text.slice(0, limit - 1).trim()}…`;
 }
 
+function isNoisyNarrativeSnippet(value) {
+  const text = normalizePhrase(value);
+  if (!text) return true;
+  if (text.includes('ruta objetivo') || text.includes('base teorica inyectada')) return true;
+  return /(?:^|[^\w])(?:~\/|\/users\/|c:\\|[a-z]:\\|\/documents\/|onedrive\/)/i.test(String(value || ''));
+}
+
+function cleanNarrativeSnippet(value) {
+  let text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!text) return '';
+
+  text = text
+    .replace(/\s+y\s+pasajes?\s+como\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+Base Te[oó]rica Inyectada:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/[,;]\s*([,;])/g, '$1')
+    .replace(/^[,.;:!?]+\s*/, '')
+    .trim();
+
+  return isNoisyNarrativeSnippet(text) ? '' : text;
+}
+
 function buildConnectionContext(candidate, fromId, toId, profilesById) {
   const fromProfile = profilesById.get(fromId);
   const toProfile = profilesById.get(toId);
@@ -543,7 +575,10 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
   const docHighlights = uniq([
     ...((fromDocEvidence.snippets || []).flatMap(item => item.highlights || [])),
     ...((toDocEvidence.snippets || []).flatMap(item => item.highlights || [])),
-  ]).slice(0, 4);
+  ])
+    .map(cleanNarrativeSnippet)
+    .filter(Boolean)
+    .slice(0, 4);
 
   return {
     candidate,
@@ -596,8 +631,6 @@ function buildLocalDescription(context) {
   }
   if (context.docHighlights.length) {
     docBits.push(`pasajes como ${safePreview(joinList(context.docHighlights.slice(0, 2)), 90)}`);
-  } else if (context.docFiles.length) {
-    docBits.push(`notas locales en ${joinList(context.docFiles.slice(0, 2))}`);
   }
 
   if (docBits.length) {
@@ -685,10 +718,10 @@ function buildLLMPrompt(context) {
     `Tipo sugerido: ${context.type}`,
     `Fuerza sugerida: ${context.strength}`,
     `Evidencia compartida: ${context.sharedSummary.length ? context.sharedSummary.join(' | ') : 'sin metadatos compartidos fuertes'}`,
-    `Rastros documentales: ${context.docSignals.keyPhrases.length ? context.docSignals.keyPhrases.join(' | ') : 'sin señales textuales fuertes'}`,
+    `Rastros documentales: ${(context.docSignals.keyPhrases || []).map(cleanNarrativeSnippet).filter(Boolean).slice(0, 6).join(' | ') || 'sin señales textuales fuertes'}`,
     `Citas detectadas: ${context.docSignals.citations.length ? context.docSignals.citations.join(' | ') : 'ninguna'}`,
     `Procedencia: ${context.docSignals.provenanceTerms.length ? context.docSignals.provenanceTerms.join(' | ') : 'ninguna señal explícita de terceros'}`,
-    `Pasajes o notas: ${context.docHighlights.length ? context.docHighlights.join(' | ') : context.docFiles.join(' | ') || 'ninguno'}`,
+    `Pasajes o notas: ${context.docHighlights.length ? context.docHighlights.join(' | ') : 'ninguno'}`,
     `Dirección: ${context.relationDirection}`,
     'La respuesta debe explicar por qué el vínculo es orgánico, legible y defendible a nivel narrativo.',
   ].join('\n');
@@ -1400,9 +1433,6 @@ async function buildReport({ existingCandidates, newCandidates, profilesById, fo
       if (narrative.sharedSummary.length) {
         lines.push(`- Shared evidence: ${joinList(narrative.sharedSummary)}`);
       }
-      if (narrative.docFiles.length) {
-        lines.push(`- Local notes: ${joinList(narrative.docFiles)}`);
-      }
       if (narrative.docHighlights.length) {
         lines.push(`- Document evidence: ${joinList(narrative.docHighlights.slice(0, 2))}`);
       }
@@ -1432,6 +1462,27 @@ function existingConnectionKeys(connectionsData) {
     }
   });
   return keys;
+}
+
+function sanitizeConnectionDescription(description) {
+  return cleanNarrativeSnippet(description);
+}
+
+function sanitizeConnectionsData(connectionsData) {
+  const originalConnections = Array.isArray(connectionsData?.connections) ? connectionsData.connections : [];
+  const nextConnections = originalConnections.map(connection => ({
+    ...connection,
+    description: sanitizeConnectionDescription(connection?.description),
+  }));
+
+  const changed = nextConnections.some((connection, index) => connection.description !== String(originalConnections[index]?.description || '').trim());
+  return {
+    nextConnections: {
+      ...(connectionsData || {}),
+      connections: nextConnections,
+    },
+    changed,
+  };
 }
 
 function isFallbackDescription(description) {
@@ -1644,10 +1695,11 @@ async function main() {
       llm: args.llm,
       llmModel: args.llmModel,
     }, narrativeCache);
-    if (added > 0 || updated > 0) {
-      writeJson(CONNECTIONS_PATH, nextConnections);
+    const { nextConnections: sanitizedConnections, changed: sanitizedChanged } = sanitizeConnectionsData(nextConnections);
+    if (added > 0 || updated > 0 || sanitizedChanged) {
+      writeJson(CONNECTIONS_PATH, sanitizedConnections);
       if (fs.existsSync(UI_CONNECTIONS_PATH)) {
-        writeJson(UI_CONNECTIONS_PATH, nextConnections);
+        writeJson(UI_CONNECTIONS_PATH, sanitizedConnections);
       }
     }
     const updatedMessage = updated > 0 ? `, refreshed ${updated} existing connection${updated === 1 ? '' : 's'}` : '';
