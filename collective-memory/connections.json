@@ -1307,12 +1307,12 @@
             "caribe"
           ],
           "dataTerms": [
-            "caso",
-            "muestra",
+            "registro",
             "fuente",
             "evidencia",
+            "caso",
             "datos",
-            "registro",
+            "muestra",
             "archivo"
           ],
           "provenanceTerms": [],
@@ -1372,16 +1372,16 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "caso",
-            "muestra",
+            "registro",
             "fuente",
             "evidencia",
+            "caso",
+            "datos",
+            "muestra",
+            "archivo",
             "Resumen",
             "Abstract",
-            "Introducción",
-            "datos",
-            "registro",
-            "archivo"
+            "Introducción"
           ]
         },
         "document_files": [
@@ -1798,10 +1798,10 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "Resumen",
             "datos",
             "muestra",
-            "archivo"
+            "archivo",
+            "Resumen"
           ]
         },
         "document_files": [
@@ -3480,34 +3480,34 @@
           "outputs": []
         },
         "shared_metadata_tokens": [
+          "tuberculosis",
           "investigacion",
           "analisis",
-          "tuberculosis",
           "salud",
           "publica",
           "epidemiologia"
         ],
         "shared_document_tokens": [
-          "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
-          "ruta",
-          "objetivo",
-          "camilas",
-          "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
           "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "casos",
+          "colombia",
+          "durante",
+          "2024",
+          "tipo",
+          "clinica",
+          "com",
+          "resumen",
+          "presente",
+          "estudio",
+          "tuvo",
+          "objetivo",
+          "utilizando",
+          "informacion",
+          "proveniente",
+          "sistema",
+          "nacional",
+          "vigilancia",
+          "salud"
         ],
         "shared_document_signals": {
           "citations": [],
@@ -3523,12 +3523,12 @@
             "caribe"
           ],
           "dataTerms": [
-            "caso",
-            "muestra",
+            "registro",
             "fuente",
             "evidencia",
+            "caso",
             "datos",
-            "registro",
+            "muestra",
             "archivo"
           ],
           "provenanceTerms": [],
@@ -3559,6 +3559,10 @@
             "marginadas"
           ],
           "keyPhrases": [
+            "registro",
+            "fuente",
+            "evidencia",
+            "caso",
             "fenomenología",
             "teoría",
             "rumor",
@@ -3588,16 +3592,12 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "caso",
+            "datos",
             "muestra",
-            "fuente",
-            "evidencia",
+            "archivo",
             "Resumen",
             "Abstract",
-            "Introducción",
-            "datos",
-            "registro",
-            "archivo"
+            "Introducción"
           ]
         },
         "document_files": [
@@ -3924,26 +3924,26 @@
           "atlantica"
         ],
         "shared_document_tokens": [
-          "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
-          "ruta",
-          "objetivo",
-          "camilas",
-          "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
           "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "durante",
+          "estudiante",
+          "com",
+          "resumen",
+          "objetivo",
+          "utilizando",
+          "informacion",
+          "sistema",
+          "diseno",
+          "variables",
+          "vulnerabilidad",
+          "social",
+          "carga",
+          "todas",
+          "formas",
+          "problema",
+          "fortalecer",
+          "clave",
+          "enfermedades"
         ],
         "shared_document_signals": {
           "citations": [],
@@ -4018,10 +4018,10 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "Resumen",
             "datos",
             "muestra",
-            "archivo"
+            "archivo",
+            "Resumen"
           ]
         },
         "document_files": [
@@ -4413,26 +4413,26 @@
           "atlantica"
         ],
         "shared_document_tokens": [
-          "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
-          "ruta",
-          "objetivo",
-          "camilas",
-          "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
           "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "colombia",
+          "presentacion",
+          "resumen",
+          "objetivo",
+          "utilizando",
+          "informacion",
+          "publica",
+          "anos",
+          "vulnerabilidad",
+          "social",
+          "problema",
+          "fortalecer",
+          "palabras",
+          "clave",
+          "enfermedades",
+          "strengthen",
+          "mundo",
+          "manera",
+          "marco"
         ],
         "shared_document_signals": {
           "citations": [],
@@ -5086,31 +5086,30 @@
         },
         "shared_metadata_tokens": [],
         "shared_document_tokens": [
-          "barranquilla",
-          "convocatoria",
-          "2026",
-          "lugar",
-          "general",
-          "pedagogica",
-          "fernando",
-          "leon",
-          "llanos",
-          "propuesta",
-          "contemporanea",
-          "ciudad",
-          "interes",
-          "urbanas",
-          "campo",
-          "reflexion",
-          "critica",
-          "digital",
-          "uso",
-          "narrativa"
+          "memoria",
+          "colectiva",
+          "fortalecimiento",
+          "cruzado",
+          "comando",
+          "strengthen",
+          "ruta",
+          "objetivo",
+          "camilas",
+          "base",
+          "teorica",
+          "inyectada",
+          "fenomenologia",
+          "rumor",
+          "ensayo",
+          "ampliado",
+          "analisis",
+          "cruce",
+          "research",
+          "sync"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
-            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -5118,11 +5117,12 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias"
+            "elias",
+            "caribe"
           ],
           "dataTerms": [
-            "archivo",
-            "datos"
+            "datos",
+            "archivo"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -5149,9 +5149,6 @@
             "marginadas"
           ],
           "keyPhrases": [
-            "archivo",
-            "caribe",
-            "datos",
             "fenomenología",
             "teoría",
             "rumor",
@@ -5160,6 +5157,7 @@
             "goffman",
             "gluckman",
             "elias",
+            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -5179,7 +5177,9 @@
             "Chismoso Contemplativo",
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
-            "marginadas"
+            "marginadas",
+            "datos",
+            "archivo"
           ]
         },
         "document_files": [
@@ -6665,10 +6665,10 @@
             "caribe"
           ],
           "dataTerms": [
-            "muestra",
             "caso",
             "datos",
-            "evidencia"
+            "evidencia",
+            "muestra"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -6725,11 +6725,11 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "muestra",
             "caso",
-            "Resumen",
             "datos",
-            "evidencia"
+            "evidencia",
+            "muestra",
+            "Resumen"
           ]
         },
         "document_files": [
@@ -7039,12 +7039,12 @@
             "caribe"
           ],
           "dataTerms": [
+            "registro",
             "caso",
-            "muestra",
-            "fuente",
-            "evidencia",
             "datos",
-            "registro"
+            "evidencia",
+            "muestra",
+            "fuente"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -7104,16 +7104,16 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
+            "registro",
             "caso",
+            "datos",
+            "evidencia",
             "muestra",
             "fuente",
-            "evidencia",
             "Resumen",
             "Abstract",
-            "Char",
-            "datos",
-            "registro",
-            "1. Introducción"
+            "1. Introducción",
+            "Char"
           ]
         },
         "document_files": [
@@ -7134,7 +7134,7 @@
       "to": "concertacion-mincultura",
       "type": "Creativa",
       "strength": "Alta",
-      "description": "La relación entre Las Camilas y Concertación MinCultura se apoya en palabras compartidas: caribe y actualmente. En los textos aparecen citas como Pares, 2026a y Colombia, 2020, matrices teóricas como fenomenología y teoría, reuso de datos y corpus compartidos y pasajes como Ruta Objetivo: ~/Documents/Las Camilas - Textos selectos/... y Base Teórica Inyectada: Fe…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Las Camilas hacia Concertación MinCultura, porque el vínculo parece acumulativo y no accidental.",
+      "description": "La relación entre Las Camilas y Concertación MinCultura se apoya en palabras compartidas: actualmente y caribe. En los textos aparecen citas como Pares, 2026a y Colombia, 2020, matrices teóricas como fenomenología y teoría, reuso de datos y corpus compartidos y pasajes como Ruta Objetivo: ~/Documents/Las Camilas - Textos selectos/... y Base Teórica Inyectada: Fe…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Las Camilas hacia Concertación MinCultura, porque el vínculo parece acumulativo y no accidental.",
       "description_mode": "local",
       "source": "research-sync",
       "evidence": {
@@ -7150,9 +7150,9 @@
           "outputs": []
         },
         "shared_metadata_tokens": [
-          "caribe",
           "cultural",
-          "actualmente"
+          "actualmente",
+          "caribe"
         ],
         "shared_document_tokens": [
           "memoria",
@@ -7198,11 +7198,11 @@
             "caribe"
           ],
           "dataTerms": [
-            "muestra",
-            "fuente",
-            "evidencia",
             "caso",
-            "datos"
+            "datos",
+            "evidencia",
+            "muestra",
+            "fuente"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -7261,14 +7261,14 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
+            "caso",
+            "datos",
+            "evidencia",
             "muestra",
             "fuente",
-            "evidencia",
-            "caso",
             "Resumen",
             "Abstract",
-            "Char",
-            "datos"
+            "Char"
           ]
         },
         "document_files": [
@@ -7555,7 +7555,7 @@
       "to": "concertacion-mincultura",
       "type": "Institucional",
       "strength": "Alta",
-      "description": "La relación entre PCA MinCultura 2026 y Concertación MinCultura se apoya en etiquetas: cultural; palabras compartidas: mincultura, concertacion, cultura y ministerio. En los textos aparecen matrices teóricas como caribe y fenomenología, reuso de datos y corpus compartidos y pasajes como RUTA CARIBE JUSTA: circuito híbrido de comercialización para emprendimientos culturales d…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de PCA MinCultura 2026 hacia Concertación MinCultura, porque el vínculo parece acumulativo y no accidental.",
+      "description": "La relación entre PCA MinCultura 2026 y Concertación MinCultura se apoya en etiquetas: cultural; palabras compartidas: concertacion, mincultura, ministerio y cultura. En los textos aparecen matrices teóricas como caribe y fenomenología, reuso de datos y corpus compartidos y pasajes como RUTA CARIBE JUSTA: circuito híbrido de comercialización para emprendimientos culturales d…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de PCA MinCultura 2026 hacia Concertación MinCultura, porque el vínculo parece acumulativo y no accidental.",
       "description_mode": "local",
       "source": "research-sync",
       "evidence": {
@@ -7573,39 +7573,38 @@
           "outputs": []
         },
         "shared_metadata_tokens": [
+          "concertacion",
           "mincultura",
           "cultural",
-          "concertacion",
-          "cultura",
           "ministerio",
+          "cultura",
           "gestion"
         ],
         "shared_document_tokens": [
-          "nombre",
-          "propuesta",
+          "memoria",
+          "colectiva",
+          "fortalecimiento",
+          "cruzado",
+          "comando",
+          "strengthen",
           "ruta",
-          "caribe",
-          "emprendimientos",
-          "atlantico",
           "objetivo",
-          "general",
-          "fortalecer",
-          "capacidades",
-          "circulacion",
-          "mediante",
-          "estrategia",
-          "activacion",
-          "digitales",
-          "presencia",
-          "mercado",
-          "cultural",
-          "comunicacion",
-          "estrategica"
+          "camilas",
+          "base",
+          "teorica",
+          "inyectada",
+          "fenomenologia",
+          "rumor",
+          "ensayo",
+          "ampliado",
+          "analisis",
+          "cruce",
+          "research",
+          "sync"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
-            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -7613,13 +7612,14 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias"
+            "elias",
+            "caribe"
           ],
           "dataTerms": [
-            "muestra",
             "registro",
+            "datos",
             "evidencia",
-            "datos"
+            "muestra"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -7646,10 +7646,6 @@
             "marginadas"
           ],
           "keyPhrases": [
-            "caribe",
-            "muestra",
-            "registro",
-            "evidencia",
             "fenomenología",
             "teoría",
             "rumor",
@@ -7658,6 +7654,7 @@
             "goffman",
             "gluckman",
             "elias",
+            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -7678,8 +7675,11 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
+            "registro",
+            "citado",
             "datos",
-            "citado"
+            "evidencia",
+            "muestra"
           ]
         },
         "document_files": [
@@ -10485,8 +10485,8 @@
             "caribe"
           ],
           "dataTerms": [
-            "archivo",
-            "datos"
+            "datos",
+            "archivo"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -10548,14 +10548,14 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "archivo",
-            "40 años del IEPRI",
             "datos",
+            "archivo",
             "Estado editorial al 12 de marzo de 2026",
             "1. Colombia Internacional",
             "2. Analisis Politico",
             "3. Archivos preparados",
-            "4. Próximo movimiento recomendado"
+            "4. Próximo movimiento recomendado",
+            "40 años del IEPRI"
           ]
         },
         "document_files": [
@@ -11586,31 +11586,30 @@
           "educacion"
         ],
         "shared_document_tokens": [
-          "visual",
-          "barranquilla",
-          "portafolio",
+          "grado",
+          "periodo",
+          "sesiones",
+          "inicio",
           "2026",
-          "lugar",
-          "coordinacion",
-          "fernando",
-          "consiste",
-          "propuesta",
-          "artistica",
-          "contemporanea",
-          "especial",
-          "estetica",
-          "critica",
-          "produccion",
-          "simbolica",
-          "propone",
-          "partir",
-          "relacion",
-          "digital"
+          "cierre",
+          "abril",
+          "pedagogico",
+          "institucional",
+          "social",
+          "enfoque",
+          "metodologico",
+          "diferentes",
+          "uso",
+          "situacion",
+          "construir",
+          "comparar",
+          "problemas",
+          "conjunto",
+          "propone"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
-            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -11618,11 +11617,12 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias"
+            "elias",
+            "caribe"
           ],
           "dataTerms": [
-            "evidencia",
-            "fuente"
+            "fuente",
+            "evidencia"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -11649,9 +11649,6 @@
             "marginadas"
           ],
           "keyPhrases": [
-            "evidencia",
-            "caribe",
-            "fuente",
             "fenomenología",
             "teoría",
             "rumor",
@@ -11660,6 +11657,7 @@
             "goffman",
             "gluckman",
             "elias",
+            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -11679,7 +11677,9 @@
             "Chismoso Contemplativo",
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
-            "marginadas"
+            "marginadas",
+            "fuente",
+            "evidencia"
           ]
         },
         "document_files": [
@@ -13167,10 +13167,10 @@
             "caribe"
           ],
           "dataTerms": [
-            "caso",
             "muestra",
-            "evidencia",
-            "datos"
+            "caso",
+            "datos",
+            "evidencia"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -13227,11 +13227,11 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
-            "caso",
             "muestra",
-            "evidencia",
+            "caso",
             "Resumen",
-            "datos"
+            "datos",
+            "evidencia"
           ]
         },
         "document_files": [
@@ -13576,8 +13576,8 @@
             "caribe"
           ],
           "dataTerms": [
-            "datos",
-            "muestra"
+            "muestra",
+            "datos"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -13634,9 +13634,9 @@
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
             "marginadas",
+            "muestra",
             "Resumen",
-            "datos",
-            "muestra"
+            "datos"
           ]
         },
         "document_files": [
@@ -14355,30 +14355,31 @@
         },
         "shared_metadata_tokens": [],
         "shared_document_tokens": [
-          "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
-          "ruta",
-          "objetivo",
-          "camilas",
-          "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
-          "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "laboratorio",
+          "visual",
+          "barranquilla",
+          "arias",
+          "convocatoria",
+          "formacion",
+          "nacional",
+          "2026",
+          "tipo",
+          "persona",
+          "lugar",
+          "atlantico",
+          "general",
+          "pedagogica",
+          "fernando",
+          "leon",
+          "llanos",
+          "consiste",
+          "propuesta",
+          "contemporanea"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
+            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -14386,17 +14387,16 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias",
-            "caribe"
+            "elias"
           ],
           "dataTerms": [
-            "caso",
             "muestra",
-            "fuente",
-            "evidencia",
-            "datos",
             "registro",
-            "archivo"
+            "evidencia",
+            "archivo",
+            "datos",
+            "fuente",
+            "caso"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -14423,6 +14423,14 @@
             "marginadas"
           ],
           "keyPhrases": [
+            "muestra",
+            "registro",
+            "evidencia",
+            "archivo",
+            "caribe",
+            "datos",
+            "fuente",
+            "caso",
             "fenomenología",
             "teoría",
             "rumor",
@@ -14431,7 +14439,6 @@
             "goffman",
             "gluckman",
             "elias",
-            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -14451,14 +14458,7 @@
             "Chismoso Contemplativo",
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
-            "marginadas",
-            "caso",
-            "muestra",
-            "fuente",
-            "evidencia",
-            "datos",
-            "registro",
-            "archivo"
+            "marginadas"
           ]
         },
         "document_files": [
@@ -14772,34 +14772,35 @@
           "outputs": []
         },
         "shared_metadata_tokens": [
-          "educacion",
-          "formacion"
+          "formacion",
+          "educacion"
         ],
         "shared_document_tokens": [
+          "generacion",
+          "creacion",
+          "visual",
+          "visuales",
+          "2026",
+          "lugar",
+          "pedagogica",
+          "propuesta",
+          "interes",
+          "estetica",
+          "produccion",
+          "propone",
+          "formas",
+          "herramientas",
+          "narrativa",
+          "fortalecer",
           "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
-          "ruta",
-          "objetivo",
-          "camilas",
-          "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
-          "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "social",
+          "quien",
+          "diseno"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
+            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -14807,13 +14808,12 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias",
-            "caribe"
+            "elias"
           ],
           "dataTerms": [
-            "datos",
             "muestra",
-            "archivo"
+            "archivo",
+            "datos"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -14840,6 +14840,10 @@
             "marginadas"
           ],
           "keyPhrases": [
+            "muestra",
+            "archivo",
+            "caribe",
+            "datos",
             "fenomenología",
             "teoría",
             "rumor",
@@ -14848,7 +14852,6 @@
             "goffman",
             "gluckman",
             "elias",
-            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -14868,10 +14871,7 @@
             "Chismoso Contemplativo",
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
-            "marginadas",
-            "datos",
-            "muestra",
-            "archivo"
+            "marginadas"
           ]
         },
         "document_files": [
@@ -15188,26 +15188,26 @@
           "cultura"
         ],
         "shared_document_tokens": [
-          "author",
+          "generacion",
+          "2030",
+          "jovenes",
+          "barranquilla",
+          "2026",
+          "natural",
           "fernando",
           "leon",
           "llanos",
-          "barranquilla",
-          "colombia",
-          "cultural",
           "digital",
+          "cultural",
           "social",
-          "generacion",
-          "2030",
-          "escuela",
-          "jovenes",
-          "creadores",
-          "digitales",
           "edicion",
-          "educativa",
-          "everyday",
-          "personal",
-          "presentation"
+          "artificial",
+          "principal",
+          "digitales",
+          "creadores",
+          "dialogue",
+          "title",
+          "author"
         ],
         "shared_document_signals": {
           "citations": [
@@ -15262,30 +15262,31 @@
           "educacion"
         ],
         "shared_document_tokens": [
+          "convocatoria",
+          "2026",
+          "lugar",
+          "general",
+          "propuesta",
+          "uso",
+          "narrativa",
+          "fortalecer",
           "memoria",
+          "social",
+          "quien",
+          "inteligencia",
+          "artificial",
+          "humano",
           "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
+          "frente",
+          "propia",
+          "publica",
           "ruta",
-          "objetivo",
-          "camilas",
-          "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
-          "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "base"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
+            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -15293,12 +15294,11 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias",
-            "caribe"
+            "elias"
           ],
           "dataTerms": [
-            "datos",
-            "archivo"
+            "archivo",
+            "datos"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -15325,6 +15325,9 @@
             "marginadas"
           ],
           "keyPhrases": [
+            "archivo",
+            "caribe",
+            "datos",
             "fenomenología",
             "teoría",
             "rumor",
@@ -15333,7 +15336,6 @@
             "goffman",
             "gluckman",
             "elias",
-            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -15353,9 +15355,7 @@
             "Chismoso Contemplativo",
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
-            "marginadas",
-            "datos",
-            "archivo"
+            "marginadas"
           ]
         },
         "document_files": [
@@ -19210,8 +19210,8 @@
           "outputs": []
         },
         "shared_metadata_tokens": [
-          "politecnico",
           "educacion",
+          "politecnico",
           "costa",
           "atlantica"
         ],
@@ -19661,7 +19661,7 @@
       "to": "pca-mincultura",
       "type": "Teórica",
       "strength": "Alta",
-      "description": "La relación entre Propuesta de Investigación PCA y PCA MinCultura 2026 se apoya en palabras compartidas: propuesta, 2026 y pca. En los textos aparecen matrices teóricas como fenomenología y teoría, reuso de datos y corpus compartidos y pasajes como Ruta Objetivo: ~/Documents/Las Camilas - Textos selectos/... y Base Teórica Inyectada: Fe…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Propuesta de Investigación PCA hacia PCA MinCultura 2026, porque el vínculo parece acumulativo y no accidental.",
+      "description": "La relación entre Propuesta de Investigación PCA y PCA MinCultura 2026 se apoya en palabras compartidas: pca, 2026 y propuesta. En los textos aparecen matrices teóricas como fenomenología y teoría, reuso de datos y corpus compartidos y pasajes como Ruta Objetivo: ~/Documents/Las Camilas - Textos selectos/... y Base Teórica Inyectada: Fe…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Propuesta de Investigación PCA hacia PCA MinCultura 2026, porque el vínculo parece acumulativo y no accidental.",
       "description_mode": "local",
       "source": "research-sync",
       "evidence": {
@@ -19677,35 +19677,36 @@
           "outputs": []
         },
         "shared_metadata_tokens": [
-          "propuesta",
+          "pca",
           "2026",
-          "pca"
+          "propuesta"
         ],
         "shared_document_tokens": [
-          "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
+          "propuesta",
           "ruta",
+          "caribe",
           "objetivo",
-          "camilas",
+          "general",
+          "fortalecer",
+          "colombia",
+          "memoria",
           "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
-          "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "estas",
+          "estructural",
+          "tienen",
+          "solo",
+          "sino",
+          "presentacion",
+          "consecuencia",
+          "propuestas",
+          "social",
+          "manera",
+          "directa"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
+            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -19713,8 +19714,7 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias",
-            "caribe"
+            "elias"
           ],
           "dataTerms": [
             "datos",
@@ -19745,6 +19745,7 @@
             "marginadas"
           ],
           "keyPhrases": [
+            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -19753,7 +19754,6 @@
             "goffman",
             "gluckman",
             "elias",
-            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -19815,30 +19815,31 @@
           "estado"
         ],
         "shared_document_tokens": [
-          "memoria",
-          "colectiva",
-          "fortalecimiento",
-          "cruzado",
-          "comando",
-          "strengthen",
+          "propuesta",
           "ruta",
+          "caribe",
           "objetivo",
-          "camilas",
+          "general",
+          "fortalecer",
+          "mediante",
+          "estrategia",
+          "cultural",
+          "acciones",
+          "fin",
+          "necesidad",
+          "justifica",
+          "existe",
+          "amplia",
+          "experiencias",
+          "memoria",
           "base",
-          "teorica",
-          "inyectada",
-          "fenomenologia",
-          "rumor",
-          "ensayo",
-          "ampliado",
-          "analisis",
-          "cruce",
-          "research",
-          "sync"
+          "local",
+          "estas"
         ],
         "shared_document_signals": {
           "citations": [],
           "theoryTerms": [
+            "caribe",
             "fenomenología",
             "teoría",
             "rumor",
@@ -19846,13 +19847,12 @@
             "trastienda",
             "goffman",
             "gluckman",
-            "elias",
-            "caribe"
+            "elias"
           ],
           "dataTerms": [
             "muestra",
-            "evidencia",
-            "registro"
+            "registro",
+            "evidencia"
           ],
           "provenanceTerms": [],
           "headings": [
@@ -19879,6 +19879,10 @@
             "marginadas"
           ],
           "keyPhrases": [
+            "caribe",
+            "muestra",
+            "registro",
+            "evidencia",
             "fenomenología",
             "teoría",
             "rumor",
@@ -19887,7 +19891,6 @@
             "goffman",
             "gluckman",
             "elias",
-            "caribe",
             "compilación",
             "🧠 Memoria Colectiva: Fortalecimiento Cruzado",
             "🔍 Análisis del Cruce (Research Sync)",
@@ -19907,10 +19910,7 @@
             "Chismoso Contemplativo",
             "no propaga la información para destruir a nadie; asimila la información para comprender el mundo",
             "chismosa contemplativa",
-            "marginadas",
-            "muestra",
-            "evidencia",
-            "registro"
+            "marginadas"
           ]
         },
         "document_files": [
@@ -20290,20 +20290,20 @@
           "atlantica"
         ],
         "shared_document_tokens": [
-          "research",
-          "dimension",
-          "goffman",
-          "presentation",
-          "self",
-          "everyday",
-          "life",
-          "social",
-          "moral",
-          "2026",
           "colombia",
+          "edu",
+          "social",
+          "everyday",
+          "presentation",
           "artificial",
+          "life",
+          "goffman",
+          "self",
+          "2026",
           "submission",
-          "edu"
+          "research",
+          "moral",
+          "dimension"
         ],
         "shared_document_signals": {
           "citations": [],

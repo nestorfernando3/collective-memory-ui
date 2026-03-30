@@ -30,36 +30,122 @@
     "Investigación Académica",
     "Tecnología",
     "Semiótica",
-    "Enseñanza Universitaria y Secundaria"
+    "Enseñanza Universitaria y Secundaria",
+    "Investigación",
+    "investigacion",
+    "Desarrollo de Software",
+    "Cultural",
+    "Desarrollo",
+    "Creativo",
+    "Institucional",
+    "salud pública",
+    "epidemiología",
+    "productividad",
+    "metacognición",
+    "cultura",
+    "mito",
+    "tuberculosis",
+    "caribe",
+    "atlántico",
+    "pedagogía",
+    "formación integral",
+    "evaluación formativa",
+    "comida",
+    "simulacro",
+    "análisis semiótico",
+    "propuesta institucional",
+    "co-autoría",
+    "académico",
+    "frontend",
+    "ai-memory",
+    "portafolio",
+    "personal-os",
+    "ejecución",
+    "psicología",
+    "literatura",
+    "infantil",
+    "datos",
+    "secundaria",
+    "sociología urbana",
+    "artes",
+    "gestión escolar",
+    "tecnología educativa",
+    "gestión",
+    "estado",
+    "educación pública",
+    "diseño instruccional",
+    "pruebas de estado",
+    "instruccional"
   ],
   "skills": [
     "Diseño Instruccional",
     "Programación Web (JS, VITE, React, Supabase)",
     "Redacción Académica y Científica",
     "Formulación de Proyectos Cultura/Educación",
-    "Docencia"
+    "Docencia",
+    "Estadística",
+    "React",
+    "Vite",
+    "React Flow",
+    "Lucide React",
+    "Github Actions",
+    "JavaScript",
+    "Supabase",
+    "CSS",
+    "Markdown",
+    "Docx",
+    "Epidemiología local",
+    "Metacognición (Flavell)",
+    "Evaluación formativa (Black & Wiliam)",
+    "Semiótica",
+    "Mito y Simulacro"
   ],
-  "languages": ["español_nativo", "inglés_fluido"],
+  "languages": [
+    "español_nativo",
+    "inglés_fluido"
+  ],
   "lenses": [
     {
       "id": "All",
-      "label": "Universo Completo",
+      "label": "Universo completo",
       "filter": []
     },
     {
-      "id": "Academic",
-      "label": "Lente Académico",
-      "filter": ["research", "academic", "research-proposal", "investigación", "educación"]
+      "id": "Investigacion",
+      "label": "Investigación",
+      "filter": [
+        "investigación",
+        "investigacion",
+        "académico",
+        "semiotica",
+        "epidemiología"
+      ]
     },
     {
-      "id": "Cultural",
-      "label": "Lente Cultural",
-      "filter": ["cultural", "gestión cultural", "gestión", "creativo", "literatura"]
+      "id": "Educacion",
+      "label": "Educación",
+      "filter": [
+        "educación",
+        "pedagogía",
+        "edtech",
+        "icfes",
+        "institucional"
+      ]
     },
     {
-      "id": "EdTech",
-      "label": "Lente EdTech",
-      "filter": ["edtech", "desarrollo", "tecnología educativa"]
+      "id": "Cultura",
+      "label": "Cultura y creación",
+      "filter": [
+        "cultural",
+        "literatura",
+        "caribe",
+        "artes",
+        "gestión cultural"
+      ]
     }
-  ]
+  ],
+  "stats": {
+    "total_projects": 19,
+    "generated_at": "2026-03-30T14:39:39.351Z"
+  }
 }
