@@ -1,21 +1,29 @@
 # Changelog
 
-## Unreleased - 2026-03-29
+## Unreleased - 2026-03-30
 
 ### Changed
 - `research_sync.js` now chooses document search roots by host platform instead of assuming a single folder layout.
 - Default document scanning covers common macOS, Linux, and Windows locations, with `--documents-root` available for explicit overrides.
 - The workspace README now explains the platform-aware search behavior.
+- The collective-memory skill now forces a brief onboarding preamble before execution on every activation so users see scope, root path, and the next recommended step.
 - The collective-memory skill now defaults to `/memoria collect` when no command is specified, instead of pausing for a follow-up question.
 - The default snapshot root is now documented and created as a visible folder at `~/Documents/Collective Memory/` instead of a hidden dot-directory.
 - The skill and UI now expose `/memoria systemwide` as the explicit “work across all memory” command.
 - The installed collective-memory skill version is now `1.1.0`.
+- The collective-memory UI now has a global connections toggle, clickable edges that open a connection drawer, and a project drawer that surfaces principal connections first.
+- Lenses are now dynamic: empty lenses are hidden, and type-based lenses are generated from the currently visible project set.
+- The browser smoke test now verifies the project connection list, the connection visibility toggle, and the connection drawer flow.
 
 ### Simplified
 - The UI onboarding copy was shortened so new users can understand the snapshot flow faster.
 - The README guidance now highlights the `systemwide` default more clearly.
 - The skill now behaves as a mini onboarding step and explains what each `/memoria` command does when activated.
+- Project drawers now start with the strongest connections, with a switch to reveal the full list when needed.
+- The lens row no longer shows filters that do not match any visible projects.
 
 ### Verified
 - `node --test collective-memory/scripts/research_sync.test.js`
 - `npm run build` in `collective-memory-ui`
+- `node --test collective-memory-ui/src/lib/*.test.js`
+- `npm run smoke` in `collective-memory-ui`
