@@ -6,6 +6,7 @@
 - `research_sync.js` now chooses document search roots by host platform instead of assuming a single folder layout.
 - Default document scanning covers common macOS, Linux, and Windows locations, with `--documents-root` available for explicit overrides.
 - The workspace README now explains the platform-aware search behavior.
+- Connection descriptions and skill guidance now use clearer, more natural Spanish instead of internal labels like `shared tokens` or field names such as `theoretical_frameworks`.
 - The collective-memory skill now forces a brief onboarding preamble before execution on every activation so users see scope, root path, and the next recommended step.
 - The collective-memory skill now defaults to `/memoria collect` when no command is specified, instead of pausing for a follow-up question.
 - The default snapshot root is now documented and created as a visible folder at `~/Documents/Collective Memory/` instead of a hidden dot-directory.
