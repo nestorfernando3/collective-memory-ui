@@ -60,6 +60,7 @@ We have successfully pivoted the project from a hardcoded personal portfolio int
 - Added a central persona drawer in the UI that synthesizes biography, project routes, and expansion ideas from the memory graph.
 - Added persistent project exclusion/restoration so users can trim the visible selection without deleting data.
 - Added a Playwright browser smoke that checks onboarding, profile drawer, project drawer, and exclusion flow.
+- Added an English/Spanish language toggle to the UI and normalized the published docs to English.
 
 ---
 

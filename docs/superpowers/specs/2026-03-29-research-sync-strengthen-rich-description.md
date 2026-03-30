@@ -13,6 +13,7 @@
 - Improve project-to-project scoring with actual prose evidence from `.md` and `.docx` files.
 - Detect shared theoretical matrices, repeated citations, and data reuse signals from documents.
 - Generate richer connection descriptions for the UI without changing the existing `connections.json` contract.
+- Keep those descriptions in clear, natural Spanish and avoid exposing internal field names or English jargon in user-facing copy.
 - Keep the LLM path optional and safe through a deterministic fallback.
 
 ## Non-Goals

@@ -1,100 +1,104 @@
 ---
 name: collective-memory
-description: An AI-agnostic collective memory system that catalogs research, projects, and personal knowledge into a centralized filesystem database. Allows agents to find synergies, generate cross-project profiles, and manage portfolios.
+description: Use when working with the collective-memory filesystem database, `/memoria` commands, portfolio snapshots, or cross-project relationship graphs.
 tags: [knowledge-management, memory, orchestration, portfolio]
-version: 1.1.0
+version: 1.2.0
 ---
 
 # Collective Memory Skill
 
-This skill transforms the user's local filesystem into an active, interrogable graph of their life's work.
-Instead of relying on LLM context windows or disjointed chats, a central database (`~/Documents/Collective Memory/` by default, configurable by the user) stores structured JSON metadata about the user's unified identity, their projects, and the relationships between those projects. The default mode is systemwide: it works across the full memory graph unless the user explicitly narrows the scope.
+This skill turns the user's local filesystem into an active, queryable graph of their work.
+Instead of relying on LLM context windows or fragmented chats, a central database (`~/Documents/Collective Memory/` by default, configurable by the user) stores structured JSON metadata about the user's unified identity, their projects, and the relationships between those projects. The default operating mode is systemwide: it works across the full memory graph unless the user explicitly narrows the scope.
 
-When using this skill, your role as an AI assistant is to act as a **librarian and data synthesizer** for the user's work. You have access to your usual environment tools (file reading, writing, shell access) which you will use to manage this data.
+When you use this skill, your role as the AI assistant is to act as a **librarian and data synthesizer** for the user's work. You have access to your usual environment tools (file reading, writing, shell access), which you will use to manage this data.
 
-## 🚀 Uso Guiado
+## Guided Usage
 
-Cada vez que el usuario active este skill, úsalo también como un **mini onboarding**:
-- empieza diciendo en una frase qué es Collective Memory
-- aclara que el modo por defecto es **systemwide**
-- menciona la ruta raíz visible por defecto: `~/Documents/Collective Memory/`
-- explica brevemente qué hace cada comando disponible
-- cierra recomendando el siguiente paso más útil
+Whenever the user activates this skill, start with a **brief onboarding message before executing anything**. Do not jump straight into commands without that orientation.
 
-Si el usuario está perdido, no respondas solo con “dime qué comando ejecutar”. Primero orienta y luego ejecuta o recomienda.
+That mini onboarding should briefly explain:
+- what Collective Memory is in one sentence
+- that the default mode is **systemwide**
+- the visible default root path: `~/Documents/Collective Memory/`
+- which command or next step to run now
 
-Cuando ejecutes este Skill, acompaña siempre la respuesta con tres datos concretos:
-1. La ruta exacta de la carpeta raíz que quedó generada o actualizada.
-2. Los archivos clave que contiene esa carpeta.
-3. El siguiente paso para usarla dentro de la plataforma.
+If the user already asked for a concrete action, show that onboarding first and then execute the request. Do not replace the onboarding with internal reasoning, logs, or a long narrative about what you will do.
 
-La carpeta que se importa en la UI es la **raíz del snapshot**, no un JSON suelto. Por defecto esa raíz vive en `~/Documents/Collective Memory/`, aunque el usuario esté trabajando desde un proyecto concreto.
+When you execute this skill, include three concrete details in your response:
+1. The exact path of the root folder that was generated or refreshed.
+2. The key files contained in that folder.
+3. The next step for using it inside the platform.
 
-Los archivos que la plataforma espera ver dentro de esa carpeta son:
-- `README.md` - Índice humano del snapshot, generado por `/memoria build-readme`.
-- `profile.json` - Perfil unificado del usuario.
-- `connections.json` - Grafo de relaciones entre proyectos.
-- `projects/` - Carpeta con un archivo `[project-id].json` por proyecto.
+Use clear, natural Spanish in generated summaries, project descriptions, and connection narratives. Prefer phrases like `se basa en`, `comparte`, `se entiende por`, and `palabras compartidas` instead of internal labels or English jargon such as `shared tokens` or `theoretical_frameworks`.
 
-Si el usuario pregunta “¿qué archivo uso en la plataforma?”, la respuesta debe ser:
-- importa la **carpeta raíz completa**
-- si necesitas un punto de entrada para abrir y revisar el snapshot, usa `README.md`
+The folder imported into the UI is the **snapshot root**, not a loose JSON file. By default that root lives at `~/Documents/Collective Memory/`, even if the user is working from a specific project.
 
-## 📚 Comandos y Recomendaciones
+The files the platform expects inside that folder are:
+- `README.md` - the human-readable snapshot index, generated by `/memoria build-readme`.
+- `profile.json` - the unified user profile.
+- `connections.json` - the graph of relationships between projects.
+- `projects/` - the directory containing one `[project-id].json` file per project.
 
-Cuando el usuario pida orientación sobre qué comando ejecutar, responde con una tabla corta y concreta. Prioriza el comando más útil según la intención:
+If the user asks, "Which file do I use in the platform?", the answer should be:
+- import the **entire root folder**
+- if you need a starting point to open and review the snapshot, use `README.md`
 
-| Comando | Qué hace | Recomendación |
+## Commands and Recommendations
+
+When the user asks what command to run, respond with a short, concrete table. Prioritize the command that best matches the intent:
+
+| Command | What it does | Recommendation |
 | --- | --- | --- |
-| `/memoria systemwide` | Fuerza el trabajo sobre toda la memoria acumulada y deja explícito que no se limitará al proyecto actual. | Úsalo cuando quieras máxima claridad para un usuario neófito o cuando el contexto pueda confundirse con el proyecto activo. |
-| `/memoria scan` | Detecta proyectos nuevos o incompletos en el filesystem. | Úsalo antes de registrar nada nuevo o cuando hayas creado carpetas recientes. |
-| `/memoria register [path]` | Convierte una carpeta en una ficha estructurada de proyecto. | Úsalo para proyectos nuevos, carpetas borrador o notas sueltas que merecen estructura. |
-| `/memoria profile` | Regenera `profile.json` y `PROFILE.md` con tu identidad unificada. | Ejecútalo después de registrar varios proyectos o si cambió tu foco de trabajo. |
-| `/memoria connections` | Recalcula el grafo de relaciones entre proyectos. | Úsalo cuando quieras ver sinergias, cruces temáticos o reutilización de trabajo previo. |
-| `/memoria build-readme` | Regenera el índice humano `README.md` del snapshot. | Úsalo justo antes de importar la carpeta en la UI o cuando quieras un índice legible. |
-| `/memoria collect` | Ejecuta el flujo completo: scan, register, profile, connections, build-readme y research sync. | Es la mejor opción cuando quieres dejar todo actualizado en una sola pasada. |
-| `/memoria strengthen [file_path]` | Usa la memoria previa para fortalecer un documento o app actual. | Úsalo al redactar artículos, propuestas o documentos que necesiten justificaciones y vínculos más ricos. Por defecto cruza toda la base de memoria; usa foco explícito solo si quieres acotarlo. |
+| `/memoria systemwide` | Forces the work to run across the full memory graph instead of the current project only. | Use it when you want to make the global scope explicit from the start. |
+| `/memoria scan` | Detects new or incomplete projects in the filesystem. | Run it before registering anything new or when you want to see what still needs structure. |
+| `/memoria register [path]` | Converts a folder into a structured project card. | Use it for a new project, a draft folder, or a folder with enough evidence to describe. |
+| `/memoria profile` | Regenerates `profile.json` and `PROFILE.md` with the unified identity. | Run it after registering multiple projects or when the user's focus changes. |
+| `/memoria connections` | Recomputes the relationship graph between projects. | Use it when you want to surface reuse, thematic bridges, and shared methods. |
+| `/memoria build-readme` | Rebuilds the human-readable `README.md` index for the snapshot. | Run it before importing the folder into the UI so the root has a clear entry point. |
+| `/memoria collect` | Runs scan, register, profile, connections, build-readme, and research sync in one pass. | Best default when you want everything refreshed together. |
+| `/memoria strengthen [file_path]` | Strengthens a current document using the memory database. | Use it for active writing so the document gains richer justifications, related history, and evidence-backed links. |
 
-Si el usuario no especifica un comando, ejecuta `/memoria collect` por defecto y luego reporta el resultado, pero antes acompáñalo con el mini onboarding resumido. Usa `/memoria strengthen` solo cuando ya haya un documento abierto y el usuario pida reforzarlo.
+If the user does not specify a command, run `/memoria collect` by default after the onboarding message.
 
-## 💾 The Data Layer
+## The Data Layer
 
-The default data directory is `~/Documents/Collective Memory/` (or whatever path the user specifies in their setup or prompt). The normal operating mode is systemwide across the full memory graph, not limited to the currently active project unless the user asks for that.
+The default data directory is `~/Documents/Collective Memory/` (or whatever path the user specifies in their setup or prompt). The normal operating mode is systemwide across the full memory graph, not limited to the currently active project unless the user asks for a narrower scope.
+
 The directory contains:
-- `config.json` - System configuration (scan paths, language, base prompt).
-- `profile.json` - The unified professional profile of the user.
-- `projects/` - Directory containing one `[project-id].json` file per project.
-- `connections.json` - A graph storing relationships between different project IDs.
-- `opportunities.json` - External opportunities (grants, journals, jobs) matched with projects.
+- `config.json` - system configuration (scan paths, language, base prompt).
+- `profile.json` - the unified professional profile of the user.
+- `projects/` - the directory containing one `[project-id].json` file per project.
+- `connections.json` - the graph of relationships between project IDs.
+- `opportunities.json` - external opportunities (grants, journals, jobs) matched to projects.
 
-## 📋 Commands
+## Commands
 
-Whenever the user runs one of the following slash commands, you must execute the corresponding logic:
+Whenever the user runs one of the following slash commands, execute the corresponding workflow:
 
 ### `/memoria scan`
 **Goal:** Auto-discover new projects on the filesystem.
 **Action:**
 1. Read `config.json` to get `scan_paths`.
-2. Use terminal/search tools to find directories containing typical project signifiers (`README.md`, `package.json`, `.docx`, `.pdf`, `.py`, etc.) within those paths.
+2. Use terminal or search tools to find directories containing typical project signifiers (`README.md`, `package.json`, `.docx`, `.pdf`, `.py`, etc.) within those paths.
 3. Compare the discovered directories against the items in the `projects/` folder.
-4. Report back the new, undocumented projects and ask the user if they want to `/memoria register` them.
-5. If a project already exists but its card is terse, flag it for richer re-registration rather than skipping it.
+4. Report the new or undocumented projects and ask whether they should be registered.
+5. If a project already exists but its card is too terse, flag it for richer re-registration rather than skipping it.
 
 ### `/memoria systemwide`
-**Goal:** Make the global scope explicit and refresh the full memory root.
+**Goal:** Make the full-memory scope explicit and refresh the complete memory root.
 **Action:**
-1. State clearly that the run will use the full memory graph, not just the currently active project.
+1. State clearly that the run will use the full memory graph, not just the active project.
 2. Use the configured memory root, defaulting to `~/Documents/Collective Memory/` unless the user set another path.
-3. Run the same refresh flow as `/memoria collect` unless the user asked for a narrower global action.
+3. Run the same refresh flow as `/memoria collect` unless the user requested a narrower global action.
 4. Report the exact root folder path, key files, and the next import step for the UI.
 
 ### `/memoria register [path]`
 **Goal:** Extract metadata from a project directory and save it as a structured JSON card.
 **Action:**
 1. Inspect the provided directory to understand its purpose (read files, code, docs).
-2. Generate a comprehensive JSON summarizing the project. Ensure you capture: `id, name, type, status, path, description, themes, outputs, technologies, theoretical_frameworks`.
-3. When the source material supports it, also capture `abstract, objectives, methodology, evidence, related_projects, crossovers, expansion_ideas, notes, collaborators, institutions, dates`.
-4. If the directory has only terse notes, inspect README files, docs, notebooks, articles, or code comments and synthesize a richer structured card from that evidence.
+2. Generate a comprehensive JSON summary of the project. Capture: `id`, `name`, `type`, `status`, `path`, `description`, `themes`, `outputs`, `technologies`, and `theoretical_frameworks`.
+3. When the source material supports it, also capture `abstract`, `objectives`, `methodology`, `evidence`, `related_projects`, `crossovers`, `expansion_ideas`, `notes`, `collaborators`, `institutions`, and `dates`.
+4. If the directory contains only terse notes, inspect README files, docs, notebooks, articles, or code comments and synthesize a richer structured card from that evidence.
 5. Save the JSON file into the `projects/` database directory.
 6. Print a summary of the registered project.
 
@@ -103,16 +107,16 @@ Whenever the user runs one of the following slash commands, you must execute the
 **Action:**
 1. Read all JSON files in the `projects/` directory.
 2. Read the existing `profile.json`.
-3. Synthesize the metadata from all active projects (skills used, domains, institutions, ongoing research) and update the `profile.json`.
-4. Generate a human-readable `PROFILE.md` file summarizing their background based on their accumulated projects and voice profile.
+3. Synthesize the metadata from all active projects (skills used, domains, institutions, ongoing research) and update `profile.json`.
+4. Generate a human-readable `PROFILE.md` file summarizing the user's background based on their accumulated projects and voice profile.
 
 ### `/memoria connections`
 **Goal:** Find and document synergies between projects.
 **Action:**
 1. Read all JSON files in the `projects/` directory.
-2. Identify cross-pollination opportunities (e.g., project A uses a methodology that project B needs; project C and D share data sources).
-3. Update `connections.json` with this graph.
-4. Present the user with a markdown table representing the discovered connections and suggesting concrete next steps to merge efforts or leverage past work in current active projects.
+2. Identify cross-pollination opportunities, such as project A using a method that project B needs, or project C and D sharing data sources.
+3. Update `connections.json` with the resulting graph.
+4. Present the user with a markdown table showing the discovered connections and suggesting concrete next steps to merge efforts or leverage past work in current projects.
 
 ### `/memoria collect`
 **Goal:** Run the full memory refresh in a single pass.
@@ -124,27 +128,19 @@ Whenever the user runs one of the following slash commands, you must execute the
 5. Run `/memoria build-readme` to regenerate the portfolio index.
 6. Run the local `research_sync` workflow to strengthen existing links, inspect real `.md` and `.docx` prose when metadata is insufficient, and apply validated new or refreshed descriptions when appropriate.
 7. Report the refreshed graph, any newly added projects, and any remaining evidence gaps that still need manual review.
-8. Close with the exact root folder path that the user should import into the platform and list the files that live there.
+8. Close with the exact root folder path the user should import into the platform and list the files that live there.
 
 ### `/memoria build-readme`
 **Goal:** Generate the "Collective Memory" portfolio document.
 **Action:**
 1. Read `profile.json`, `projects/*.json`, and `connections.json`.
-2. Generate a comprehensive `README.md` (saved in the database root directory, e.g. `~/Documents/Collective Memory/README.md`) that serves as the index of the user's life work. Include a Mermaid.js graph of the project connections.
+2. Generate a comprehensive `README.md` saved in the database root directory, for example `~/Documents/Collective Memory/README.md`, that serves as the index of the user's work. Include a Mermaid.js graph of the project connections.
 3. Tell the user that `README.md` is the human-readable index, but the platform import target is still the **folder root** containing that file.
 
 ### `/memoria strengthen [file_path]`
-**Goal:** Use past work to strengthen a current document or application.
+**Goal:** Use past work to strengthen a current document.
 **Action:**
-1. Read the target document (e.g. an academic article, or a grant proposal).
-2. Search through the memory database (`projects/`) for past projects, data, models, or literature reviews that match the themes of the current document.
+1. Read the target document, such as an academic article or a grant proposal.
+2. Search the memory database (`projects/`) for past projects, data, models, or literature reviews that match the themes of the current document.
 3. If the metadata is too thin, inspect the actual prose inside nearby `.md` and `.docx` sources to recover theoretical matrices, repeated citations, shared data, and structural motifs.
 4. Propose specific, actionable additions to the target document based on the recovered history. By default, search the full memory system; only narrow to one project or path when the user explicitly requests it. Offer to edit the document with prose-rich justifications instead of only formal link summaries.
-
----
-
-## 🛑 Operating Principles (The "Gstack" Approach)
-
-1. **Boil the Lake**: Never just return a short chat response if a permanent artifact is better. When asked to evaluate projects, write to the filesystem, update the `README.md`, or modify the JSON files directly. Do the complete implementation.
-2. **System Agnostic Structure**: Your code and data modifications must remain in standard JSON and Markdown. This ensures the database is readable regardless of which AI platform the user is operating within (e.g., Anthropic Claude, OpenAI Codex, or Antigravity).
-3. **Voice Consistency**: Always adhere to the user's unique voice and context. Read `profile.json` (specifically the `voice_profile` key or the linked `master_prompt_path`) before generating any user-facing text or portfolio documentation.
