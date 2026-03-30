@@ -3,6 +3,8 @@
 ## Unreleased - 2026-03-30
 
 ### Changed
+- Connection text cleanup now lives in a shared helper used by both `connectionInsights` and `profileNarrative`, so sanitization rules stop drifting inside the UI source tree.
+- Added focused UI tests for legacy noisy prose cleanup and generic-bridge detection.
 - `research_sync.js` now chooses document search roots by host platform instead of assuming a single folder layout.
 - Default document scanning covers common macOS, Linux, and Windows locations, with `--documents-root` available for explicit overrides.
 - The workspace README now explains the platform-aware search behavior.

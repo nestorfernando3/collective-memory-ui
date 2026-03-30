@@ -5,6 +5,7 @@ import {
   translateAppTitle,
   translateAffiliationRole,
 } from './i18n.js';
+import { sanitizeConnectionDescription } from './connectionText.js';
 
 const EDUCATION_PATTERNS = [
   'educacion',
@@ -152,21 +153,9 @@ function normalizeText(value) {
     .toLowerCase();
 }
 
-function sanitizeConnectionDescription(value) {
-  let text = String(value || '').replace(/\s+/g, ' ').trim();
-  if (!text) return '';
-
-  text = text
-    .replace(/\s+y\s+pasajes?\s+como\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s+Base Te[oó]rica Inyectada:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/\s+([,.;:!?])/g, '$1')
-    .replace(/[,;]\s*([,;])/g, '$1')
-    .replace(/^[,.;:!?]+\s*/, '')
-    .trim();
-
-  return text;
+function isDemoProject(project) {
+  const normalizedPath = String(project?.path || '').replace(/\\/g, '/');
+  return normalizedPath.includes('/demo/') || normalizedPath.startsWith('~/demo');
 }
 
 function isSpanish(locale) {
@@ -480,7 +469,7 @@ function buildOverview(profile, projects, locale) {
 
 export function buildProfileNarrative({ profile = {}, projects = [], connections = {}, hiddenProjectIds = [], locale = 'en' } = {}) {
   const normalizedLocale = normalizeLocale(locale);
-  const visibleProjects = filterVisibleProjects(projects, hiddenProjectIds);
+  const visibleProjects = filterVisibleProjects(projects.filter((project) => !isDemoProject(project)), hiddenProjectIds);
   const projectById = new Map(visibleProjects.map((project) => [project.id, project]));
   const activeConnections = buildConnectionMap(connections.connections || [], projectById, normalizedLocale);
   const routes = buildRoutes(visibleProjects, normalizedLocale);

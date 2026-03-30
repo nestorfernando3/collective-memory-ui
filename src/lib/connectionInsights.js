@@ -1,5 +1,6 @@
 import { resolveConnectionEndpointIds } from './graphConnections.js';
 import { normalizeLocale } from './i18n.js';
+import { isWeakGenericDescription, sanitizeConnectionDescription } from './connectionText.js';
 
 function normalizeText(value) {
   return String(value || '')
@@ -7,23 +8,6 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
-}
-
-function sanitizeConnectionDescription(value) {
-  let text = String(value || '').replace(/\s+/g, ' ').trim();
-  if (!text) return '';
-
-  text = text
-    .replace(/\s+y\s+pasajes?\s+como\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s+Base Te[oó]rica Inyectada:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/\s+([,.;:!?])/g, '$1')
-    .replace(/[,;]\s*([,;])/g, '$1')
-    .replace(/^[,.;:!?]+\s*/, '')
-    .trim();
-
-  return text;
 }
 
 function projectLabel(project, fallbackId, locale) {
@@ -73,6 +57,9 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
   const sourceLabel = projectLabel(sourceProject, source, locale);
   const targetLabel = projectLabel(targetProject, target, locale);
   const normalizedLocale = normalizeLocale(locale);
+  const evidenceScore = Number.isFinite(Number(connection?.evidence?.score)) ? Number(connection.evidence.score) : null;
+  const description = sanitizeConnectionDescription(connection?.description);
+  const exploratoryFallback = `Cruce provisional: la evidencia compartida todavía no alcanza para sostenerlo.`;
 
   return {
     id: connection?.id || `${source}::${target}::${fallbackId}`,
@@ -88,10 +75,10 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
     otherProjectId: source && source === fallbackId ? target : source,
     otherProjectLabel: source && source === fallbackId ? targetLabel : sourceLabel,
     type: connection?.type || (normalizedLocale === 'es' ? 'Sinérgica' : 'Synergistic'),
-    description: sanitizeConnectionDescription(connection?.description),
+    description: isWeakGenericDescription(description) ? exploratoryFallback : description,
     strengthLabel: getStrengthLabel(connection, strengthValue, normalizedLocale),
     strengthValue,
-    evidenceScore: Number.isFinite(Number(connection?.evidence?.score)) ? Number(connection.evidence.score) : null,
+    evidenceScore,
     raw: connection,
   };
 }
