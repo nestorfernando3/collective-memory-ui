@@ -32,6 +32,7 @@ We have successfully pivoted the project from a hardcoded personal portfolio int
 - [x] **Dynamic Radii:** Nodes do not overlap anymore! Radius scales with the number of projects (Radius = ~435+ for large numbers of nodes so they don't crash into each other)
 - [x] `fitView()` called imperatively after data loads and re-triggered on resize
 - [x] Drawer is a full bottom sheet on mobile (CSS) with `100dvh` fix for Safari address bar
+- [x] Restored editable `src/App.jsx` + Vite entrypoint so the published UI now derives from source code instead of the legacy `memoria-colectiva.js` shell
 
 ### Data Layer
 - [x] All 19 project cards have `description` fields  
@@ -62,6 +63,7 @@ We have successfully pivoted the project from a hardcoded personal portfolio int
 - Added persistent project exclusion/restoration so users can trim the visible selection without deleting data.
 - Added a Playwright browser smoke that checks onboarding, profile drawer, project drawer, and exclusion flow.
 - Added an English/Spanish language toggle to the UI and normalized the published docs to English.
+- Added a tier-aware graph shell wired to `strong/default` and `exploratory/optional` visibility, using editable source modules in `src/lib/*`.
 
 ---
 
