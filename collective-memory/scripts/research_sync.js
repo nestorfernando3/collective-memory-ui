@@ -36,6 +36,16 @@ const FIELD_WEIGHTS = {
   outputs: 3,
 };
 
+const SHARED_FIELD_LABELS = {
+  theoretical_frameworks: 'marcos teóricos',
+  domains: 'áreas',
+  themes: 'temas',
+  tags: 'etiquetas',
+  technologies: 'tecnologías',
+  institutions: 'instituciones',
+  collaborators: 'colaboradores',
+};
+
 const STOPWORDS = new Set([
   'a', 'acerca', 'al', 'algo', 'ante', 'antes', 'aqui', 'as', 'at', 'bajo',
   'be', 'but', 'como', 'con', 'contra', 'creo', 'de', 'del', 'desde', 'donde',
@@ -516,12 +526,12 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
   ['theoretical_frameworks', 'domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators'].forEach(field => {
     const values = candidate.shared[field] || [];
     if (values.length) {
-      sharedSummary.push(`${field}: ${joinList(values.slice(0, 3))}`);
+      sharedSummary.push(`${SHARED_FIELD_LABELS[field] || field}: ${joinList(values.slice(0, 3))}`);
     }
   });
 
   if (meaningfulTokens.length) {
-    sharedSummary.push(`vocabulario específico: ${joinList(meaningfulTokens.slice(0, 4))}`);
+    sharedSummary.push(`palabras compartidas: ${joinList(meaningfulTokens.slice(0, 4))}`);
   }
 
   const docFiles = uniq([
@@ -565,10 +575,10 @@ function buildLocalDescription(context) {
   );
 
   const lead = hasStrongSharedSignals
-    ? `La relación entre ${context.fromName} y ${context.toName} se apoya en ${joinList(context.sharedSummary.slice(0, 2))}.`
+    ? `La relación entre ${context.fromName} y ${context.toName} se apoya en ${context.sharedSummary.slice(0, 2).join('; ')}.`
     : hasDocumentSignals
-      ? `La relación entre ${context.fromName} y ${context.toName} se lee mejor como una continuidad documental que como una coincidencia léxica.`
-      : `La relación entre ${context.fromName} y ${context.toName} es todavía exploratoria y no se sostiene en una señal compartida fuerte.`;
+      ? `La relación entre ${context.fromName} y ${context.toName} se entiende mejor por las señales que repiten sus textos.`
+      : `La relación entre ${context.fromName} y ${context.toName} sigue siendo exploratoria y todavía no muestra una base compartida fuerte.`;
   clauses.push(lead);
 
   const docBits = [];
@@ -591,14 +601,14 @@ function buildLocalDescription(context) {
   }
 
   if (docBits.length) {
-    clauses.push(`La prosa de apoyo deja ver ${joinList(docBits)}.`);
+    clauses.push(`En los textos aparecen ${joinList(docBits)}.`);
   }
 
   if (context.docSignals.provenanceTerms.length || context.docSignals.citations.length || context.docSignals.quotedPhrases.length) {
-    clauses.push('La evidencia conserva material citado o de procedencia ajena, así que conviene separarlo de la voz principal antes de atribuirlo al perfil central.');
+    clauses.push('Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central.');
   }
 
-  clauses.push(`La dirección sugerida es ${context.relationDirection}, porque el cruce no es accidental sino orgánico y acumulativo.`);
+  clauses.push(`La lectura sugerida va de ${context.fromName} hacia ${context.toName}, porque el vínculo parece acumulativo y no accidental.`);
   return clauses.join(' ');
 }
 
@@ -663,12 +673,13 @@ async function postJson(urlString, body, headers = {}) {
 
 function buildLLMPrompt(context) {
   return [
-    'Escribe una justificación en español, con tono ensayístico pero precisa, para una conexión entre dos proyectos.',
+    'Escribe una justificación clara, natural y precisa en español para una conexión entre dos proyectos.',
     'Devuelve solo JSON con la forma {"description":"..."} y nada más.',
-    'La descripción debe tener entre 2 y 4 oraciones, sonar orgánica, y explicar el vínculo como una continuidad de trabajo, no como una etiqueta técnica.',
+    'La descripción debe tener entre 2 y 4 oraciones, sonar orgánica y explicar el vínculo como una continuidad de trabajo, no como una etiqueta técnica.',
     'Prioriza teoría compartida, citas, reutilización de datos, vocabulario repetido y señales de prosa real antes que simples listas de campos.',
     'Si aparecen citas, coautorías o marcas de procedencia, trátalas como material de terceros o coautoría y no como autoría principal del perfil.',
-    'Evita frases administrativas como "cruce por", "shared evidence" o "notas locales" y evita repetir la estructura de un reporte.',
+    'Evita frases administrativas como "cruce por", "shared evidence" o "notas locales", y no uses nombres de campos internos como theoretical_frameworks o shared tokens.',
+    'Cuando haga falta, traduce las señales a expresiones humanas como "marcos teóricos", "palabras compartidas" o "tecnologías compartidas".',
     `Proyecto origen: ${context.fromName} (${context.fromId})`,
     `Proyecto destino: ${context.toName} (${context.toId})`,
     `Tipo sugerido: ${context.type}`,

@@ -85,8 +85,8 @@ test('retains meaningful shared tokens in the narrative context', () => {
 
   assert.ok(candidate.score >= 0.75);
   assert.ok(candidate.signals.some((signal) => signal.field === 'metadata_tokens'));
-  assert.match(context.sharedSummary.join(' '), /vocabulario específico/i);
-  assert.doesNotMatch(description, /shared tokens/i);
+  assert.match(context.sharedSummary.join(' '), /palabras compartidas|marcos teóricos/i);
+  assert.doesNotMatch(description, /shared tokens|theoretical_frameworks|vocabulario específico/i);
 });
 
 test('marks provenance and citation material as third-party evidence', () => {

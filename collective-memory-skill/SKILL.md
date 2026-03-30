@@ -29,6 +29,8 @@ When you execute this skill, include three concrete details in your response:
 2. The key files contained in that folder.
 3. The next step for using it inside the platform.
 
+Use clear, natural Spanish in generated summaries, project descriptions, and connection narratives. Prefer phrases like `se basa en`, `comparte`, `se entiende por`, and `palabras compartidas` instead of internal labels or English jargon such as `shared tokens` or `theoretical_frameworks`.
+
 The folder imported into the UI is the **snapshot root**, not a loose JSON file. By default that root lives at `~/Documents/Collective Memory/`, even if the user is working from a specific project.
 
 The files the platform expects inside that folder are:

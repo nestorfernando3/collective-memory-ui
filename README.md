@@ -18,6 +18,13 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 - Use `collective-memory/scripts/sync.sh` to push data into the UI repo.
 - Use `collective-memory/scripts/research_sync.js` to rank and draft project connections from metadata, local notes, and fallback `.md`/`.docx` prose, with optional LLM-enriched connection justifications. By default it scans the full memory system; its document search adapts to the host platform, using common roots for macOS, Linux, and Windows. Pass `--focus <project-id>` only when you want a single-project pass, and `--documents-root` if you want to override the default roots. Set `OPENAI_NARRATIVE_MODEL` or `OPENAI_MODEL` to tune the prose generator.
 
+## Copy Style
+
+- The project should use clear, natural Spanish in system copy, project notes, and generated connection descriptions.
+- Prefer ordinary phrases like `se basa en`, `comparte`, `se entiende por`, and `palabras compartidas` over internal labels or English jargon.
+- When a technical term is necessary, explain it in the same sentence with plain wording.
+- Avoid exposing internal field names such as `shared tokens` or `theoretical_frameworks` in user-facing text.
+
 ## Command Guide
 
 | Command | What it does | Recommendation |
