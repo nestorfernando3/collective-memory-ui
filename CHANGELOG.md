@@ -14,6 +14,7 @@
 - The collective-memory UI now has a global connections toggle, clickable edges that open a connection drawer, and a project drawer that surfaces principal connections first.
 - Lenses are now dynamic: empty lenses are hidden, and type-based lenses are generated from the currently visible project set.
 - The browser smoke test now verifies the project connection list, the connection visibility toggle, and the connection drawer flow.
+- The collective-memory UI is now bilingual in English and Spanish, and the published docs have been normalized to English.
 - The collective-memory skill docs now require a brief onboarding before execution and keep the default `/memoria collect` fallback explicit.
 - The installed collective-memory skill version is now `1.1.2`.
 

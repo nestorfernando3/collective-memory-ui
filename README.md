@@ -11,6 +11,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 ## Quick Start
 
 - Open the UI repo and run `npm install` once, then `npm run dev`.
+- The UI defaults to English and includes a header toggle for English and Spanish.
 - Keep project cards and graph data in `collective-memory/`.
 - Use `/memoria collect` for a full refresh: scan, register, profile, connections, build-readme, and research sync in one pass.
 - Use `/memoria systemwide` when you want to make the global scope explicit from the start and refresh the full memory root.
