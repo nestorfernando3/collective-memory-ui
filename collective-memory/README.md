@@ -11,8 +11,8 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 - Nombre: Néstor De León
 - Título: Memoria Colectiva
 - Subtítulo: Archivo vivo de trabajo
-- Proyectos registrados: 19
-- Conexiones registradas: 167
+- Proyectos registrados: 18
+- Conexiones registradas: 6
 
 ## Archivos clave de esta raíz
 
@@ -25,7 +25,6 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 ## Proyectos
 
 - **Artículo Kevin Cerra**: Co-autoría con Kevin Cerra. Artículo académico en desarrollo conjunto, articulando perspectivas investigativas del Caribe colombiano. (Investigación · En proceso · ruta: ~/Documents/Artículo Kevin Cerra)
-- **Artículo Tuberculosis en el Atlántico**: Análisis de prevalencia, diagnóstico y factores asociados a la tuberculosis en el departamento del Atlántico. Redactado en coautoría. (investigacion · en_proceso · ruta: /Users/nestor/Documents/Artículo Kevin Cerra)
 - **Collective Memory PWA**: El front-end orbital de la memoria colectiva de Néstor. Una PWA estática administrada por IA y renderizada vía React Flow con diseño Editorial Brutalism. Actúa como el mapa maestro de proyectos sin depender de bases de datos remotas. (Desarrollo de Software · Activo / Desplegable · ruta: /Users/nestor/Documents/Desarrollo/collective-memory-ui)
 - **Concertación MinCultura**: Proyecto de concertación cultural financiado por el Ministerio de Cultura de Colombia. Actualmente en fase de ejecución, con actividades de gestión y difusión cultural en el Caribe. (Cultural · En ejecución · ruta: ~/Documents/CONCERTACIÓN MINCULTURA)
 - **Diario de Emociones**: Aplicación web de registro emocional con enfoque pedagógico y psicoeducativo. Pensada para estudiantes de secundaria como herramienta de autoconocimiento y acompañamiento socioemocional. (Desarrollo · En desarrollo · ruta: ~/Documents/Desarrollo/Diario de Emociones)
@@ -46,25 +45,18 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 
 ## Conexiones destacadas
 
-- articulo-kevin-cerra -> articulo-tuberculosis: La relación entre Artículo Kevin Cerra y Artículo Tuberculosis en el Atlántico se apoya en palabras compartidas: kevin, cerra, proceso y caribe. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Artículo Kevin Cerra hacia Artículo Tuberculosis en el Atlántico, porque el vínculo parece acumulativo y no accidental.
-- collective-memory-ui -> articulo-kevin-cerra: La relación entre Collective Memory PWA y Artículo Kevin Cerra se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Collective Memory PWA hacia Artículo Kevin Cerra, porque el vínculo parece acumulativo y no accidental.
-- articulo-kevin-cerra -> concertacion-mincultura: La relación entre Artículo Kevin Cerra y Concertación MinCultura se apoya en palabras compartidas: caribe. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Artículo Kevin Cerra hacia Concertación MinCultura, porque el vínculo parece acumulativo y no accidental.
-- diario-emociones -> articulo-kevin-cerra: La relación entre Diario de Emociones y Artículo Kevin Cerra se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Diario de Emociones hacia Artículo Kevin Cerra, porque el vínculo parece acumulativo y no accidental.
-- articulo-kevin-cerra -> dos-cuentos-hermanos: La relación entre Artículo Kevin Cerra y Dos Cuentos Hermanos se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Artículo Kevin Cerra hacia Dos Cuentos Hermanos, porque el vínculo parece acumulativo y no accidental.
-- examenes-planeacion -> articulo-kevin-cerra: La relación entre Exámenes y Planeación y Artículo Kevin Cerra se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como 1 1 º y Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académi…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Exámenes y Planeación hacia Artículo Kevin Cerra, porque el vínculo parece acumulativo y no accidental.
-- articulo-kevin-cerra -> fenomenologia-rumor: La relación entre Artículo Kevin Cerra y Fenomenología del Rumor se apoya en etiquetas: investigacion; palabras compartidas: caribe. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Artículo Kevin Cerra hacia Fenomenología del Rumor, porque el vínculo parece acumulativo y no accidental.
-- articulo-kevin-cerra -> generacion-2030: La relación entre Artículo Kevin Cerra y Generación 2030 / Formación en Artes se apoya en palabras compartidas: caribe y colombiano. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Artículo Kevin Cerra hacia Generación 2030 / Formación en Artes, porque el vínculo parece acumulativo y no accidental.
-- articulo-kevin-cerra -> gestiones-brisas: La relación entre Artículo Kevin Cerra y Gestiones Brisas del Río se entiende mejor por las señales que repiten sus textos. En los textos aparecen reuso de datos y corpus compartidos. La lectura sugerida va de Artículo Kevin Cerra hacia Gestiones Brisas del Río, porque el vínculo parece acumulativo y no accidental.
-- kansas-barranquilla -> articulo-kevin-cerra: La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra se apoya en etiquetas: investigacion. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Estudio Kansas-Barranquilla hacia Artículo Kevin Cerra, porque el vínculo parece acumulativo y no accidental.
-- articulo-kevin-cerra -> las-camilas: La relación entre Artículo Kevin Cerra y Las Camilas se apoya en palabras compartidas: caribe y colombiano. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Artículo Kevin Cerra hacia Las Camilas, porque el vínculo parece acumulativo y no accidental.
-- markdown-pedagogico -> articulo-kevin-cerra: La relación entre Markdown Pedagógico y Artículo Kevin Cerra se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y rumor, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, ped…. Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central. La lectura sugerida va de Markdown Pedagógico hacia Artículo Kevin Cerra, porque el vínculo parece acumulativo y no accidental.
+- kansas-barranquilla -> articulo-kevin-cerra: La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un marco conceptual explícito: caribe.
+- paideia -> collective-memory-ui: La relación entre Paideia (Παιδεία) y Collective Memory PWA se apoya en tecnologías: vite; palabras compartidas: vite y github. Comparten un corpus de trabajo.
+- picnic-semiotico -> generacion-2030: La relación entre Picnic Semiótico y Generación 2030 / Formación en Artes se apoya en palabras compartidas: cultura. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- paideia -> picnic-semiotico: La relación entre Paideia (Παιδεία) y Picnic Semiótico se apoya en instituciones: politecnico de la costa atlantica; palabras compartidas: politecnico, costa y atlantica. Comparten un marco conceptual explícito: goffman.
+- propuesta-inv-2026 -> paideia: La relación entre Propuesta de Investigación PCA y Paideia (Παιδεία) se apoya en áreas: educacion; instituciones: politecnico de la costa atlantica. Comparten un marco conceptual explícito: fenomenología y rumor.
+- propuesta-inv-2026 -> picnic-semiotico: La relación entre Propuesta de Investigación PCA y Picnic Semiótico se apoya en instituciones: politecnico de la costa atlantica; palabras compartidas: politecnico, costa y atlantica. Comparten un marco conceptual explícito: goffman.
 
 ## Mapa Mermaid
 
 ```mermaid
 graph LR
   articulo-kevin-cerra["Artículo Kevin Cerra"]
-  articulo-tuberculosis["Artículo Tuberculosis en el Atlántico"]
   collective-memory-ui["Collective Memory PWA"]
   concertacion-mincultura["Concertación MinCultura"]
   diario-emociones["Diario de Emociones"]
@@ -82,46 +74,12 @@ graph LR
   picnic-semiotico["Picnic Semiótico"]
   propuesta-inv-2026["Propuesta de Investigación PCA"]
   proyecto-icfes["Proyecto ICFEs"]
-  articulo-kevin-cerra -->|| articulo-tuberculosis
-  collective-memory-ui -->|| articulo-kevin-cerra
-  articulo-kevin-cerra -->|| concertacion-mincultura
-  diario-emociones -->|| articulo-kevin-cerra
-  articulo-kevin-cerra -->|| dos-cuentos-hermanos
-  examenes-planeacion -->|| articulo-kevin-cerra
-  articulo-kevin-cerra -->|| fenomenologia-rumor
-  articulo-kevin-cerra -->|| generacion-2030
-  articulo-kevin-cerra -->|| gestiones-brisas
   kansas-barranquilla -->|| articulo-kevin-cerra
-  articulo-kevin-cerra -->|| las-camilas
-  markdown-pedagogico -->|| articulo-kevin-cerra
-  paideia -->|| articulo-kevin-cerra
-  articulo-kevin-cerra -->|| pca-mincultura
-  pei-brisas-del-rio -->|| articulo-kevin-cerra
-  articulo-kevin-cerra -->|| picnic-semiotico
-  propuesta-inv-2026 -->|| articulo-kevin-cerra
-  proyecto-icfes -->|| articulo-kevin-cerra
-  collective-memory-ui -->|| articulo-tuberculosis
-  articulo-tuberculosis -->|| concertacion-mincultura
-  articulo-tuberculosis -->|| diario-emociones
-  articulo-tuberculosis -->|| dos-cuentos-hermanos
-  articulo-tuberculosis -->|| examenes-planeacion
-  articulo-tuberculosis -->|| fenomenologia-rumor
-  articulo-tuberculosis -->|| generacion-2030
-  articulo-tuberculosis -->|| gestiones-brisas
-  kansas-barranquilla -->|| articulo-tuberculosis
-  articulo-tuberculosis -->|| las-camilas
-  articulo-tuberculosis -->|| markdown-pedagogico
-  paideia -->|| articulo-tuberculosis
-  articulo-tuberculosis -->|| pca-mincultura
-  articulo-tuberculosis -->|| pei-brisas-del-rio
-  articulo-tuberculosis -->|| picnic-semiotico
-  propuesta-inv-2026 -->|| articulo-tuberculosis
-  articulo-tuberculosis -->|| proyecto-icfes
-  diario-emociones -->|| collective-memory-ui
-  collective-memory-ui -->|| dos-cuentos-hermanos
-  examenes-planeacion -->|| collective-memory-ui
-  collective-memory-ui -->|| fenomenologia-rumor
-  generacion-2030 -->|| collective-memory-ui
+  paideia -->|| collective-memory-ui
+  picnic-semiotico -->|| generacion-2030
+  paideia -->|| picnic-semiotico
+  propuesta-inv-2026 -->|| paideia
+  propuesta-inv-2026 -->|| picnic-semiotico
 ```
 
 ## Siguiente paso en la plataforma

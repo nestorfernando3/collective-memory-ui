@@ -12,15 +12,15 @@ Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos acadé
 - investigación
 - co-autoría
 - académico
-- salud pública
-- epidemiología
-- tuberculosis
-- caribe
-- atlántico
 - desarrollo
 - productividad
 - frontend
 - ai-memory
+- portafolio
+- personal-os
+- cultural
+- gestión cultural
+- ejecución
 
 ## Capacidades visibles
 
@@ -43,11 +43,11 @@ Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos acadé
 ## Proyectos activos o en movimiento
 
 - Artículo Kevin Cerra: Co-autoría con Kevin Cerra. Artículo académico en desarrollo conjunto, articulando perspectivas investigativas del Caribe colombiano.
-- Artículo Tuberculosis en el Atlántico: Análisis de prevalencia, diagnóstico y factores asociados a la tuberculosis en el departamento del Atlántico. Redactado en coautoría.
 - Collective Memory PWA: El front-end orbital de la memoria colectiva de Néstor. Una PWA estática administrada por IA y renderizada vía React Flow con diseño Editorial Brutalism. Actúa como el mapa maestro de proyectos sin depender de bases de datos remotas.
 - Diario de Emociones: Aplicación web de registro emocional con enfoque pedagógico y psicoeducativo. Pensada para estudiantes de secundaria como herramienta de autoconocimiento y acompañamiento socioemocional.
 - Exámenes y Planeación: Repositorio de planeaciones de clase, evaluaciones y materiales didácticos para las asignaturas en la I.E.D. Brisas del Río. Incluye guías, rúbricas y exámenes por grado y período.
 - Fenomenología del Rumor: Artículo académico que analiza el rumor y el chisme como fenómenos semióticos y socioculturales. Explora la cadena de significación del rumor en comunidades urbanas del Caribe, sus funciones de cohesión y exclusión social.
 - Generación 2030 / Formación en Artes: Propuesta de formación artística para jóvenes del Caribe colombiano, postulada al programa Generación 2030 del Ministerio de Cultura. Busca crear rutas de aprendizaje en artes escénicas, música y literatura para población vulnerable.
 - Gestiones Brisas del Río: Seguimiento y documentación de trámites, gestiones administrativas y proyectos institucionales de la I.E.D. Brisas del Río. Incluye actas, comunicados y registros de procesos de mejora escolar 2026.
+- Markdown Pedagógico: Editor web especializado para la creación de guías y planes de clase en Markdown, optimizado para docentes. Incluye plantillas pedagógicas, vista previa en tiempo real, y exportación a PDF. Comparte sistema de diseño con Paideia.
 

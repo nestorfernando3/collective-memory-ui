@@ -3,7 +3,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { execFileSync } = require('child_process');
+const Module = require('module');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const MEMORY_ROOT = path.join(REPO_ROOT, 'collective-memory');
@@ -104,6 +104,10 @@ function loadProjects() {
     .filter(file => file.endsWith('.json'))
     .map(file => readJson(path.join(PROJECTS_DIR, file), {}))
     .filter(project => project && project.id && project.name)
+    .filter(project => {
+      const normalizedPath = String(project.path || '').replace(/\\/g, '/');
+      return !(normalizedPath.includes('/demo/') || normalizedPath.startsWith('~/demo'));
+    })
     .sort((a, b) => a.name.localeCompare(b.name, 'es'));
 }
 
@@ -314,11 +318,17 @@ function buildReadme(profile, projects, connections, outputRoot) {
 }
 
 function runResearchSync() {
-  execFileSync(process.execPath, [RESEARCH_SYNC_PATH, '--apply'], {
-    cwd: REPO_ROOT,
-    stdio: 'pipe',
-    env: process.env,
-  });
+  const code = fs.readFileSync(RESEARCH_SYNC_PATH, 'utf8');
+  const previousArgv = process.argv.slice();
+  try {
+    process.argv = [process.execPath, RESEARCH_SYNC_PATH, '--apply'];
+    const researchModule = new Module(RESEARCH_SYNC_PATH, module.parent);
+    researchModule.filename = RESEARCH_SYNC_PATH;
+    researchModule.paths = Module._nodeModulePaths(path.dirname(RESEARCH_SYNC_PATH));
+    researchModule._compile(code, RESEARCH_SYNC_PATH);
+  } finally {
+    process.argv = previousArgv;
+  }
 }
 
 function writeSnapshot(outputRoot, config, profile, profileMarkdown, readme, projects, connections, clean) {

@@ -152,15 +152,30 @@ function normalizeText(value) {
     .toLowerCase();
 }
 
+function isDemoProject(project) {
+  const normalizedPath = String(project?.path || '').replace(/\\/g, '/');
+  return normalizedPath.includes('/demo/') || normalizedPath.startsWith('~/demo');
+}
+
 function sanitizeConnectionDescription(value) {
   let text = String(value || '').replace(/\s+/g, ' ').trim();
   if (!text) return '';
 
   text = text
+    .replace(/^(?:[-*+]\s+|\d+[.)]\s+)/, '')
     .replace(/\s+y\s+pasajes?\s+como\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Base Te[oó]rica Inyectada:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+En los textos aparecen[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+Este perfil se entiende[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+Archivo vivo de trabajo[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+Collective Memory PWA[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+Perfil unificado[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+La lectura sugerida va de[\s\S]*$/gi, '.')
+    .replace(/\s+porque el vínculo parece acumulativo y no accidental\.?/gi, '.')
+    .replace(/\s+porque el cruce no es accidental(?: sino orgánico y acumulativo)?\.?/gi, '.')
     .replace(/\s{2,}/g, ' ')
+    .replace(/\.\s*\.+/g, '.')
     .replace(/\s+([,.;:!?])/g, '$1')
     .replace(/[,;]\s*([,;])/g, '$1')
     .replace(/^[,.;:!?]+\s*/, '')
@@ -480,7 +495,7 @@ function buildOverview(profile, projects, locale) {
 
 export function buildProfileNarrative({ profile = {}, projects = [], connections = {}, hiddenProjectIds = [], locale = 'en' } = {}) {
   const normalizedLocale = normalizeLocale(locale);
-  const visibleProjects = filterVisibleProjects(projects, hiddenProjectIds);
+  const visibleProjects = filterVisibleProjects(projects.filter((project) => !isDemoProject(project)), hiddenProjectIds);
   const projectById = new Map(visibleProjects.map((project) => [project.id, project]));
   const activeConnections = buildConnectionMap(connections.connections || [], projectById, normalizedLocale);
   const routes = buildRoutes(visibleProjects, normalizedLocale);

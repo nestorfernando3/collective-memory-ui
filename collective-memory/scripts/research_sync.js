@@ -59,6 +59,7 @@ const STOPWORDS = new Set([
   'actual', 'current', 'available',
   'documents', 'document', 'doc', 'docs', 'users', 'nestor', 'home',
   'files', 'file', 'folder', 'folders', 'textos', 'selectos',
+  'markdown',
 ]);
 
 const THEORY_MARKERS = [
@@ -146,6 +147,14 @@ const WEAK_SHARED_TOKENS = new Set([
   'publico',
   'active',
   'activo',
+  'ciclo',
+  'estado',
+  'formacion',
+  'incluye',
+  'incluido',
+  'incluida',
+  'incluidos',
+  'incluidas',
 ]);
 
 const PROVENANCE_MARKERS = [
@@ -300,7 +309,26 @@ function filterMeaningfulSharedTokens(tokens) {
   return uniq(tokens)
     .map(token => String(token || '').trim())
     .filter(token => token.length > 2)
+    .filter(token => !/^\d+$/.test(token))
     .filter(token => !WEAK_SHARED_TOKENS.has(token));
+}
+
+function isSubstantiveSharedValue(value) {
+  const normalized = normalizePhrase(value);
+  if (!normalized) return false;
+  if (/^\d+$/.test(normalized)) return false;
+  return !WEAK_SHARED_TOKENS.has(normalized);
+}
+
+function isSubstantiveSharedSummaryEntry(entry) {
+  const normalized = normalizeText(entry);
+  if (!normalized) return false;
+
+  const valuePart = normalized.includes(':') ? normalized.split(':').slice(1).join(':').trim() : normalized;
+  const tokens = tokenize(valuePart);
+  if (!tokens.length) return false;
+
+  return tokens.some(token => !WEAK_SHARED_TOKENS.has(token));
 }
 
 function joinList(values) {
@@ -525,7 +553,40 @@ function isNoisyNarrativeSnippet(value) {
   const text = normalizePhrase(value);
   if (!text) return true;
   if (text.includes('ruta objetivo') || text.includes('base teorica inyectada')) return true;
+  if (
+    text.includes('title:') ||
+    text.includes('[bug]') ||
+    text.includes('decision operativa') ||
+    text.includes('hoja de autoria') ||
+    text.includes('datosautoriacolombiainternacional') ||
+    text === 'resumen'
+  ) {
+    return true;
+  }
   return /(?:^|[^\w])(?:~\/|\/users\/|c:\\|[a-z]:\\|\/documents\/|onedrive\/)/i.test(String(value || ''));
+}
+
+const GENERIC_EVIDENCE_TERMS = new Set([
+  'teoria',
+  'theory',
+  'analisis',
+  'analysis',
+  'estudio',
+  'study',
+  'documento',
+  'document',
+  'archivo',
+  'textos',
+  'texto',
+  'material',
+  'contenido',
+]);
+
+function filterEvidenceTerms(values) {
+  return uniq(Array.isArray(values) ? values : [])
+    .map(value => String(value || '').trim())
+    .filter(Boolean)
+    .filter(value => !GENERIC_EVIDENCE_TERMS.has(normalizePhrase(value)));
 }
 
 function cleanNarrativeSnippet(value) {
@@ -533,9 +594,13 @@ function cleanNarrativeSnippet(value) {
   if (!text) return '';
 
   text = text
+    .replace(/^(?:[-*+]\s+|\d+[.)]\s+)/, '')
     .replace(/\s+y\s+pasajes?\s+como\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Ruta Objetivo:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Base Te[oó]rica Inyectada:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/\s+La lectura sugerida va de[\s\S]*$/gi, '.')
+    .replace(/\s+porque el vínculo parece acumulativo y no accidental\.?/gi, '.')
+    .replace(/\s+porque el cruce no es accidental(?: sino orgánico y acumulativo)?\.?/gi, '.')
     .replace(/\s{2,}/g, ' ')
     .replace(/\s+([,.;:!?])/g, '$1')
     .replace(/[,;]\s*([,;])/g, '$1')
@@ -543,6 +608,121 @@ function cleanNarrativeSnippet(value) {
     .trim();
 
   return isNoisyNarrativeSnippet(text) ? '' : text;
+}
+
+function isGeneratedMemoryDoc(filePath) {
+  return isGeneratedMemoryArtifact(filePath);
+}
+
+function isMemoryWorkspacePath(filePath) {
+  const normalizedPath = String(filePath || '').replace(/\\/g, '/');
+  return /collective memory|collective-memory/i.test(normalizedPath);
+}
+
+function isGeneratedMemoryArtifact(filePath, text = '') {
+  const base = path.basename(String(filePath || ''));
+  const normalizedPath = String(filePath || '').replace(/\\/g, '/');
+  const normalizedText = normalizeText(text);
+
+  if (/^strengthen_.+\.md$/i.test(base)) return true;
+  if (/^research-sync-report(?:\s+\d+)?\.md$/i.test(base)) return true;
+  if (/^(?:README|PROFILE|STATUS)(?:\s+\d+)?\.md$/i.test(base) && /collective memory|collective-memory/i.test(normalizedPath)) {
+    return true;
+  }
+
+  return (
+    normalizedText.includes('memoria colectiva: fortalecimiento cruzado') ||
+    normalizedText.includes('analisis del cruce') ||
+    normalizedText.includes('ruta objetivo:') ||
+    normalizedText.includes('base teorica inyectada:') ||
+    normalizedText.startsWith('# research sync')
+  );
+}
+
+function isNoisyConnectionDescription(description) {
+  const text = normalizePhrase(description);
+  if (!text) return false;
+  return (
+    text.includes('este perfil se entiende') ||
+    text.includes('archivo vivo de trabajo') ||
+    text.includes('collective memory pwa') ||
+    text.includes('perfil unificado') ||
+    /\b(?:y|hacia|se apoya en|palabras compartidas)\.?$/.test(text) ||
+    /la relacion entre .* y\.?$/.test(text) ||
+    /va de .* hacia\.?$/.test(text)
+  );
+}
+
+function hasStrongDocumentEvidence(docSignals = {}, docHighlights = []) {
+  const citations = Array.isArray(docSignals.citations) ? docSignals.citations : [];
+  const dataTerms = filterEvidenceTerms(docSignals.dataTerms || []);
+  const provenanceTerms = filterEvidenceTerms(docSignals.provenanceTerms || []);
+  const quotedPhrases = Array.isArray(docSignals.quotedPhrases) ? docSignals.quotedPhrases : [];
+  const headings = Array.isArray(docSignals.headings) ? docSignals.headings : [];
+  const substantiveHighlights = uniq(Array.isArray(docHighlights) ? docHighlights : [])
+    .map(cleanNarrativeSnippet)
+    .filter(Boolean)
+    .filter(snippet => !/^(las fuentes|este perfil se entiende|archivo vivo de trabajo|collective memory pwa)/i.test(snippet));
+
+  return Boolean(
+    citations.length ||
+      provenanceTerms.length ||
+      quotedPhrases.length >= 2 ||
+      headings.length >= 2 ||
+      substantiveHighlights.length >= 2
+  );
+}
+
+function hasStrongDocumentSupport(docSignals = {}, docHighlights = []) {
+  return hasStrongDocumentEvidence(docSignals, docHighlights);
+}
+
+function buildDocumentEvidenceSentence(docSignals = {}, docHighlights = []) {
+  if (docSignals.citations && docSignals.citations.length) {
+    return 'Comparten citas o referencias verificables.';
+  }
+
+  const theoryTerms = filterEvidenceTerms(docSignals.theoryTerms || []);
+  if (theoryTerms.length) {
+    return `Comparten un marco conceptual explícito: ${joinList(theoryTerms.slice(0, 2))}.`;
+  }
+
+  const dataTerms = filterEvidenceTerms(docSignals.dataTerms || []);
+  if (dataTerms.length) {
+    return 'Comparten un corpus de trabajo.';
+  }
+
+  const provenanceTerms = filterEvidenceTerms(docSignals.provenanceTerms || []);
+  if (provenanceTerms.length) {
+    return 'Hay marcas de procedencia que conviene separar del texto principal.';
+  }
+
+  const highlight = cleanNarrativeSnippet(docHighlights[0] || '');
+  if (highlight) {
+    return `El pasaje más útil es ${safePreview(highlight, 90)}.`;
+  }
+
+  return '';
+}
+
+function hasSufficientConnectionEvidence(candidate) {
+  if (!candidate) return false;
+
+  const explicitRelation = Array.isArray(candidate.signals)
+    && candidate.signals.some(signal => signal && signal.field === 'explicit_relation');
+
+  const shared = candidate.shared || {};
+  const strongSharedField = ['domains', 'themes', 'institutions', 'technologies', 'collaborators'].some(field => {
+    const values = Array.isArray(shared[field]) ? shared[field] : [];
+    return values.some(isSubstantiveSharedValue);
+  });
+  const strongDocumentSupport = hasStrongDocumentSupport(candidate.sharedDocSignals || {}, candidate.docHighlights || []);
+
+  if (explicitRelation && (strongSharedField || strongDocumentSupport)) return true;
+  if (strongSharedField) return true;
+  if (strongDocumentSupport) return true;
+
+  return false;
 }
 
 function buildConnectionContext(candidate, fromId, toId, profilesById) {
@@ -579,6 +759,9 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
     .map(cleanNarrativeSnippet)
     .filter(Boolean)
     .slice(0, 4);
+  const documentEvidence = hasStrongDocumentEvidence(docSignals, docHighlights)
+    ? buildDocumentEvidenceSentence(docSignals, docHighlights)
+    : '';
 
   return {
     candidate,
@@ -593,56 +776,61 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
     docFiles,
     docSignals,
     docHighlights,
+    documentEvidence,
     relationDirection: `${fromId} -> ${toId}`,
   };
 }
 
 function buildLocalDescription(context) {
   const clauses = [];
-  const hasStrongSharedSignals = context.sharedSummary.length > 0;
-  const hasDocumentSignals = Boolean(
-    context.docSignals.citations.length ||
-    context.docSignals.theoryTerms.length ||
-    context.docSignals.dataTerms.length ||
-    context.docSignals.provenanceTerms.length ||
-    context.docSignals.quotedPhrases.length ||
-    context.docHighlights.length
-  );
+  const hasStrongSharedSignals = context.sharedSummary.some(isSubstantiveSharedSummaryEntry);
+  const hasDocumentSignals = Boolean(context.documentEvidence);
 
   const lead = hasStrongSharedSignals
     ? `La relación entre ${context.fromName} y ${context.toName} se apoya en ${context.sharedSummary.slice(0, 2).join('; ')}.`
     : hasDocumentSignals
-      ? `La relación entre ${context.fromName} y ${context.toName} se entiende mejor por las señales que repiten sus textos.`
-      : `La relación entre ${context.fromName} y ${context.toName} sigue siendo exploratoria y todavía no muestra una base compartida fuerte.`;
+      ? `La relación entre ${context.fromName} y ${context.toName} tiene evidencia documental, pero todavía no una base compartida clara.`
+      : `No hay base suficiente para destacar una relación sólida entre ${context.fromName} y ${context.toName}.`;
   clauses.push(lead);
 
-  const docBits = [];
-  if (context.docSignals.citations.length) {
-    docBits.push(`citas como ${joinList(context.docSignals.citations.slice(0, 2))}`);
-  }
-  if (context.docSignals.theoryTerms.length) {
-    docBits.push(`matrices teóricas como ${joinList(context.docSignals.theoryTerms.slice(0, 2))}`);
-  }
-  if (context.docSignals.dataTerms.length) {
-    docBits.push(`reuso de datos y corpus compartidos`);
-  }
-  if (context.docSignals.provenanceTerms.length) {
-    docBits.push(`marcas de procedencia como ${joinList(context.docSignals.provenanceTerms.slice(0, 2))}`);
-  }
-  if (context.docHighlights.length) {
-    docBits.push(`pasajes como ${safePreview(joinList(context.docHighlights.slice(0, 2)), 90)}`);
-  }
-
-  if (docBits.length) {
-    clauses.push(`En los textos aparecen ${joinList(docBits)}.`);
+  if (context.documentEvidence) {
+    clauses.push(context.documentEvidence);
   }
 
   if (context.docSignals.provenanceTerms.length || context.docSignals.citations.length || context.docSignals.quotedPhrases.length) {
-    clauses.push('Si hay citas o material de terceros, conviene separarlos de la voz principal antes de atribuirlos al perfil central.');
+    clauses.push('Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.');
   }
 
-  clauses.push(`La lectura sugerida va de ${context.fromName} hacia ${context.toName}, porque el vínculo parece acumulativo y no accidental.`);
   return clauses.join(' ');
+}
+
+function pruneInsufficientGeneratedConnections(connectionsData, profilesById) {
+  const originalConnections = Array.isArray(connectionsData?.connections) ? connectionsData.connections : [];
+  let removed = 0;
+
+  const nextConnections = originalConnections.filter(connection => {
+    const source = String(connection?.from || connection?.source || '').trim();
+    const target = String(connection?.to || connection?.target || '').trim();
+    if (!source || !target) return true;
+    if (String(connection?.source || '').trim() !== 'research-sync') return true;
+
+    const fromProfile = profilesById.get(source);
+    const toProfile = profilesById.get(target);
+    if (!fromProfile || !toProfile) return false;
+
+    const candidate = scorePair(fromProfile, toProfile, new Set());
+    const keep = hasSufficientConnectionEvidence(candidate);
+    if (!keep) removed += 1;
+    return keep;
+  });
+
+  return {
+    nextConnectionsData: {
+      ...(connectionsData || {}),
+      connections: nextConnections,
+    },
+    removed,
+  };
 }
 
 async function postJson(urlString, body, headers = {}) {
@@ -708,11 +896,13 @@ function buildLLMPrompt(context) {
   return [
     'Escribe una justificación clara, natural y precisa en español para una conexión entre dos proyectos.',
     'Devuelve solo JSON con la forma {"description":"..."} y nada más.',
-    'La descripción debe tener entre 2 y 4 oraciones, sonar orgánica y explicar el vínculo como una continuidad de trabajo, no como una etiqueta técnica.',
+    'La descripción debe tener entre 2 y 3 oraciones, sonar orgánica y decir con precisión qué comparten y para qué sirve ese cruce.',
+    'No uses cierres genéricos como "porque el vínculo parece acumulativo y no accidental" ni frases metadiscursivas como "se entiende mejor por las señales que repiten sus textos".',
+    'Evita también fórmulas vagas como "sigue siendo exploratoria" salvo que la evidencia sea realmente insuficiente; en ese caso, dilo de forma breve y directa.',
     'Prioriza teoría compartida, citas, reutilización de datos, vocabulario repetido y señales de prosa real antes que simples listas de campos.',
     'Si aparecen citas, coautorías o marcas de procedencia, trátalas como material de terceros o coautoría y no como autoría principal del perfil.',
     'Evita frases administrativas como "cruce por", "shared evidence" o "notas locales", y no uses nombres de campos internos como theoretical_frameworks o shared tokens.',
-    'Cuando haga falta, traduce las señales a expresiones humanas como "marcos teóricos", "palabras compartidas" o "tecnologías compartidas".',
+    'Cuando haga falta, traduce las señales a expresiones humanas como "marcos conceptuales", "tecnologías compartidas" o "evidencia documental".',
     `Proyecto origen: ${context.fromName} (${context.fromId})`,
     `Proyecto destino: ${context.toName} (${context.toId})`,
     `Tipo sugerido: ${context.type}`,
@@ -723,7 +913,7 @@ function buildLLMPrompt(context) {
     `Procedencia: ${context.docSignals.provenanceTerms.length ? context.docSignals.provenanceTerms.join(' | ') : 'ninguna señal explícita de terceros'}`,
     `Pasajes o notas: ${context.docHighlights.length ? context.docHighlights.join(' | ') : 'ninguno'}`,
     `Dirección: ${context.relationDirection}`,
-    'La respuesta debe explicar por qué el vínculo es orgánico, legible y defendible a nivel narrativo.',
+    'La respuesta debe empezar por la evidencia concreta y terminar con una consecuencia útil o con una nota breve de insuficiencia si no la hay.',
   ].join('\n');
 }
 
@@ -797,6 +987,11 @@ function isIgnoredDir(dirName) {
   return ['.git', 'node_modules', 'dist', 'coverage', '.cache'].includes(dirName);
 }
 
+function isDemoProject(project) {
+  const normalizedPath = String(project?.path || '').replace(/\\/g, '/');
+  return normalizedPath.includes('/demo/') || normalizedPath.startsWith('~/demo');
+}
+
 function walkFiles(rootDir, maxDepth, allowedExtensions, limit, results = [], depth = 0) {
   if (!fs.existsSync(rootDir) || results.length >= limit || depth > maxDepth) return results;
 
@@ -847,6 +1042,7 @@ function loadProjects() {
       const filePath = path.join(PROJECTS_DIR, file);
       const data = readJson(filePath, null);
       if (!data || !data.id) return null;
+      if (isDemoProject(data)) return null;
       return {
         ...data,
         __filePath: filePath,
@@ -858,6 +1054,23 @@ function loadProjects() {
 
 function loadConnections() {
   return readJson(CONNECTIONS_PATH, { connections: [], clusters: [] });
+}
+
+function pruneConnectionsToProjects(connectionsData, allowedProjectIds) {
+  const originalConnections = Array.isArray(connectionsData?.connections) ? connectionsData.connections : [];
+  const nextConnections = originalConnections.filter(connection => {
+    const from = String(connection.from || connection.source || '').trim();
+    const to = String(connection.to || connection.target || '').trim();
+    return Boolean(from && to && allowedProjectIds.has(from) && allowedProjectIds.has(to));
+  });
+
+  return {
+    nextConnections: {
+      ...(connectionsData || {}),
+      connections: nextConnections,
+    },
+    changed: nextConnections.length !== originalConnections.length,
+  };
 }
 
 function projectStrings(project) {
@@ -949,11 +1162,6 @@ function gatherDocumentFiles(project, docsRoot) {
     }
   }
 
-  const localNotesRoot = ROOT_DIR;
-  if (fs.existsSync(localNotesRoot)) {
-    pathsToCheck.push(localNotesRoot);
-  }
-
   expandedDocsRoots.forEach(root => {
     if (fs.existsSync(root)) {
       pathsToCheck.push(root);
@@ -961,13 +1169,14 @@ function gatherDocumentFiles(project, docsRoot) {
   });
 
   pathsToCheck.forEach(root => {
-    const allowedExtensions = root === localNotesRoot ? ['.md'] : ['.md', '.txt', '.docx'];
+    const allowedExtensions = ['.md', '.txt', '.docx'];
     const maxDepth = expandedDocsRootSet.has(root) ? 3 : 2;
     const limit = expandedDocsRootSet.has(root) ? 24 : 12;
     const files = walkFiles(root, maxDepth, allowedExtensions, limit, []);
     files.forEach(filePath => {
       if (seen.has(filePath)) return;
-      const score = scorePathMatch(filePath, tokens) + (root === localNotesRoot ? 5 : 0);
+      if (isMemoryWorkspacePath(filePath) || isGeneratedMemoryDoc(filePath) || isGeneratedMemoryArtifact(filePath)) return;
+      const score = scorePathMatch(filePath, tokens);
       const isDirectProjectPath = explicitPath && filePath === explicitPath;
       const include = isDirectProjectPath || score > 0;
       if (include) {
@@ -997,8 +1206,10 @@ function gatherDocumentEvidence(project, docsRoot) {
   };
 
   files.forEach(filePath => {
+    if (isGeneratedMemoryArtifact(filePath)) return;
     const text = readDocumentText(filePath).slice(0, 12000);
     if (!text) return;
+    if (isGeneratedMemoryArtifact(filePath, text)) return;
     const fileTokens = tokenize(text);
     const signals = extractDocumentSignals(text);
     fileTokens.forEach(token => tokens.add(token));
@@ -1433,8 +1644,8 @@ async function buildReport({ existingCandidates, newCandidates, profilesById, fo
       if (narrative.sharedSummary.length) {
         lines.push(`- Shared evidence: ${joinList(narrative.sharedSummary)}`);
       }
-      if (narrative.docHighlights.length) {
-        lines.push(`- Document evidence: ${joinList(narrative.docHighlights.slice(0, 2))}`);
+      if (narrative.documentEvidence) {
+        lines.push(`- Document evidence: ${narrative.documentEvidence}`);
       }
       lines.push(`- Draft description (${narrative.descriptionMode}): ${narrative.description}`);
       lines.push('');
@@ -1502,6 +1713,7 @@ function isFallbackDescription(description) {
 function shouldRefreshConnection(connection, candidate) {
   const description = String(connection?.description || '').trim();
   if (!description) return true;
+  if (isNoisyConnectionDescription(description)) return true;
   const source = String(connection?.source || '').toLowerCase();
   const mode = String(connection?.description_mode || '').toLowerCase();
   const currentScore = Number(connection?.evidence?.score || 0);
@@ -1513,6 +1725,10 @@ function shouldRefreshConnection(connection, candidate) {
     (candidate?.sharedDocSignals?.keyPhrases || []).length
   );
   const fallbackLike = source === 'research-sync' || mode === 'local' || mode === 'llm' || isFallbackDescription(description);
+
+  if (fallbackLike && currentScore <= 15) {
+    return true;
+  }
 
   if (fallbackLike) {
     return candidateScore >= REFRESH_SCORE_THRESHOLD || (candidateScore >= currentScore + 10 && hasFreshDocumentSignals);
@@ -1618,8 +1834,9 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const projects = loadProjects();
-  const connectionsData = loadConnections();
-  const existingKeys = existingConnectionKeys(connectionsData);
+  const allowedProjectIds = new Set(projects.map(project => project.id));
+  const loadedConnections = loadConnections();
+  const { nextConnections: prunedConnectionsData, changed: prunedChanged } = pruneConnectionsToProjects(loadedConnections, allowedProjectIds);
   const profilesById = new Map();
   const documentsRoot = normalizeDocsRoots(args.docsRoot);
   const narrativeCache = new Map();
@@ -1630,19 +1847,26 @@ async function main() {
     profilesById.set(project.id, profile);
   });
 
+  const { nextConnectionsData: evidencePrunedConnections, removed: evidenceRemoved } = pruneInsufficientGeneratedConnections(prunedConnectionsData, profilesById);
+  const connectionsData = evidencePrunedConnections;
+  const existingKeys = existingConnectionKeys(connectionsData);
+
   const focusProjectIds = args.focus
     ? projects.filter(project => project.id === args.focus).map(project => project.id)
     : projects.map(project => project.id);
 
   const existingCandidates = [];
+  const refreshableExistingCandidates = [];
   const newCandidates = [];
   const seenCandidateKeys = new Set();
 
   const addCandidate = candidate => {
     if (!candidate || seenCandidateKeys.has(candidate.pairKey)) return;
     seenCandidateKeys.add(candidate.pairKey);
+    if (!hasSufficientConnectionEvidence(candidate)) return;
     if (candidate.alreadyConnected) {
       if (candidate.score >= EXISTING_REPORT_THRESHOLD) existingCandidates.push(candidate);
+      if (candidate.score >= EXISTING_REFRESH_THRESHOLD) refreshableExistingCandidates.push(candidate);
       return;
     }
     if (candidate.score >= NEW_CONNECTION_THRESHOLD) {
@@ -1691,19 +1915,20 @@ async function main() {
   }
 
   if (args.apply) {
-    const { nextConnections, added, updated } = await applyCandidates(connectionsData, [...existingCandidates, ...newCandidates], profilesById, {
+    const { nextConnections, added, updated } = await applyCandidates(connectionsData, [...refreshableExistingCandidates, ...newCandidates], profilesById, {
       llm: args.llm,
       llmModel: args.llmModel,
     }, narrativeCache);
     const { nextConnections: sanitizedConnections, changed: sanitizedChanged } = sanitizeConnectionsData(nextConnections);
-    if (added > 0 || updated > 0 || sanitizedChanged) {
+    if (added > 0 || updated > 0 || sanitizedChanged || prunedChanged || evidenceRemoved > 0) {
       writeJson(CONNECTIONS_PATH, sanitizedConnections);
       if (fs.existsSync(UI_CONNECTIONS_PATH)) {
         writeJson(UI_CONNECTIONS_PATH, sanitizedConnections);
       }
     }
     const updatedMessage = updated > 0 ? `, refreshed ${updated} existing connection${updated === 1 ? '' : 's'}` : '';
-    console.log(`Applied ${added} new connection${added === 1 ? '' : 's'}${updatedMessage}.\n`);
+    const removedMessage = evidenceRemoved > 0 ? `, removed ${evidenceRemoved} weak generated connection${evidenceRemoved === 1 ? '' : 's'}` : '';
+    console.log(`Applied ${added} new connection${added === 1 ? '' : 's'}${updatedMessage}${removedMessage}.\n`);
   }
 
   const renderedReport = await report;
@@ -1719,6 +1944,7 @@ if (require.main === module) {
 
 module.exports = {
   buildConnectionContext,
+  buildDocumentEvidenceSentence,
   buildLocalDescription,
   buildLLMPrompt,
   buildProjectProfile,
@@ -1736,9 +1962,13 @@ module.exports = {
   inferType,
   loadProjects,
   parseArgs,
+  hasSufficientConnectionEvidence,
   resolveConnectionNarrative,
   scorePair,
   sharedSignalDetails,
   isFallbackDescription,
+  isNoisyConnectionDescription,
+  isGeneratedMemoryDoc,
   shouldRefreshConnection,
+  pruneInsufficientGeneratedConnections,
 };
