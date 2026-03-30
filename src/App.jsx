@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useState } from 'react';
+import { startTransition, useEffect, useMemo, useState } from 'react';
 import {
   Background,
   Handle,
@@ -287,64 +287,74 @@ function App() {
     }
   }, [activeLensId, safeLensId]);
 
-  const graph = dataset
-    ? buildGraphModel({
-        profile: dataset.profile,
-        projects: dataset.projects,
-        connections: dataset.connections,
-        hiddenProjectIds,
-        locale: language,
-        activeLensId: safeLensId,
-        visibilityMode,
-      })
-    : null;
+  const graph = useMemo(() => {
+    if (!dataset) return null;
 
-  const renderedNodes = graph
-    ? graph.nodes.map((node) => ({
-        ...node,
-        data: {
-          ...node.data,
-          selected:
-            (drawer?.type === 'profile' && node.id === 'user_profile') ||
-            (drawer?.type === 'project' && node.id === drawer.project.id),
-        },
-      }))
-    : [];
+    return buildGraphModel({
+      profile: dataset.profile,
+      projects: dataset.projects,
+      connections: dataset.connections,
+      hiddenProjectIds,
+      locale: language,
+      activeLensId: safeLensId,
+      visibilityMode,
+    });
+  }, [dataset, hiddenProjectIds, language, safeLensId, visibilityMode]);
 
-  const renderedEdges = graph
-    ? graph.edges.map((edge) => ({
-        ...edge,
-        animated: edge.data?.kind === 'profile-link',
-      }))
-    : [];
+  const renderedNodes = useMemo(() => {
+    if (!graph) return [];
 
-  const profileNarrative = dataset
-    ? buildProfileNarrative({
-        profile: dataset.profile,
-        projects: dataset.projects,
-        connections: dataset.connections,
-        hiddenProjectIds,
-        locale: language,
-      })
-    : null;
+    return graph.nodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        selected:
+          (drawer?.type === 'profile' && node.id === 'user_profile') ||
+          (drawer?.type === 'project' && node.id === drawer.project.id),
+      },
+    }));
+  }, [drawer, graph]);
 
-  const selectedProjectAllInsights =
-    drawer?.type === 'project' && dataset
-      ? buildProjectConnectionInsights({
-          projectId: drawer.project.id,
-          projects: dataset.projects,
-          connections: dataset.connections.connections,
-          locale: language,
-          visibilityMode: 'all',
-        })
-      : [];
+  const renderedEdges = useMemo(() => {
+    if (!graph) return [];
 
-  const selectedProjectInsights =
-    drawer?.type === 'project' && dataset
-      ? (projectConnectionMode === 'all'
-          ? selectedProjectAllInsights
-          : selectedProjectAllInsights.filter((item) => item.visibility === 'default'))
-      : [];
+    return graph.edges.map((edge) => ({
+      ...edge,
+      animated: edge.data?.kind === 'profile-link',
+    }));
+  }, [graph]);
+
+  const profileNarrative = useMemo(() => {
+    if (!dataset) return null;
+
+    return buildProfileNarrative({
+      profile: dataset.profile,
+      projects: dataset.projects,
+      connections: dataset.connections,
+      hiddenProjectIds,
+      locale: language,
+    });
+  }, [dataset, hiddenProjectIds, language]);
+
+  const selectedProjectAllInsights = useMemo(() => {
+    if (drawer?.type !== 'project' || !dataset) return [];
+
+    return buildProjectConnectionInsights({
+      projectId: drawer.project.id,
+      projects: dataset.projects,
+      connections: dataset.connections.connections,
+      locale: language,
+      visibilityMode: 'all',
+    });
+  }, [dataset, drawer, language]);
+
+  const selectedProjectInsights = useMemo(() => {
+    if (drawer?.type !== 'project') return [];
+
+    return projectConnectionMode === 'all'
+      ? selectedProjectAllInsights
+      : selectedProjectAllInsights.filter((item) => item.visibility === 'default');
+  }, [drawer, projectConnectionMode, selectedProjectAllInsights]);
 
   const title = translateAppTitle(dataset?.profile?.site_title, language) || dataset?.profile?.site_title || 'Collective Memory';
   const subtitle =
