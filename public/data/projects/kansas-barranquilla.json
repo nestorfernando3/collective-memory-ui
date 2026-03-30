@@ -1,0 +1,13 @@
+{
+  "id": "kansas-barranquilla",
+  "name": "Estudio Kansas-Barranquilla",
+  "type": "Investigación",
+  "status": "Completo",
+  "path": "~/Documents/",
+  "description": "Estudio comparativo epidemiológico entre la Universidad de Kansas y la Universidad del Norte (Barranquilla). Análisis de datos sobre tuberculosis que generó resultados publicables y metodología reutilizable para estudios transnacionales de salud pública.",
+  "tags": [
+    "investigación",
+    "datos",
+    "epidemiología"
+  ]
+}

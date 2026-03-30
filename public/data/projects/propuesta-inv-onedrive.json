@@ -1,0 +1,19 @@
+{
+  "id": "propuesta-inv-2026",
+  "name": "Propuesta de Investigaci\u00f3n PCA",
+  "type": "investigacion",
+  "status": "activo",
+  "path": "/Users/nestor/OneDrive/Polit\u00e9cnico Costa Atl\u00e1ntico/2026/propuesta de investigaci\u00f3n",
+  "description": "Propuesta para el ciclo de investigaci\u00f3n 2026 del Polit\u00e9cnico.",
+  "dates": {
+    "year": "2026"
+  },
+  "domains": ["educaci\u00f3n", "investigacion"],
+  "themes": ["propuesta institucional"],
+  "outputs": [],
+  "technologies": [],
+  "collaborators": [],
+  "institutions": ["Polit\u00e9cnico de la Costa Atl\u00e1ntica"],
+  "theoretical_frameworks": [],
+  "related_projects": []
+}

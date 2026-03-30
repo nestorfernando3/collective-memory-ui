@@ -1,0 +1,13 @@
+{
+  "id": "dos-cuentos-hermanos",
+  "name": "Dos Cuentos Hermanos",
+  "type": "Creativo",
+  "status": "Maquetado",
+  "path": "~/Documents/dos cuentos hermanos",
+  "description": "Libro de literatura infantil compuesto por dos cuentos con temática caribeña. Actualmente en fase de maquetación editorial, con ilustraciones y diseño tipográfico listos para impresión.",
+  "tags": [
+    "creativo",
+    "literatura",
+    "infantil"
+  ]
+}
