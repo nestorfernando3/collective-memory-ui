@@ -1,88 +1,1870 @@
 {
   "connections": [
     {
-      "from": "paideia",
-      "to": "markdown-pedagogico",
-      "type": "Técnica/Diseño",
+      "from": "articulo-kevin-cerra",
+      "to": "concertacion-mincultura",
+      "type": "Teórica",
       "strength": "Alta",
-      "description": "Ambas plataformas EdTech comparten ecosistema visual (UI) y filosofía metacognitiva."
+      "description": "La relación entre Artículo Kevin Cerra y Concertación MinCultura se apoya en palabras compartidas: caribe. Comparten un marco conceptual explícito: caribe.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 30.7,
+        "breakdown": {
+          "metadata": 0.75,
+          "documents": 17.95,
+          "semanticBridge": 12,
+          "explicitRelation": 0,
+          "total": 30.7
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "caribe"
+        ],
+        "shared_document_tokens": [
+          "analisis",
+          "casos",
+          "colombia",
+          "durante",
+          "2024",
+          "distribucion",
+          "tipo",
+          "com",
+          "resumen",
+          "tuvo",
+          "objetivo",
+          "describir",
+          "informacion",
+          "nacional",
+          "publica",
+          "desarrollo",
+          "diseno",
+          "transversal",
+          "grupo",
+          "registros"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "registro",
+            "fuente",
+            "evidencia",
+            "caso",
+            "datos",
+            "muestra"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Abstract",
+            "Introducción"
+          ],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "registro",
+            "fuente",
+            "evidencia",
+            "caso",
+            "datos",
+            "muestra",
+            "Abstract",
+            "Introducción",
+            "caribe"
+          ]
+        },
+        "document_files": [
+          "ARTICULO_FINAL_TUBERCULOSIS_ATLANTICO_2024.docx",
+          "ARTICULO_PAJPH_TB_ATLANTICO_2024_BLIND.md",
+          "CARTA_PRESENTACION_PAJPH.md"
+        ],
+        "document_highlights": [
+          "El presente estudio tuvo como objetivo describir el comportamiento epidemiológico de la tuberculosis en Colombia, utilizando información proveniente del Sistema Nacional de Vigilancia en Salud Pública (SIVIGILA). Se desarrolló un diseño observacional descriptivo de tipo transversal, analizando variables sociodemográficas y clínicas relacionadas con la distribución de casos por grupo etario, sexo, estrato socioeconómico y región. La fuente de información fueron los registros nacionales de vigilancia correspondientes a los diferentes tipos de tuberculosis: pulmonar, extrapulmonar y fármacorresistente.",
+          "Los resultados evidenciaron que la tuberculosis pulmonar representó la mayor proporción de casos (85,8%), seguida de la extrapulmonar (11,1%) y la fármacorresistente (2,8%). El grupo etario con mayor afectación correspondió a los adultos jóvenes entre 25 y 34 años, mientras que los mayores de 65 años presentaron un incremento notable en tuberculosis pulmonar. Asimismo, se observó un predominio de casos en el sexo masculino, concentrándose principalmente en los estratos socioeconómicos 1 y 2, lo que refleja una estrecha relación entre la incidencia de la enfermedad y las condiciones de vulnerabilidad social. En términos regionales, Antioquia, Valle del Cauca, Bogotá y Atlántico concentraron la mayor carga de casos en todas las formas de la enfermedad.",
+          "It is concluded that tuberculosis remains a public health priority in Colombia, with marked regional and socioeconomic disparities. The findings emphasize the need to strengthen epidemiological surveillance, promote early diagnosis strategies, and ensure treatment adherence, especially in high-risk groups and regions with elevated incidence. Intersectoral and community-level integration is identified as a key component to advance toward the goals established in Colombia’s National Tuberculosis Elimination Plan 2035.",
+          "La tuberculosis (TB) continúa siendo una de las enfermedades infecciosas más relevantes a nivel mundial y uno de los principales retos de salud pública en los países de ingresos medios y bajos. A pesar de los avances en el diagnóstico, tratamiento y estrategias de control, la enfermedad persiste como una causa importante de morbilidad y mortalidad. Según la Organización Mundial de la Salud (OMS, 2024), en el año 2023 se estimaron aproximadamente 10,3 millones de nuevos casos de tuberculosis en el mundo y más de 1,3 millones de muertes asociadas, lo que evidencia que el problema continúa siendo de gran magnitud y requiere una respuesta sostenida. En América Latina, la tuberculosis afecta de manera desproporcionada a las poblaciones más vulnerables, especialmente aquellas con condiciones socioeconómicas precarias, hacinamiento, desnutrición y limitado acceso a servicios de salud."
+        ]
+      }
     },
     {
-      "from": "markdown-pedagogico",
-      "to": "examenes-planeacion",
-      "type": "Metodológica",
+      "from": "kansas-barranquilla",
+      "to": "articulo-kevin-cerra",
+      "type": "Teórica",
       "strength": "Alta",
-      "description": "El editor Markdown es la herramienta ideal para digitalizar y estructurar el repositorio de planeaciones de la IED."
+      "description": "La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra se basa en evidencia documental concreta. Comparten un marco conceptual explícito: caribe.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 37.1,
+        "breakdown": {
+          "metadata": 6,
+          "documents": 17.95,
+          "semanticBridge": 13,
+          "explicitRelation": 0,
+          "total": 37.1
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [
+            "investigacion"
+          ],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "investigacion"
+        ],
+        "shared_document_tokens": [
+          "analisis",
+          "casos",
+          "colombia",
+          "durante",
+          "2024",
+          "tipo",
+          "clinica",
+          "com",
+          "resumen",
+          "presente",
+          "estudio",
+          "tuvo",
+          "objetivo",
+          "informacion",
+          "proveniente",
+          "sistema",
+          "nacional",
+          "vigilancia",
+          "salud",
+          "publica"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "registro",
+            "fuente",
+            "evidencia",
+            "caso",
+            "datos",
+            "muestra",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Abstract",
+            "Introducción"
+          ],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "registro",
+            "fuente",
+            "evidencia",
+            "caso",
+            "datos",
+            "muestra",
+            "archivo",
+            "Abstract",
+            "Introducción",
+            "caribe"
+          ]
+        },
+        "document_files": [
+          "ANALISIS DE FIGURAS LITERARIAS.docx",
+          "Barranquilla Marzo  14CHEYA.docx",
+          "Articulo_Analisis_Politico.md"
+        ],
+        "document_highlights": [
+          "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+          "“En los casos de confrontación entre el concepto del médico tratante y el CTC, la jurisprudencia ha seguido la regla general haciendo que prevalezca el concepto del médico sobre el del Comité.” Y según Sentencia T-939. Magistrado ponente Dr. Jaime Araujo Renteria. Noviembre de 2007. “Esta Corporación atendiendo la naturaleza administrativa de los CTC, ha precisado que su concepto no es indispensable para que el medicamento requerido por un usuario le sea otorgado y no pueden considerarse como una instancia más entre los usuarios y las E.P.S. Los jueces de tutela no pueden exigir a los tutelantes que reclaman la provisión de un medicamento excluido del POS, haber acudido previament e a los CTC de las EPS.”",
+          "Yo, LEONOR LLANOS ORTEGA, sobrina de la Sra. MARCELIN A ORTEGA EVERTZ, asumo su representación en razón de su grave enfermedad y debilidad manifiesta, “de conformidad con el artículo 10° del Decreto 2591 de 1991, en donde se menciona que “se pueden agenciar derechos ajenos cuando el titular de los mismos no esté en condiciones de promover su propia defensa”, con fundamento en los hechos relacion ados, solicito en nombre de mi TIA MARCELINA ORTEGA EVERTZ, solicito del Señor Juez disponer y ordenar a la parte ordenada y a favor de mi familiar lo siguiente;",
+          "Violencia, inseguridad y hegemonía subnacional en Barranquilla y el Atlántico (2008-2026): un análisis crítico del ciclo político del Clan Char"
+        ]
+      }
     },
     {
-      "from": "examenes-planeacion",
-      "to": "proyecto-icfes",
-      "type": "Curricular",
-      "strength": "Media",
-      "description": "Las evaluaciones sumativas nutren directamente el banco de entrenamiento para pruebas ICFES."
-    },
-    {
-      "from": "pei-brisas-del-rio",
-      "to": "gestiones-brisas",
-      "type": "Institucional",
-      "strength": "Alta",
-      "description": "El rediseño del PEI dicta y organiza la documentación y seguimiento administrativo de gestiones."
-    },
-    {
-      "from": "paideia",
-      "to": "diario-emociones",
-      "type": "Socioemocional",
-      "strength": "Media",
-      "description": "El diario de emociones aporta la capa de autoconocimiento que complementa la evaluación formativa."
-    },
-    {
-      "from": "fenomenologia-rumor",
+      "from": "articulo-kevin-cerra",
       "to": "las-camilas",
       "type": "Teórica",
       "strength": "Alta",
-      "description": "Las dinámicas del chisme/rumor oral en el Caribe funcionan como semilleros teóricos para el análisis mítico de Las Camilas."
+      "description": "La relación entre Artículo Kevin Cerra y Las Camilas se apoya en palabras compartidas: caribe y colombiano. Comparten un marco conceptual explícito: caribe.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 31.45,
+        "breakdown": {
+          "metadata": 1.5,
+          "documents": 17.95,
+          "semanticBridge": 12,
+          "explicitRelation": 0,
+          "total": 31.45
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "caribe",
+          "colombiano"
+        ],
+        "shared_document_tokens": [
+          "analisis",
+          "colombia",
+          "durante",
+          "2024",
+          "tipo",
+          "presentacion",
+          "com",
+          "resumen",
+          "estudio",
+          "tuvo",
+          "informacion",
+          "nacional",
+          "publica",
+          "diseno",
+          "resultados",
+          "seguida",
+          "anos",
+          "mientras",
+          "predominio",
+          "relacion"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "fuente",
+            "evidencia",
+            "caso",
+            "datos",
+            "muestra",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Abstract",
+            "Introducción"
+          ],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "fuente",
+            "evidencia",
+            "caso",
+            "datos",
+            "muestra",
+            "archivo",
+            "Abstract",
+            "Introducción",
+            "caribe"
+          ]
+        },
+        "document_files": [
+          "ARTICULO_FINAL_TUBERCULOSIS_ATLANTICO_2024.docx",
+          "ARTICULO_PAJPH_TB_ATLANTICO_2024_BLIND.md",
+          "CARTA_PRESENTACION_PAJPH.md"
+        ],
+        "document_highlights": [
+          "El presente estudio tuvo como objetivo describir el comportamiento epidemiológico de la tuberculosis en Colombia, utilizando información proveniente del Sistema Nacional de Vigilancia en Salud Pública (SIVIGILA). Se desarrolló un diseño observacional descriptivo de tipo transversal, analizando variables sociodemográficas y clínicas relacionadas con la distribución de casos por grupo etario, sexo, estrato socioeconómico y región. La fuente de información fueron los registros nacionales de vigilancia correspondientes a los diferentes tipos de tuberculosis: pulmonar, extrapulmonar y fármacorresistente.",
+          "Los resultados evidenciaron que la tuberculosis pulmonar representó la mayor proporción de casos (85,8%), seguida de la extrapulmonar (11,1%) y la fármacorresistente (2,8%). El grupo etario con mayor afectación correspondió a los adultos jóvenes entre 25 y 34 años, mientras que los mayores de 65 años presentaron un incremento notable en tuberculosis pulmonar. Asimismo, se observó un predominio de casos en el sexo masculino, concentrándose principalmente en los estratos socioeconómicos 1 y 2, lo que refleja una estrecha relación entre la incidencia de la enfermedad y las condiciones de vulnerabilidad social. En términos regionales, Antioquia, Valle del Cauca, Bogotá y Atlántico concentraron la mayor carga de casos en todas las formas de la enfermedad.",
+          "It is concluded that tuberculosis remains a public health priority in Colombia, with marked regional and socioeconomic disparities. The findings emphasize the need to strengthen epidemiological surveillance, promote early diagnosis strategies, and ensure treatment adherence, especially in high-risk groups and regions with elevated incidence. Intersectoral and community-level integration is identified as a key component to advance toward the goals established in Colombia’s National Tuberculosis Elimination Plan 2035.",
+          "La tuberculosis (TB) continúa siendo una de las enfermedades infecciosas más relevantes a nivel mundial y uno de los principales retos de salud pública en los países de ingresos medios y bajos. A pesar de los avances en el diagnóstico, tratamiento y estrategias de control, la enfermedad persiste como una causa importante de morbilidad y mortalidad. Según la Organización Mundial de la Salud (OMS, 2024), en el año 2023 se estimaron aproximadamente 10,3 millones de nuevos casos de tuberculosis en el mundo y más de 1,3 millones de muertes asociadas, lo que evidencia que el problema continúa siendo de gran magnitud y requiere una respuesta sostenida. En América Latina, la tuberculosis afecta de manera desproporcionada a las poblaciones más vulnerables, especialmente aquellas con condiciones socioeconómicas precarias, hacinamiento, desnutrición y limitado acceso a servicios de salud."
+        ]
+      }
+    },
+    {
+      "from": "collective-memory-ui",
+      "to": "las-camilas",
+      "type": "Gestión Pública",
+      "strength": "Alta",
+      "description": "La relación entre Collective Memory PWA y Las Camilas todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: memoria y editorial. Comparten un marco conceptual explícito: caribe. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 19.25,
+        "breakdown": {
+          "metadata": 1.5,
+          "documents": 17.75,
+          "semanticBridge": 0,
+          "explicitRelation": 0,
+          "total": 19.25
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "memoria",
+          "editorial"
+        ],
+        "shared_document_tokens": [
+          "hoja",
+          "autoria",
+          "colombia",
+          "internacional",
+          "titulo",
+          "manuscrito",
+          "hegemonia",
+          "subnacional",
+          "inseguridad",
+          "urbana",
+          "barranquilla",
+          "2008",
+          "2026",
+          "analisis",
+          "ciclo",
+          "politico",
+          "charista",
+          "fernando",
+          "leon",
+          "llanos"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado"
+          ],
+          "quotedPhrases": [
+            "40 años del IEPRI"
+          ],
+          "keyPhrases": [
+            "caribe",
+            "datos",
+            "archivo",
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado",
+            "40 años del IEPRI"
+          ]
+        },
+        "document_files": [
+          "Datos_autoria_Colombia_Internacional.md",
+          "Nota_estado_editorial_2026-03-12.md",
+          "ANALISIS DE FIGURAS LITERARIAS.docx"
+        ],
+        "document_highlights": [
+          "Néstor Fernando De León Llanos es un investigador colombiano en el campo de la comunicación, políticas públicas, ciudad y educación. Sus estudios se han centrado en el impacto de la transición de la enseñanza presencial a la remota en universidades del Caribe, así como en el análisis de fenómenos y políticas urbanas, y de fenómenos digitales como los memes y su influencia en la construcción de sentidos sociales. Su trabajo combina una mirada crítica sobre la cultura digital con la reflexión pedagógica, aportando a la comprensión de cómo las tecnologías transforman la educación y la comunicación contemporánea.",
+          "La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años del IEPRI\".",
+          "Todos estos archivos están en submission/.",
+          "Enviar ya Colombia Internacional."
+        ]
+      }
+    },
+    {
+      "from": "paideia",
+      "to": "collective-memory-ui",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "La relación entre Paideia (Παιδεία) y Collective Memory PWA todavía es tentativa, pero ya muestra señales útiles: tecnologías: vite; palabras compartidas: vite y github. Comparten un corpus de trabajo.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 22,
+        "breakdown": {
+          "metadata": 5.5,
+          "documents": 9.5,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 22
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [
+            "vite"
+          ],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "vite",
+          "github"
+        ],
+        "shared_document_tokens": [
+          "colombia",
+          "titulo",
+          "2026",
+          "analisis",
+          "nombre",
+          "completo",
+          "com",
+          "breve",
+          "investigador",
+          "politicas",
+          "educacion",
+          "estudios",
+          "centrado",
+          "impacto",
+          "asi",
+          "digitales",
+          "digital",
+          "reflexion",
+          "pedagogica",
+          "comprension"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "datos",
+            "archivo"
+          ]
+        },
+        "document_files": [
+          "bug_report.md",
+          "feature_request.md",
+          "CHANGELOG.md"
+        ],
+        "document_highlights": [
+          "## Pasos para reproducir",
+          "## Resultado esperado",
+          "## Resultado actual",
+          "## Entorno"
+        ]
+      }
+    },
+    {
+      "from": "propuesta-inv-2026",
+      "to": "collective-memory-ui",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "La relación entre Propuesta de Investigación PCA y Collective Memory PWA tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 29.15,
+        "breakdown": {
+          "metadata": 0,
+          "documents": 16,
+          "semanticBridge": 13,
+          "explicitRelation": 0,
+          "total": 29.15
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "activo"
+        ],
+        "shared_document_tokens": [
+          "hoja",
+          "autoria",
+          "colombia",
+          "internacional",
+          "titulo",
+          "manuscrito",
+          "2026",
+          "analisis",
+          "politico",
+          "correo",
+          "edu",
+          "uso",
+          "inteligencia",
+          "artificial",
+          "generativa",
+          "editorial",
+          "estado",
+          "marzo",
+          "lista",
+          "envio"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado"
+          ],
+          "quotedPhrases": [
+            "40 años del IEPRI"
+          ],
+          "keyPhrases": [
+            "datos",
+            "archivo",
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado",
+            "40 años del IEPRI"
+          ]
+        },
+        "document_files": [
+          "Nota_estado_editorial_2026-03-12.md",
+          "Datos_autoria_Colombia_Internacional.md"
+        ],
+        "document_highlights": [
+          "La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años del IEPRI\".",
+          "Todos estos archivos están en submission/.",
+          "Enviar ya Colombia Internacional.",
+          "Mandar el correo de consulta a Analisis Politico y esperar confirmación antes de intentar submission."
+        ]
+      }
+    },
+    {
+      "from": "kansas-barranquilla",
+      "to": "concertacion-mincultura",
+      "type": "Teórica",
+      "strength": "Alta",
+      "description": "La relación entre Estudio Kansas-Barranquilla y Concertación MinCultura se basa en evidencia documental concreta. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 32.95,
+        "breakdown": {
+          "metadata": 0,
+          "documents": 25.95,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 32.95
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [],
+        "shared_document_tokens": [
+          "2026",
+          "nacional",
+          "adaptacion",
+          "presupuesto",
+          "000",
+          "contexto",
+          "reduccion",
+          "justificacion",
+          "centro",
+          "barranquilla",
+          "tambien",
+          "capital",
+          "potente",
+          "inicialmente",
+          "fue",
+          "objetivo",
+          "original",
+          "impacto",
+          "vulnerables",
+          "conflicto"
+        ],
+        "shared_document_signals": {
+          "citations": [
+            "Pares, 2026a",
+            "Colombia, 2020",
+            "Pares, 2026b",
+            "El País, 2026",
+            "Revista RAYA, 2026a",
+            "Pares, 2026a; Universidad Nacional de Colombia, 2020",
+            "Pares, 2026b; El País, 2026; Revista RAYA, 2026a"
+          ],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "registro",
+            "caso",
+            "datos",
+            "evidencia",
+            "muestra",
+            "fuente"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Abstract",
+            "Introducción"
+          ],
+          "quotedPhrases": [
+            "Char"
+          ],
+          "keyPhrases": [
+            "registro",
+            "caso",
+            "datos",
+            "evidencia",
+            "caribe",
+            "muestra",
+            "fuente",
+            "Abstract",
+            "Introducción",
+            "Char"
+          ]
+        },
+        "document_files": [
+          "ANALISIS DE FIGURAS LITERARIAS.docx",
+          "Barranquilla Marzo  14CHEYA.docx",
+          "Articulo_Analisis_Politico.md"
+        ],
+        "document_highlights": [
+          "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+          "“En los casos de confrontación entre el concepto del médico tratante y el CTC, la jurisprudencia ha seguido la regla general haciendo que prevalezca el concepto del médico sobre el del Comité.” Y según Sentencia T-939. Magistrado ponente Dr. Jaime Araujo Renteria. Noviembre de 2007. “Esta Corporación atendiendo la naturaleza administrativa de los CTC, ha precisado que su concepto no es indispensable para que el medicamento requerido por un usuario le sea otorgado y no pueden considerarse como una instancia más entre los usuarios y las E.P.S. Los jueces de tutela no pueden exigir a los tutelantes que reclaman la provisión de un medicamento excluido del POS, haber acudido previament e a los CTC de las EPS.”",
+          "Yo, LEONOR LLANOS ORTEGA, sobrina de la Sra. MARCELIN A ORTEGA EVERTZ, asumo su representación en razón de su grave enfermedad y debilidad manifiesta, “de conformidad con el artículo 10° del Decreto 2591 de 1991, en donde se menciona que “se pueden agenciar derechos ajenos cuando el titular de los mismos no esté en condiciones de promover su propia defensa”, con fundamento en los hechos relacion ados, solicito en nombre de mi TIA MARCELINA ORTEGA EVERTZ, solicito del Señor Juez disponer y ordenar a la parte ordenada y a favor de mi familiar lo siguiente;",
+          "Violencia, inseguridad y hegemonía subnacional en Barranquilla y el Atlántico (2008-2026): un análisis crítico del ciclo político del Clan Char"
+        ]
+      }
+    },
+    {
+      "from": "las-camilas",
+      "to": "concertacion-mincultura",
+      "type": "Creativa",
+      "strength": "Alta",
+      "description": "La relación entre Las Camilas y Concertación MinCultura se apoya en palabras compartidas: actualmente y caribe. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 30.45,
+        "breakdown": {
+          "metadata": 1.5,
+          "documents": 25.95,
+          "semanticBridge": 3,
+          "explicitRelation": 0,
+          "total": 30.45
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "cultural",
+          "actualmente",
+          "caribe"
+        ],
+        "shared_document_tokens": [
+          "2026",
+          "nacional",
+          "presupuesto",
+          "000",
+          "contexto",
+          "reduccion",
+          "barranquilla",
+          "tambien",
+          "capital",
+          "potente",
+          "fue",
+          "original",
+          "vulnerables",
+          "urbano",
+          "decision",
+          "menos",
+          "visibilidad",
+          "social",
+          "ajustadas",
+          "frente"
+        ],
+        "shared_document_signals": {
+          "citations": [
+            "Pares, 2026a",
+            "Colombia, 2020",
+            "Pares, 2026b",
+            "El País, 2026",
+            "Revista RAYA, 2026a",
+            "Pares, 2026a; Universidad Nacional de Colombia, 2020",
+            "Pares, 2026b; El País, 2026; Revista RAYA, 2026a"
+          ],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "caso",
+            "datos",
+            "evidencia",
+            "muestra",
+            "fuente"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Abstract",
+            "Introducción"
+          ],
+          "quotedPhrases": [
+            "Char"
+          ],
+          "keyPhrases": [
+            "caso",
+            "datos",
+            "evidencia",
+            "caribe",
+            "muestra",
+            "fuente",
+            "Abstract",
+            "Introducción",
+            "Char"
+          ]
+        },
+        "document_files": [
+          "ANALISIS DE FIGURAS LITERARIAS.docx",
+          "Articulo_Analisis_Politico.md",
+          "Checklist_envio_Analisis_Politico.md"
+        ],
+        "document_highlights": [
+          "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+          "Violencia, inseguridad y hegemonía subnacional en Barranquilla y el Atlántico (2008-2026): un análisis crítico del ciclo político del Clan Char",
+          "Este artículo analiza la evolución de la violencia homicida, la inseguridad percibida y la gobernanza local en Barranquilla y el Atlántico entre 2008 y 2026, con énfasis en la hegemonía política del Clan Char. El argumento central sostiene que la relación entre predominio electoral y deterioro de la seguridad no puede formularse con rigor como una imputación penal directa, pero sí como una relación estructural entre concentración del poder subnacional, prioridades de política pública, sesgos institucionales de medición y debilitamiento de entornos preventivos frente al crimen organizado urbano. La investigación utiliza triangulación crítica de fuentes oficiales y no oficiales, con prioridad para las series del Ministerio de Justicia, la Encuesta de Convivencia y Seguridad Ciudadana del DANE, informes de Policía, Medicina Legal, Defensoría del Pueblo y centros de análisis. Los hallazgos muestran continuidad política prolongada, oscilaciones fuertes en homicidios y percepción de inseguridad, y una reducción reciente que coincide con reportes públicos de treguas criminales. La principal conclusión es que la relación observable es de causalidad institucional indirecta y no de autoría penal directa.",
+          "This article examines the evolution of homicide, perceived insecurity, and local governance in Barranquilla and Atlantico between 2008 and 2026, focusing on the long-standing political dominance of the Char clan. The central argument is that the relationship between electoral predominance and declining security cannot be framed rigorously as direct criminal responsibility, but it can be assessed as a structural link between subnational power concentration, public policy priorities, institutional measurement biases, and weakened preventive environments in the face of urban organized crime. The study relies on critical source triangulation, prioritizing Ministry of Justice homicide series, DANE victimization and perception data, police reports, forensic evidence, ombudsman alerts, and policy research centers. Findings show prolonged political continuity alongside sharp fluctuations in homicide and insecurity, plus a recent decline in killings that coincides with publicly reported criminal truces. The article concludes that the strongest defensible relationship is one of indirect institutional causality rather than direct penal causation."
+        ]
+      }
+    },
+    {
+      "from": "diario-emociones",
+      "to": "markdown-pedagogico",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "La relación entre Diario de Emociones y Markdown Pedagógico tiene evidencia documental, pero todavía no una base compartida clara. El pasaje más útil es Todos los cambios notables en este proyecto serán documentados en este archivo..",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 29.6,
+        "breakdown": {
+          "metadata": 7.5,
+          "documents": 14.5,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 29.6
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [
+            "edtech",
+            "desarrollo"
+          ],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "desarrollo",
+          "web",
+          "pedagogico",
+          "edtech"
+        ],
+        "shared_document_tokens": [
+          "changelog",
+          "todos",
+          "cambios",
+          "notables",
+          "formato",
+          "basado",
+          "keep",
+          "https",
+          "keepachangelog",
+          "com",
+          "adhiere",
+          "semver",
+          "org",
+          "html",
+          "2026",
+          "completo",
+          "visual",
+          "anadido",
+          "sistema",
+          "iconos"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Changelog",
+            "Añadido",
+            "Cambiado",
+            "Corregido",
+            "Características",
+            "Licencia"
+          ],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "archivo",
+            "Changelog",
+            "Añadido",
+            "Cambiado",
+            "Corregido",
+            "Características",
+            "Licencia"
+          ]
+        },
+        "document_files": [
+          "CHANGELOG.md",
+          "README.md",
+          "bug_report.md"
+        ],
+        "document_highlights": [
+          "Todos los cambios notables en este proyecto serán documentados en este archivo.",
+          "El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),",
+          "Dashboard: Header con saludo prominente y botón \"Nueva Reflexión\" en gradiente cálido. Tarjetas de estadísticas con bordes suaves y sombras mínimas. Banner de consejo del día con icono SVG.",
+          "Wizard de registro (NewEntry): Transformado en experiencia paso a paso inmersiva con barra de progreso superior, iconos grandes por categoría, botón de navegación fijado al fondo, y animaciones entre pasos."
+        ]
+      }
+    },
+    {
+      "from": "diario-emociones",
+      "to": "paideia",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "La relación entre Diario de Emociones y Paideia (Παιδεία) tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 22.05,
+        "breakdown": {
+          "metadata": 0,
+          "documents": 14.75,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 22.05
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "web",
+          "edtech"
+        ],
+        "shared_document_tokens": [
+          "changelog",
+          "cambios",
+          "notables",
+          "seran",
+          "formato",
+          "com",
+          "2026",
+          "completo",
+          "visual",
+          "profunda",
+          "aplicacion",
+          "premium",
+          "anadido",
+          "sistema",
+          "reemplazan",
+          "interfaz",
+          "login",
+          "logo",
+          "clase",
+          "indicadores"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Changelog",
+            "Añadido",
+            "Corregido"
+          ],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "datos",
+            "archivo",
+            "Changelog",
+            "Añadido",
+            "Corregido"
+          ]
+        },
+        "document_files": [
+          "CHANGELOG.md",
+          "README.md",
+          "bug_report.md"
+        ],
+        "document_highlights": [
+          "Todos los cambios notables en este proyecto serán documentados en este archivo.",
+          "El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),",
+          "Dashboard: Header con saludo prominente y botón \"Nueva Reflexión\" en gradiente cálido. Tarjetas de estadísticas con bordes suaves y sombras mínimas. Banner de consejo del día con icono SVG.",
+          "Wizard de registro (NewEntry): Transformado en experiencia paso a paso inmersiva con barra de progreso superior, iconos grandes por categoría, botón de navegación fijado al fondo, y animaciones entre pasos."
+        ]
+      }
     },
     {
       "from": "las-camilas",
       "to": "dos-cuentos-hermanos",
       "type": "Creativa",
-      "strength": "Media",
-      "description": "Ambos proyectos de escritura consolidan una estética literaria enfocada en el imaginario Caribe."
+      "strength": "Alta",
+      "description": "La relación entre Las Camilas y Dos Cuentos Hermanos todavía es tentativa, pero ya muestra señales útiles: etiquetas: creativo y literatura; palabras compartidas: libro, literatura, actualmente y editorial. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 29.5,
+        "breakdown": {
+          "metadata": 10.5,
+          "documents": 16,
+          "semanticBridge": 3,
+          "explicitRelation": 0,
+          "total": 29.5
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [
+            "creativo",
+            "literatura"
+          ],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "creativo",
+          "libro",
+          "literatura",
+          "actualmente",
+          "editorial"
+        ],
+        "shared_document_tokens": [
+          "cuando",
+          "solo",
+          "paso",
+          "mientras",
+          "mis",
+          "quien",
+          "espacio",
+          "tan",
+          "luz",
+          "ciudad",
+          "frente",
+          "tambien",
+          "todos",
+          "pasar",
+          "suena",
+          "puede",
+          "ser",
+          "hay",
+          "tiempo",
+          "esa"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado"
+          ],
+          "quotedPhrases": [
+            "40 años del IEPRI"
+          ],
+          "keyPhrases": [
+            "datos",
+            "archivo",
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado",
+            "40 años del IEPRI"
+          ]
+        },
+        "document_files": [
+          "ANALISIS DE FIGURAS LITERARIAS.docx",
+          "Articulo_Analisis_Politico.md",
+          "Checklist_envio_Analisis_Politico.md"
+        ],
+        "document_highlights": [
+          "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+          "Violencia, inseguridad y hegemonía subnacional en Barranquilla y el Atlántico (2008-2026): un análisis crítico del ciclo político del Clan Char",
+          "Este artículo analiza la evolución de la violencia homicida, la inseguridad percibida y la gobernanza local en Barranquilla y el Atlántico entre 2008 y 2026, con énfasis en la hegemonía política del Clan Char. El argumento central sostiene que la relación entre predominio electoral y deterioro de la seguridad no puede formularse con rigor como una imputación penal directa, pero sí como una relación estructural entre concentración del poder subnacional, prioridades de política pública, sesgos institucionales de medición y debilitamiento de entornos preventivos frente al crimen organizado urbano. La investigación utiliza triangulación crítica de fuentes oficiales y no oficiales, con prioridad para las series del Ministerio de Justicia, la Encuesta de Convivencia y Seguridad Ciudadana del DANE, informes de Policía, Medicina Legal, Defensoría del Pueblo y centros de análisis. Los hallazgos muestran continuidad política prolongada, oscilaciones fuertes en homicidios y percepción de inseguridad, y una reducción reciente que coincide con reportes públicos de treguas criminales. La principal conclusión es que la relación observable es de causalidad institucional indirecta y no de autoría penal directa.",
+          "This article examines the evolution of homicide, perceived insecurity, and local governance in Barranquilla and Atlantico between 2008 and 2026, focusing on the long-standing political dominance of the Char clan. The central argument is that the relationship between electoral predominance and declining security cannot be framed rigorously as direct criminal responsibility, but it can be assessed as a structural link between subnational power concentration, public policy priorities, institutional measurement biases, and weakened preventive environments in the face of urban organized crime. The study relies on critical source triangulation, prioritizing Ministry of Justice homicide series, DANE victimization and perception data, police reports, forensic evidence, ombudsman alerts, and policy research centers. Findings show prolonged political continuity alongside sharp fluctuations in homicide and insecurity, plus a recent decline in killings that coincides with publicly reported criminal truces. The article concludes that the strongest defensible relationship is one of indirect institutional causality rather than direct penal causation."
+        ]
+      }
     },
     {
-      "from": "pca-mincultura",
-      "to": "concertacion-mincultura",
-      "type": "Gestión Pública",
+      "from": "propuesta-inv-2026",
+      "to": "dos-cuentos-hermanos",
+      "type": "Teórica",
       "strength": "Alta",
-      "description": "Línea de continuidad en financiamiento estatal y política pública (MinCultura) para la región."
-    },
-    {
-      "from": "generacion-2030",
-      "to": "pca-mincultura",
-      "type": "Estratégica",
-      "strength": "Alta",
-      "description": "El diseño instruccional de Generación 2030 (artes) ejecuta las visiones narrativas gestadas en proyectos PCA."
+      "description": "La relación entre Propuesta de Investigación PCA y Dos Cuentos Hermanos tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 27,
+        "breakdown": {
+          "metadata": 0,
+          "documents": 16,
+          "semanticBridge": 11,
+          "explicitRelation": 0,
+          "total": 27
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [],
+        "shared_document_tokens": [
+          "cuando",
+          "todos",
+          "puede",
+          "carta",
+          "fuera",
+          "hoy",
+          "debe",
+          "estado",
+          "editorial",
+          "marzo",
+          "2026",
+          "colombia",
+          "internacional",
+          "lista",
+          "envio",
+          "soporte",
+          "oficial",
+          "verificado",
+          "revista",
+          "recibe"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado"
+          ],
+          "quotedPhrases": [
+            "40 años del IEPRI"
+          ],
+          "keyPhrases": [
+            "datos",
+            "archivo",
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado",
+            "40 años del IEPRI"
+          ]
+        },
+        "document_files": [
+          "Nota_estado_editorial_2026-03-12.md",
+          "Llamadas telefónicas.docx",
+          "Una carta - Néstor De León-2.docx"
+        ],
+        "document_highlights": [
+          "La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años del IEPRI\".",
+          "Todos estos archivos están en submission/.",
+          "Enviar ya Colombia Internacional.",
+          "Mandar el correo de consulta a Analisis Politico y esperar confirmación antes de intentar submission."
+        ]
+      }
     },
     {
       "from": "picnic-semiotico",
-      "to": "fenomenologia-rumor",
-      "type": "Epistemológica",
-      "strength": "Media",
-      "description": "Cruce de matrices teóricas semióticas aplicadas a interacciones sociales cotidianas."
+      "to": "generacion-2030",
+      "type": "Teórica",
+      "strength": "Alta",
+      "description": "La relación entre Picnic Semiótico y Generación 2030 / Formación en Artes se apoya en palabras compartidas: cultura. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 35.25,
+        "breakdown": {
+          "metadata": 0.75,
+          "documents": 7.5,
+          "semanticBridge": 27,
+          "explicitRelation": 0,
+          "total": 35.25
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "cultura"
+        ],
+        "shared_document_tokens": [
+          "generacion",
+          "2030",
+          "jovenes",
+          "barranquilla",
+          "2026",
+          "natural",
+          "fernando",
+          "leon",
+          "llanos",
+          "digital",
+          "cultural",
+          "social",
+          "edicion",
+          "artificial",
+          "principal",
+          "digitales",
+          "creadores",
+          "dialogue",
+          "title",
+          "author"
+        ],
+        "shared_document_signals": {
+          "citations": [
+            "Generación 2030"
+          ],
+          "theoryTerms": [],
+          "dataTerms": [],
+          "provenanceTerms": [],
+          "headings": [],
+          "quotedPhrases": [],
+          "keyPhrases": []
+        },
+        "document_files": [
+          "Bio.docx",
+          "Manuscript with author details .docx",
+          "Cover_Letter_FCS_Food_Culture_Society.docx"
+        ],
+        "document_highlights": [
+          "Néstor Fernando de León Llanos is a full ‑ time professor at Politécnico de la Costa Atlántica in Barranquilla, Colombia. As a communications scholar and cultural promoter, his work spans semiotics, food studies, youth culture and digital media. He has taught in the Communication Social and Digital Media program at the University of the Costa (CUC) and leads the youth collective Generación 2030; his initiative “Escuela de jóvenes creadores digitales – 2ª edición ” won an innovation call promoting digital creativity among youth. De León Llanos is also an active cultural photographer whose images of Barranquilla’s carnival and cultural heritage have appeared in the Observatorio del Patrimonio Cultural y Arqueológico (OPCA). Beyond academia he teaches language and humanities at the Institución Educativa Distrital Brisas del Río.",
+          "This article condenses the findings of a classroom‐based study on how Caribbean Colombian undergraduates use everyday food items as semiotic devices during an oral assessment called the “Semiotic Picnic.” Drawing on Roland Barthes’s distinction between denotation, connotation and myth and Jean Baudrillard’s orders of simulacra, the analysis examines how students map layers of meaning onto foods and how conviviality, authenticity and performance shape their discourse. In the picnic, each student brought a food or drink, analysed its cultural significance in front of peers and shared tastes. Even the most ordinary snacks evoked multiple levels of signification: literal descriptions of ingredients, personal memories and cultural associations, and mythic narratives about identity, class and modernity. Students readily applied semiotic concepts, critiquing imitative foods as “fake” versions of authentic originals and recognising how advertising constructs myths. The findings show that convivial sharing and performative presentation can engage youth in critical cultural analysis. The article proposes the Semiotic Picnic as a replicable method that bridges theory and everyday practice and suggests that such convivial, performance‐based pedagogy deepens understanding of how young people negotiate tradition and modernity through the symbolic consumption of food.",
+          "More than a sustenance, food is a dense system of signs that communicates identities, values and myths, For decades, semioticians and anthropologists have shown how dishes and dining practices function as codes reflecting social relations (Douglas 1972; Barthes 1972). Classic analyses of wine, milk or steak as French icons demonstrate that commonplace edibles can carry powerful connotations and ideological messages Yet there is far less scholarship on how young people themselves employ and articulate these meanings, particularly in educational settings.",
+          "The setting was an undergraduate semiotics course at Politécnico de la Costa Atlántica in Barranquilla. The instructor designed a final assessment dubbed the “Semiotic Picnic.” Students were asked to bring a food or drink and present an analysis of its significance using theoretical concepts covered in class, notably Barthes’s model of signification and Baudrillard’s ideas on simulation. The session resembled a communal meal more than an exam: desks were arranged in a circle, items were passed around for tasting and the mood was relaxed and convivial. In this atmosphere, students became ethnographers of their own culture, performing knowledge before classmates and teacher while sharing snacks. The format both motivated serious engagement with theory and tapped into local traditions of conviviality."
+        ]
+      }
     },
     {
       "from": "kansas-barranquilla",
-      "to": "articulo-tuberculosis",
-      "type": "Datos",
+      "to": "las-camilas",
+      "type": "Teórica",
       "strength": "Alta",
-      "description": "Metodología epidemiológica replicable del estudio de Kansas transferida hacia el análisis del Atlántico."
+      "description": "La relación entre Estudio Kansas-Barranquilla y Las Camilas se basa en evidencia documental concreta. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "strong",
+      "visibility": "default",
+      "selection_reason": "strong-evidence",
+      "evidence": {
+        "score": 33.9,
+        "breakdown": {
+          "metadata": 0,
+          "documents": 26.75,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 33.9
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "analisis"
+        ],
+        "shared_document_tokens": [
+          "analisis",
+          "figuras",
+          "literarias",
+          "actividad",
+          "recuperacion",
+          "grado",
+          "lee",
+          "analiza",
+          "letra",
+          "siguiente",
+          "cancion",
+          "posteriormente",
+          "identifica",
+          "explica",
+          "encuentres",
+          "tus",
+          "ojos",
+          "tienen",
+          "color",
+          "dimension"
+        ],
+        "shared_document_signals": {
+          "citations": [
+            "Pares, 2026a",
+            "Bogotá Jorge Tadeo Lozano, 2021",
+            "Entre 2008",
+            "FIP, 2025a",
+            "Pueblo, 2023",
+            "Colombia, 2020",
+            "Pares, 2026b",
+            "El País, 2026",
+            "Revista RAYA, 2026a",
+            "Pares, 2026a; Universidad de Bogotá Jorge Tadeo Lozano, 2021",
+            "FIP, 2025a, 2026a; Defensoría del Pueblo, 2023",
+            "Pares, 2026a; Universidad Nacional de Colombia, 2020",
+            "Pares, 2026b; El País, 2026; Revista RAYA, 2026a"
+          ],
+          "theoryTerms": [
+            "caribe"
+          ],
+          "dataTerms": [
+            "caso",
+            "muestra",
+            "fuente",
+            "evidencia",
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+            "Abstract",
+            "Introducción",
+            "Cronología Política del Clan Char",
+            "Checklist de envío a Análisis Político",
+            "Verificación editorial del manuscrito",
+            "Bloqueo actual",
+            "Archivo listo",
+            "Correos preparados",
+            "Recomendación operativa",
+            "Enviar primero el correo de consulta.",
+            "Esperar confirmación de apertura o excepción editorial.",
+            "Usar el borrador de envío solo cuando la revista confirme que puede recibir artículos de tema libre."
+          ],
+          "quotedPhrases": [
+            "causó",
+            "paz urbana",
+            "paz total",
+            "Char",
+            "40 años del IEPRI"
+          ],
+          "keyPhrases": [
+            "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+            "caso",
+            "caribe",
+            "muestra",
+            "fuente",
+            "evidencia",
+            "Abstract",
+            "Introducción",
+            "Cronología Política del Clan Char",
+            "causó",
+            "paz urbana",
+            "paz total",
+            "Char",
+            "datos",
+            "archivo",
+            "Checklist de envío a Análisis Político",
+            "Verificación editorial del manuscrito",
+            "Bloqueo actual",
+            "Archivo listo",
+            "Correos preparados",
+            "Recomendación operativa",
+            "Enviar primero el correo de consulta.",
+            "Esperar confirmación de apertura o excepción editorial.",
+            "Usar el borrador de envío solo cuando la revista confirme que puede recibir artículos de tema libre.",
+            "40 años del IEPRI"
+          ]
+        },
+        "document_files": [
+          "ANALISIS DE FIGURAS LITERARIAS.docx",
+          "Barranquilla Marzo  14CHEYA.docx",
+          "Articulo_Analisis_Politico.md"
+        ],
+        "document_highlights": [
+          "ANALIZA EL LA SIGUIENTE POESÍA E IDENTIFICA LAS FIGURAS LITERARIAS.",
+          "“En los casos de confrontación entre el concepto del médico tratante y el CTC, la jurisprudencia ha seguido la regla general haciendo que prevalezca el concepto del médico sobre el del Comité.” Y según Sentencia T-939. Magistrado ponente Dr. Jaime Araujo Renteria. Noviembre de 2007. “Esta Corporación atendiendo la naturaleza administrativa de los CTC, ha precisado que su concepto no es indispensable para que el medicamento requerido por un usuario le sea otorgado y no pueden considerarse como una instancia más entre los usuarios y las E.P.S. Los jueces de tutela no pueden exigir a los tutelantes que reclaman la provisión de un medicamento excluido del POS, haber acudido previament e a los CTC de las EPS.”",
+          "Yo, LEONOR LLANOS ORTEGA, sobrina de la Sra. MARCELIN A ORTEGA EVERTZ, asumo su representación en razón de su grave enfermedad y debilidad manifiesta, “de conformidad con el artículo 10° del Decreto 2591 de 1991, en donde se menciona que “se pueden agenciar derechos ajenos cuando el titular de los mismos no esté en condiciones de promover su propia defensa”, con fundamento en los hechos relacion ados, solicito en nombre de mi TIA MARCELINA ORTEGA EVERTZ, solicito del Señor Juez disponer y ordenar a la parte ordenada y a favor de mi familiar lo siguiente;",
+          "Violencia, inseguridad y hegemonía subnacional en Barranquilla y el Atlántico (2008-2026): un análisis crítico del ciclo político del Clan Char"
+        ]
+      }
     },
     {
-      "from": "articulo-kevin-cerra",
-      "to": "fenomenologia-rumor",
-      "type": "Investigativa",
-      "strength": "Media",
-      "description": "Integración de perspectivas sociológicas de lo urbano y lo Caribe en artículos académicos."
+      "from": "propuesta-inv-2026",
+      "to": "las-camilas",
+      "type": "Teórica",
+      "strength": "Alta",
+      "description": "La relación entre Propuesta de Investigación PCA y Las Camilas tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 27,
+        "breakdown": {
+          "metadata": 0,
+          "documents": 16,
+          "semanticBridge": 11,
+          "explicitRelation": 0,
+          "total": 27
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [],
+        "shared_document_tokens": [
+          "analisis",
+          "hoy",
+          "2026",
+          "politico",
+          "correo",
+          "edu",
+          "marzo",
+          "resumen",
+          "articulo",
+          "politica",
+          "puede",
+          "publica",
+          "autoria",
+          "palabras",
+          "clave",
+          "oficial",
+          "tecnicamente",
+          "debe",
+          "colombia",
+          "revista"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "archivo",
+            "datos"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado"
+          ],
+          "quotedPhrases": [
+            "40 años del IEPRI"
+          ],
+          "keyPhrases": [
+            "archivo",
+            "40 años del IEPRI",
+            "datos",
+            "Estado editorial al 12 de marzo de 2026",
+            "Colombia Internacional",
+            "Analisis Politico",
+            "Archivos preparados",
+            "Próximo movimiento recomendado"
+          ]
+        },
+        "document_files": [
+          "Nota_estado_editorial_2026-03-12.md",
+          "ANALISIS DE FIGURAS LITERARIAS.docx",
+          "Articulo_Analisis_Politico.md"
+        ],
+        "document_highlights": [
+          "La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años del IEPRI\".",
+          "Todos estos archivos están en submission/.",
+          "Enviar ya Colombia Internacional.",
+          "Mandar el correo de consulta a Analisis Politico y esperar confirmación antes de intentar submission."
+        ]
+      }
+    },
+    {
+      "from": "markdown-pedagogico",
+      "to": "paideia",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "La relación entre Markdown Pedagógico y Paideia (Παιδεία) todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: pedagogicas y paideia. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 24.5,
+        "breakdown": {
+          "metadata": 1.5,
+          "documents": 16,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 24.5
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "edtech",
+          "web",
+          "pedagogicas",
+          "paideia",
+          "tecnologia"
+        ],
+        "shared_document_tokens": [
+          "name",
+          "bug",
+          "report",
+          "about",
+          "reporta",
+          "fallo",
+          "reproducible",
+          "pedagogico",
+          "title",
+          "labels",
+          "assignees",
+          "resumen",
+          "describe",
+          "problema",
+          "frases",
+          "pasos",
+          "reproducir",
+          "resultado",
+          "esperado",
+          "debia"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "fuente",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [
+            "Pasos para reproducir",
+            "Resultado esperado",
+            "Resultado actual",
+            "Entorno",
+            "Problema a resolver",
+            "Propuesta",
+            "Changelog",
+            "[Unreleased]",
+            "Añadido",
+            "Corregido",
+            "Antes de abrir un PR",
+            "Setup local"
+          ],
+          "quotedPhrases": [
+            "[feature]"
+          ],
+          "keyPhrases": [
+            "Pasos para reproducir",
+            "Resultado esperado",
+            "Resultado actual",
+            "Entorno",
+            "Problema a resolver",
+            "Propuesta",
+            "[feature]",
+            "fuente",
+            "archivo",
+            "Changelog",
+            "[Unreleased]",
+            "Añadido",
+            "Corregido",
+            "Antes de abrir un PR",
+            "Setup local"
+          ]
+        },
+        "document_files": [
+          "bug_report.md",
+          "feature_request.md",
+          "AGENTS.md"
+        ],
+        "document_highlights": [
+          "## Pasos para reproducir",
+          "## Resultado esperado",
+          "## Resultado actual",
+          "## Entorno"
+        ]
+      }
+    },
+    {
+      "from": "paideia",
+      "to": "picnic-semiotico",
+      "type": "Teórica",
+      "strength": "Alta",
+      "description": "La relación entre Paideia (Παιδεία) y Picnic Semiótico todavía es tentativa, pero ya muestra señales útiles: instituciones: politecnico de la costa atlantica; palabras compartidas: politecnico, costa y atlantica. El pasaje más útil es ## Pasos para reproducir.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 30.25,
+        "breakdown": {
+          "metadata": 7.25,
+          "documents": 5,
+          "semanticBridge": 18,
+          "explicitRelation": 0,
+          "total": 30.25
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [
+            "politecnico de la costa atlantica"
+          ],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "politecnico",
+          "costa",
+          "atlantica"
+        ],
+        "shared_document_tokens": [
+          "name",
+          "about",
+          "title",
+          "labels",
+          "describe",
+          "local",
+          "error",
+          "feature",
+          "idea",
+          "hierarchy",
+          "and",
+          "sophistication",
+          "refined",
+          "page",
+          "clear",
+          "call",
+          "students",
+          "active",
+          "session",
+          "more"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [],
+          "provenanceTerms": [],
+          "headings": [],
+          "quotedPhrases": [],
+          "keyPhrases": []
+        },
+        "document_files": [
+          "bug_report.md",
+          "feature_request.md",
+          "CHANGELOG.md"
+        ],
+        "document_highlights": [
+          "## Pasos para reproducir",
+          "## Resultado esperado",
+          "## Resultado actual",
+          "## Entorno"
+        ]
+      }
+    },
+    {
+      "from": "propuesta-inv-2026",
+      "to": "paideia",
+      "type": "Técnica/Diseño",
+      "strength": "Alta",
+      "description": "La relación entre Propuesta de Investigación PCA y Paideia (Παιδεία) todavía es tentativa, pero ya muestra señales útiles: áreas: educacion; instituciones: politecnico de la costa atlantica. Comparten un corpus de trabajo.",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 31.75,
+        "breakdown": {
+          "metadata": 15.25,
+          "documents": 9.5,
+          "semanticBridge": 7,
+          "explicitRelation": 0,
+          "total": 31.75
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [
+            "educacion"
+          ],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [
+            "politecnico de la costa atlantica"
+          ],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "educacion",
+          "politecnico",
+          "costa",
+          "atlantica"
+        ],
+        "shared_document_tokens": [
+          "resumen",
+          "titulo",
+          "espanol",
+          "editorial",
+          "2026",
+          "confirmacion",
+          "permite",
+          "estado",
+          "datos",
+          "soporte",
+          "anonimo",
+          "articulo",
+          "colombia",
+          "estan",
+          "puede",
+          "clave",
+          "analisis",
+          "politica",
+          "publica",
+          "uso"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [
+            "datos",
+            "archivo"
+          ],
+          "provenanceTerms": [],
+          "headings": [],
+          "quotedPhrases": [],
+          "keyPhrases": [
+            "datos",
+            "archivo"
+          ]
+        },
+        "document_files": [
+          "Nota_estado_editorial_2026-03-12.md",
+          "bug_report.md",
+          "feature_request.md"
+        ],
+        "document_highlights": [
+          "La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años del IEPRI\".",
+          "Todos estos archivos están en submission/.",
+          "Enviar ya Colombia Internacional.",
+          "Mandar el correo de consulta a Analisis Politico y esperar confirmación antes de intentar submission."
+        ]
+      }
+    },
+    {
+      "from": "propuesta-inv-2026",
+      "to": "picnic-semiotico",
+      "type": "Teórica",
+      "strength": "Alta",
+      "description": "La relación entre Propuesta de Investigación PCA y Picnic Semiótico todavía es tentativa, pero ya muestra señales útiles: instituciones: politecnico de la costa atlantica; palabras compartidas: politecnico, costa y atlantica. El pasaje más útil es La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años….",
+      "description_mode": "local",
+      "source": "research-sync",
+      "tier": "exploratory",
+      "visibility": "optional",
+      "selection_reason": "exploratory",
+      "evidence": {
+        "score": 33.25,
+        "breakdown": {
+          "metadata": 7.25,
+          "documents": 2,
+          "semanticBridge": 24,
+          "explicitRelation": 0,
+          "total": 33.25
+        },
+        "shared_fields": {
+          "theoretical_frameworks": [],
+          "domains": [],
+          "themes": [],
+          "tags": [],
+          "technologies": [],
+          "institutions": [
+            "politecnico de la costa atlantica"
+          ],
+          "collaborators": [],
+          "outputs": []
+        },
+        "shared_metadata_tokens": [
+          "investigacion",
+          "politecnico",
+          "costa",
+          "atlantica"
+        ],
+        "shared_document_tokens": [
+          "colombia",
+          "edu",
+          "artificial",
+          "2026",
+          "submission"
+        ],
+        "shared_document_signals": {
+          "citations": [],
+          "theoryTerms": [],
+          "dataTerms": [],
+          "provenanceTerms": [],
+          "headings": [],
+          "quotedPhrases": [],
+          "keyPhrases": []
+        },
+        "document_files": [
+          "Nota_estado_editorial_2026-03-12.md",
+          "Bio.docx",
+          "Manuscript with author details .docx"
+        ],
+        "document_highlights": [
+          "La convocatoria vigente corresponde al número 112 (2026-2), dedicada al dossier \"40 años del IEPRI\".",
+          "Todos estos archivos están en submission/.",
+          "Enviar ya Colombia Internacional.",
+          "Mandar el correo de consulta a Analisis Politico y esperar confirmación antes de intentar submission."
+        ]
+      }
     }
   ],
   "clusters": [

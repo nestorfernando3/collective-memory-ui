@@ -5,10 +5,28 @@
   "status": "Activo / Desplegable",
   "path": "/Users/nestor/Documents/Desarrollo/collective-memory-ui",
   "description": "El front-end orbital de la memoria colectiva de Néstor. Una PWA estática administrada por IA y renderizada vía React Flow con diseño Editorial Brutalism. Actúa como el mapa maestro de proyectos sin depender de bases de datos remotas.",
-  "technologies": ["React", "Vite", "React Flow", "Lucide React", "Github Actions"],
-  "tags": ["frontend", "ai-memory", "portafolio", "personal-os"],
-  "domains": ["desarrollo", "productividad"],
+  "technologies": [
+    "React",
+    "Vite",
+    "React Flow",
+    "Lucide React",
+    "Github Actions"
+  ],
+  "tags": [
+    "frontend",
+    "ai-memory",
+    "portafolio",
+    "personal-os"
+  ],
+  "domains": [
+    "desarrollo",
+    "productividad"
+  ],
   "start_date": "2026",
   "publish_date": "",
-  "related_projects": []
+  "related_projects": [],
+  "themes": [],
+  "institutions": [],
+  "collaborators": [],
+  "theoretical_frameworks": []
 }

@@ -1,15 +1,23 @@
 {
   "id": "picnic-semiotico",
-  "name": "Picnic Semi\u00f3tico",
+  "name": "Picnic Semiótico",
   "type": "investigacion",
   "status": "enviado",
-  "path": "/Users/nestor/Documents/ART\u00cdCULOS/Picnic Semi\u00f3tico",
-  "description": "Art\u00edculo de investigaci\u00f3n: 'Food, Myth and Simulacra in a Semiotic Picnic'. Adaptado para 3 journals espec\u00edficos.",
+  "path": "/Users/nestor/Documents/ARTÍCULOS/Picnic Semiótico",
+  "description": "Artículo de investigación: 'Food, Myth and Simulacra in a Semiotic Picnic'. Adaptado para 3 journals específicos.",
   "dates": {
     "last_updated": "2026-03-27"
   },
-  "domains": ["semi\u00f3tica", "cultura", "mito"],
-  "themes": ["comida", "simulacro", "an\u00e1lisis semi\u00f3tico"],
+  "domains": [
+    "semiótica",
+    "cultura",
+    "mito"
+  ],
+  "themes": [
+    "comida",
+    "simulacro",
+    "análisis semiótico"
+  ],
   "outputs": [
     {
       "type": "article",
@@ -18,12 +26,20 @@
       "status": "submitted"
     }
   ],
-  "technologies": ["Markdown", "Docx"],
+  "technologies": [
+    "Markdown",
+    "Docx"
+  ],
   "collaborators": [],
-  "institutions": ["Polit\u00e9cnico de la Costa Atl\u00e1ntica"],
+  "institutions": [
+    "Politécnico de la Costa Atlántica"
+  ],
   "theoretical_frameworks": [
-    "Semi\u00f3tica",
+    "Semiótica",
     "Mito y Simulacro"
   ],
-  "related_projects": ["fenomenologia-rumor"]
+  "related_projects": [
+    "fenomenologia-rumor"
+  ],
+  "tags": []
 }

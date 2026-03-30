@@ -1,46 +1,79 @@
 {
-  "name": "Your Name",
-  "site_title": "Collective Memory",
-  "site_subtitle": "Personal Operating System",
+  "name": "Persona de demostración",
+  "site_title": "Memoria Colectiva",
+  "site_subtitle": "Archivo vivo de trabajo",
   "identifiers": {
     "orcid": "",
     "github": ""
   },
   "affiliations": [
     {
-      "institution": "Your Institution",
-      "role": "Your Role",
+      "institution": "Laboratorio de demostración",
+      "role": "Diseño de conocimiento",
       "current": true
     }
   ],
   "location": {
-    "city": "Your City",
-    "country": "Your Country"
+    "city": "Bogotá",
+    "country": "Colombia"
   },
   "domains": [
-    "Domain 1",
-    "Domain 2"
+    "educación",
+    "investigación",
+    "escritura",
+    "software"
   ],
   "skills": [
-    "Skill 1",
-    "Skill 2"
+    "síntesis de investigación",
+    "arquitectura de información",
+    "diseño pedagógico",
+    "escritura analítica"
   ],
-  "languages": ["english"],
+  "languages": [
+    "spanish",
+    "english"
+  ],
   "lenses": [
     {
       "id": "All",
-      "label": "Full Universe",
+      "label": "Universo completo",
       "filter": []
     },
     {
       "id": "Academic",
-      "label": "Academic Lens",
-      "filter": ["research", "academic", "paper"]
+      "label": "Investigación",
+      "filter": [
+        "research",
+        "analysis",
+        "paper"
+      ]
     },
     {
       "id": "Creative",
-      "label": "Creative Lens",
-      "filter": ["creative", "art", "writing"]
+      "label": "Cultura y creación",
+      "filter": [
+        "creative",
+        "writing",
+        "memory"
+      ]
+    },
+    {
+      "id": "Pedagogical",
+      "label": "Educación",
+      "filter": [
+        "education",
+        "tool",
+        "socioemotional"
+      ]
+    },
+    {
+      "id": "Tooling",
+      "label": "Desarrollo de software",
+      "filter": [
+        "software",
+        "ui",
+        "markdown"
+      ]
     }
   ]
 }

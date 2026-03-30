@@ -1,0 +1,44 @@
+{
+  "id": "cartografia-publica",
+  "name": "Cartografía Pública",
+  "type": "research",
+  "status": "en construcción",
+  "path": "~/demo/cartografia-publica",
+  "description": "Mapa de relaciones y rutas editoriales para exponer el archivo.",
+  "abstract": "Superficie pública para leer conexiones entre proyectos y líneas de trabajo.",
+  "tags": [
+    "research",
+    "visualization",
+    "software",
+    "map"
+  ],
+  "domains": [
+    "Investigación",
+    "Diseño"
+  ],
+  "themes": [
+    "Cartografía",
+    "Exposición pública"
+  ],
+  "technologies": [
+    "React",
+    "SVG"
+  ],
+  "theoretical_frameworks": [
+    "Visualización de información"
+  ],
+  "outputs": [
+    {
+      "type": "report",
+      "title": "Cartografía Pública",
+      "status": "in progress"
+    }
+  ],
+  "collaborators": [],
+  "institutions": [],
+  "related_projects": [
+    "atlas-trabajo",
+    "archivo-lecturas",
+    "cuaderno-creacion"
+  ]
+}
