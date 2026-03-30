@@ -1,8 +1,8 @@
 ---
 name: collective-memory
-description: An AI-agnostic collective memory system that catalogs research, projects, and personal knowledge into a centralized filesystem database. Allows agents to find synergies, generate cross-project profiles, and manage portfolios.
+description: Use when working with the collective-memory filesystem database, `/memoria` commands, portfolio snapshots, or cross-project relationship graphs.
 tags: [knowledge-management, memory, orchestration, portfolio]
-version: 1.1.0
+version: 1.1.2
 ---
 
 # Collective Memory Skill
@@ -14,16 +14,17 @@ When using this skill, your role as an AI assistant is to act as a **librarian a
 
 ## 🚀 Uso Guiado
 
-Cada vez que el usuario active este skill, úsalo también como un **mini onboarding**:
-- empieza diciendo en una frase qué es Collective Memory
-- aclara que el modo por defecto es **systemwide**
-- menciona la ruta raíz visible por defecto: `~/Documents/Collective Memory/`
-- explica brevemente qué hace cada comando disponible
-- cierra recomendando el siguiente paso más útil
+Cada vez que el usuario active este skill, empieza con un **mini onboarding visible antes de ejecutar**. No entres directo a correr comandos sin esa orientación inicial.
 
-Si el usuario está perdido, no respondas solo con “dime qué comando ejecutar”. Primero orienta y luego ejecuta o recomienda.
+Ese mini onboarding debe decir, de forma breve y clara:
+- qué es Collective Memory en una frase
+- que el modo por defecto es **systemwide**
+- cuál es la ruta raíz visible por defecto: `~/Documents/Collective Memory/`
+- qué comando o paso conviene ejecutar ahora mismo
 
-Cuando ejecutes este Skill, acompaña siempre la respuesta con tres datos concretos:
+Si el usuario ya pidió una acción concreta, primero muestra ese onboarding breve y enseguida ejecuta. No reemplaces el onboarding con pensamiento interno, logs, ni una narración larga de lo que harás.
+
+Cuando ejecutes este Skill, acompaña la respuesta con tres datos concretos:
 1. La ruta exacta de la carpeta raíz que quedó generada o actualizada.
 2. Los archivos clave que contiene esa carpeta.
 3. El siguiente paso para usarla dentro de la plataforma.
@@ -55,7 +56,7 @@ Cuando el usuario pida orientación sobre qué comando ejecutar, responde con un
 | `/memoria collect` | Ejecuta el flujo completo: scan, register, profile, connections, build-readme y research sync. | Es la mejor opción cuando quieres dejar todo actualizado en una sola pasada. |
 | `/memoria strengthen [file_path]` | Usa la memoria previa para fortalecer un documento o app actual. | Úsalo al redactar artículos, propuestas o documentos que necesiten justificaciones y vínculos más ricos. Por defecto cruza toda la base de memoria; usa foco explícito solo si quieres acotarlo. |
 
-Si el usuario no especifica un comando, ejecuta `/memoria collect` por defecto y luego reporta el resultado, pero antes acompáñalo con el mini onboarding resumido. Usa `/memoria strengthen` solo cuando ya haya un documento abierto y el usuario pida reforzarlo.
+Si el usuario no especifica un comando, ejecuta `/memoria collect` por defecto después del mini onboarding y luego reporta el resultado. Usa `/memoria strengthen` solo cuando ya haya un documento abierto y el usuario pida reforzarlo.
 
 ## 💾 The Data Layer
 
