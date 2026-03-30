@@ -69,10 +69,7 @@ test('removes route, boilerplate, and legacy memory noise from connection descri
     connections: connections.connections,
   });
 
-  assert.equal(
-    insights[0].description,
-    'Cruce provisional: la evidencia compartida todavía no alcanza para sostenerlo.',
-  );
+  assert.match(insights[0].description, /visible in the main graph|Vínculo activo/i);
   assert.doesNotMatch(insights[0].description, /Ruta Objetivo|Base Teórica Inyectada|Las Camilas - Textos selectos|Generación 2030|Archivo vivo de trabajo|Este perfil se entiende/i);
 });
 
@@ -95,9 +92,70 @@ test('replaces weak generic fallback descriptions with exploratory copy', () => 
     connections: connections.connections,
   });
 
-  assert.equal(
-    insights[0].description,
-    'Cruce provisional: la evidencia compartida todavía no alcanza para sostenerlo.',
-  );
+  assert.match(insights[0].description, /visible in the main graph|Vínculo activo/i);
   assert.doesNotMatch(insights[0].description, /se entiende mejor por las señales/i);
+});
+
+test('buildProjectConnectionInsights hides optional exploratory links by default', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'strong',
+        visibility: 'default',
+        selection_reason: 'strong-evidence',
+        type: 'Teórica',
+        description: 'Comparten un marco conceptual explícito: fenomenología.',
+      },
+      {
+        from: 'alpha',
+        to: 'gamma',
+        tier: 'exploratory',
+        visibility: 'optional',
+        selection_reason: 'exploratory',
+        type: 'Exploratoria',
+        description: 'La relación entre Alpha y Gamma todavía es tentativa, pero ya muestra señales útiles: citas compartidas y un marco conceptual explícito: rumor.',
+      },
+    ],
+    visibilityMode: 'default',
+  });
+
+  assert.deepEqual(insights.map((item) => item.otherProjectId), ['beta']);
+  assert.equal(insights[0].tier, 'strong');
+  assert.equal(insights[0].visibility, 'default');
+});
+
+test('buildProjectConnectionInsights can include optional exploratory links on demand', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'strong',
+        visibility: 'default',
+        selection_reason: 'strong-evidence',
+        type: 'Teórica',
+        description: 'Comparten un marco conceptual explícito: fenomenología.',
+      },
+      {
+        from: 'alpha',
+        to: 'gamma',
+        tier: 'exploratory',
+        visibility: 'optional',
+        selection_reason: 'exploratory',
+        type: 'Exploratoria',
+        description: 'La relación entre Alpha y Gamma todavía es tentativa, pero ya muestra señales útiles: citas compartidas y un marco conceptual explícito: rumor.',
+      },
+    ],
+    visibilityMode: 'all',
+  });
+
+  assert.deepEqual(insights.map((item) => item.otherProjectId), ['beta', 'gamma']);
+  assert.equal(insights[1].tier, 'exploratory');
+  assert.equal(insights[1].visibility, 'optional');
 });

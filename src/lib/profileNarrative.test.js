@@ -118,6 +118,43 @@ test('builds a profile narrative with routes and expansion ideas', () => {
   assert.ok(narrative.sections.some((section) => section.items.some((item) => typeof item === 'string' && /third-party|coauthored/i.test(item))));
 });
 
+test('profile narrative counts only default-visible bridges as active', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'markdown-pedagogico',
+          type: 'Técnica/Diseño',
+          tier: 'strong',
+          visibility: 'default',
+          selection_reason: 'strong-evidence',
+          description: 'Comparten una base pedagógica concreta.',
+        },
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'optional',
+          selection_reason: 'exploratory',
+          description: 'La relación entre Paideia y Diario de Emociones todavía es tentativa, pero ya muestra señales útiles: acompañamiento y evaluación formativa.',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  assert.equal(narrative.stats.connectionCount, 1);
+  assert.equal(narrative.sections.find((section) => section.title === 'Puentes activos').items.length, 1);
+  assert.match(
+    narrative.sections.find((section) => section.title === 'Trayectorias centrales').items.join(' '),
+    /1 puente fuerte|1 puente exploratorio/i,
+  );
+});
+
 test('builds a spanish profile narrative when requested', () => {
   const narrative = buildProfileNarrative({
     profile,

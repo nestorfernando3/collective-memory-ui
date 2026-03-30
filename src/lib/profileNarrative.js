@@ -257,6 +257,16 @@ function projectPriority(project) {
   return 5;
 }
 
+function normalizeConnectionTier(value) {
+  const tier = normalizeText(value).trim();
+  return tier === 'exploratory' ? 'exploratory' : 'strong';
+}
+
+function normalizeConnectionVisibility(value) {
+  const visibility = normalizeText(value).trim();
+  return visibility === 'optional' ? 'optional' : 'default';
+}
+
 function buildConnectionMap(connections, projectById, locale) {
   const spanish = isSpanish(locale);
   return (Array.isArray(connections) ? connections : []).reduce((acc, connection) => {
@@ -271,6 +281,9 @@ function buildConnectionMap(connections, projectById, locale) {
       to,
       type: connection?.type || (spanish ? 'Sinérgica' : 'Synergistic'),
       description: sanitizeConnectionDescription(connection?.description),
+      tier: normalizeConnectionTier(connection?.tier),
+      visibility: normalizeConnectionVisibility(connection?.visibility),
+      selectionReason: String(connection?.selection_reason || connection?.selectionReason || '').trim(),
     });
     return acc;
   }, []);
@@ -434,6 +447,9 @@ function summarizeConnection(connection, projectById, locale) {
     label: `${projectLabel(fromProject, locale)} → ${projectLabel(toProject, locale)}`,
     type: connection.type,
     description: connection.description,
+    tier: connection.tier,
+    visibility: connection.visibility,
+    selectionReason: connection.selectionReason,
   };
 }
 
@@ -471,7 +487,10 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
   const normalizedLocale = normalizeLocale(locale);
   const visibleProjects = filterVisibleProjects(projects.filter((project) => !isDemoProject(project)), hiddenProjectIds);
   const projectById = new Map(visibleProjects.map((project) => [project.id, project]));
-  const activeConnections = buildConnectionMap(connections.connections || [], projectById, normalizedLocale);
+  const allConnections = buildConnectionMap(connections.connections || [], projectById, normalizedLocale);
+  const activeConnections = allConnections.filter((connection) => connection.visibility === 'default');
+  const strongConnectionCount = activeConnections.filter((connection) => connection.tier === 'strong').length;
+  const exploratoryConnectionCount = allConnections.filter((connection) => connection.tier === 'exploratory').length;
   const routes = buildRoutes(visibleProjects, normalizedLocale);
   const expansionIdeas = buildExpansionIdeas(visibleProjects, activeConnections, normalizedLocale);
   const overview = buildOverview(profile, visibleProjects, normalizedLocale);
@@ -498,6 +517,9 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
           spanish
             ? `Enfoque central: ${summarizePractice(visibleProjects, normalizedLocale)}`
             : `Core focus: ${summarizePractice(visibleProjects, normalizedLocale)}`,
+          spanish
+            ? `${strongConnectionCount} puente${strongConnectionCount === 1 ? '' : 's'} fuerte${strongConnectionCount === 1 ? '' : 's'} visible${strongConnectionCount === 1 ? '' : 's'} y ${exploratoryConnectionCount} exploratorio${exploratoryConnectionCount === 1 ? '' : 's'} en reserva.`
+            : `${strongConnectionCount} visible strong bridge${strongConnectionCount === 1 ? '' : 's'} and ${exploratoryConnectionCount} exploratory bridge${exploratoryConnectionCount === 1 ? '' : 's'} in reserve.`,
           profile?.affiliations?.length
             ? spanish
               ? `Afiliaciones activas: ${joinList(profile.affiliations.filter((item) => item?.current).map((item) => `${item.role} en ${item.institution}`), normalizedLocale)}`

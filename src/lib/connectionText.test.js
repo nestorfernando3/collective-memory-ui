@@ -19,4 +19,17 @@ test('flags generic bridge prose as weak', () => {
     true,
   );
   assert.equal(isWeakGenericDescription('Comparten un marco conceptual explícito: fenomenología.'), false);
+  assert.equal(
+    isWeakGenericDescription('La relación entre Alpha y Gamma todavía es tentativa, pero ya muestra señales útiles: citas compartidas y un marco conceptual explícito: rumor.'),
+    false,
+  );
+});
+
+test('keeps project names like Collective Memory PWA while trimming legacy suffixes', () => {
+  const output = sanitizeConnectionDescription(
+    'La relación entre Paideia (Παιδεία) y Collective Memory PWA todavía es tentativa, pero ya muestra señales útiles: tecnologías: vite. La lectura sugerida va de Paideia hacia Collective Memory PWA, porque el vínculo parece acumulativo y no accidental.',
+  );
+
+  assert.match(output, /Collective Memory PWA/);
+  assert.doesNotMatch(output, /La lectura sugerida va de|porque el vínculo parece acumulativo/i);
 });

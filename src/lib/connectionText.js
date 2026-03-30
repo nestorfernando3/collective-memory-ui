@@ -22,7 +22,7 @@ export function sanitizeConnectionDescription(value) {
     .replace(/\s+En los textos aparecen[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Este perfil se entiende[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Archivo vivo de trabajo[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s+Collective Memory PWA[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/(?:^|[.?!]\s+)Collective Memory PWA:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Perfil unificado[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+La lectura sugerida va de[\s\S]*$/gi, '.')
     .replace(/\s+porque el vínculo parece acumulativo y no accidental\.?/gi, '.')
@@ -40,6 +40,18 @@ export function sanitizeConnectionDescription(value) {
 export function isWeakGenericDescription(text) {
   const normalized = normalizeText(text);
   if (!normalized) return false;
+
+  if (
+    (normalized.includes('todavia es tentativa') || normalized.includes('todavia sigue siendo tentativa')) &&
+    (
+      normalized.includes('senales utiles') ||
+      normalized.includes('marco conceptual explicito') ||
+      normalized.includes('citas compartidas') ||
+      normalized.includes('evidencia documental')
+    )
+  ) {
+    return false;
+  }
 
   return (
     normalized.includes('se entiende mejor por las senales') ||

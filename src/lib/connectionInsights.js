@@ -49,6 +49,40 @@ function buildProjectById(projects) {
   );
 }
 
+function normalizeTier(value) {
+  const tier = normalizeText(value);
+  return tier === 'strong' || tier === 'exploratory' ? tier : 'strong';
+}
+
+function normalizeVisibility(value) {
+  const visibility = normalizeText(value);
+  return visibility === 'optional' ? 'optional' : 'default';
+}
+
+function buildFallbackDescription(connection, locale) {
+  const normalizedLocale = normalizeLocale(locale);
+  const tier = normalizeTier(connection?.tier);
+  const type = String(connection?.type || '').trim();
+  const evidenceScore = Number(connection?.evidence?.score);
+  const scoreLabel = Number.isFinite(evidenceScore) ? ` (${Math.round(evidenceScore)})` : '';
+
+  if (tier === 'exploratory') {
+    if (type) {
+      return normalizedLocale === 'es'
+        ? `Puente exploratorio ${type.toLowerCase()}${scoreLabel}: hay señales útiles, pero todavía falta evidencia para consolidarlo.`
+        : `Exploratory ${type.toLowerCase()} bridge${scoreLabel}: there are useful signals, but more evidence is needed to consolidate it.`;
+    }
+
+    return normalizedLocale === 'es'
+      ? `Puente exploratorio${scoreLabel}: hay señales útiles, pero todavía falta evidencia para consolidarlo.`
+      : `Exploratory bridge${scoreLabel}: there are useful signals, but more evidence is needed to consolidate it.`;
+  }
+
+  return normalizedLocale === 'es'
+    ? `Vínculo activo${scoreLabel}: la relación está visible en el grafo principal, aunque la descripción original necesita revisión.`
+    : `Active link${scoreLabel}: this relationship is visible in the main graph, although the original description needs revision.`;
+}
+
 export function buildConnectionInsight(connection, projectById, fallbackId = '', locale = 'en') {
   const { source, target } = resolveConnectionEndpointIds(connection);
   const sourceProject = projectById.get(source) || null;
@@ -59,7 +93,9 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
   const normalizedLocale = normalizeLocale(locale);
   const evidenceScore = Number.isFinite(Number(connection?.evidence?.score)) ? Number(connection.evidence.score) : null;
   const description = sanitizeConnectionDescription(connection?.description);
-  const exploratoryFallback = `Cruce provisional: la evidencia compartida todavía no alcanza para sostenerlo.`;
+  const tier = normalizeTier(connection?.tier);
+  const visibility = normalizeVisibility(connection?.visibility);
+  const selectionReason = String(connection?.selection_reason || connection?.selectionReason || '').trim() || (tier === 'strong' ? 'strong-evidence' : 'exploratory');
 
   return {
     id: connection?.id || `${source}::${target}::${fallbackId}`,
@@ -75,7 +111,10 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
     otherProjectId: source && source === fallbackId ? target : source,
     otherProjectLabel: source && source === fallbackId ? targetLabel : sourceLabel,
     type: connection?.type || (normalizedLocale === 'es' ? 'Sinérgica' : 'Synergistic'),
-    description: isWeakGenericDescription(description) ? exploratoryFallback : description,
+    tier,
+    visibility,
+    selectionReason,
+    description: isWeakGenericDescription(description) ? buildFallbackDescription(connection, normalizedLocale) : description,
     strengthLabel: getStrengthLabel(connection, strengthValue, normalizedLocale),
     strengthValue,
     evidenceScore,
@@ -83,19 +122,22 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
   };
 }
 
-export function buildProjectConnectionInsights({ projectId, projects = [], connections = [], locale = 'en' } = {}) {
+export function buildProjectConnectionInsights({ projectId, projects = [], connections = [], locale = 'en', visibilityMode = 'default' } = {}) {
   const projectById = buildProjectById(projects);
 
   return (Array.isArray(connections) ? connections : [])
     .map((connection, index) => buildConnectionInsight(connection, projectById, `${projectId}-${index}`, locale))
     .filter((item) => item.source === projectId || item.target === projectId)
     .filter((item) => item.sourceProject && item.targetProject)
+    .filter((item) => visibilityMode === 'all' || item.visibility === 'default')
     .map((item) => ({
       ...item,
       otherProjectId: item.source === projectId ? item.target : item.source,
       otherProjectLabel: item.source === projectId ? item.targetLabel : item.sourceLabel,
     }))
     .sort((a, b) => {
+      if (a.visibility !== b.visibility) return a.visibility === 'default' ? -1 : 1;
+      if (a.tier !== b.tier) return a.tier === 'strong' ? -1 : 1;
       if (b.strengthValue !== a.strengthValue) return b.strengthValue - a.strengthValue;
       if (a.otherProjectLabel !== b.otherProjectLabel) {
         return a.otherProjectLabel.localeCompare(b.otherProjectLabel);
