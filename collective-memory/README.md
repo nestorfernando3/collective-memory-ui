@@ -12,7 +12,7 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 - Título: Memoria Colectiva
 - Subtítulo: Archivo vivo de trabajo
 - Proyectos registrados: 18
-- Conexiones registradas: 6
+- Conexiones registradas: 19
 
 ## Archivos clave de esta raíz
 
@@ -45,12 +45,18 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 
 ## Conexiones destacadas
 
-- kansas-barranquilla -> articulo-kevin-cerra: La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un marco conceptual explícito: caribe.
-- paideia -> collective-memory-ui: La relación entre Paideia (Παιδεία) y Collective Memory PWA se apoya en tecnologías: vite; palabras compartidas: vite y github. Comparten un corpus de trabajo.
-- picnic-semiotico -> generacion-2030: La relación entre Picnic Semiótico y Generación 2030 / Formación en Artes se apoya en palabras compartidas: cultura. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
-- paideia -> picnic-semiotico: La relación entre Paideia (Παιδεία) y Picnic Semiótico se apoya en instituciones: politecnico de la costa atlantica; palabras compartidas: politecnico, costa y atlantica. Comparten un marco conceptual explícito: goffman.
-- propuesta-inv-2026 -> paideia: La relación entre Propuesta de Investigación PCA y Paideia (Παιδεία) se apoya en áreas: educacion; instituciones: politecnico de la costa atlantica. Comparten un marco conceptual explícito: fenomenología y rumor.
-- propuesta-inv-2026 -> picnic-semiotico: La relación entre Propuesta de Investigación PCA y Picnic Semiótico se apoya en instituciones: politecnico de la costa atlantica; palabras compartidas: politecnico, costa y atlantica. Comparten un marco conceptual explícito: goffman.
+- articulo-kevin-cerra -> concertacion-mincultura: La relación entre Artículo Kevin Cerra y Concertación MinCultura se apoya en palabras compartidas: caribe. Comparten un marco conceptual explícito: caribe.
+- kansas-barranquilla -> articulo-kevin-cerra: La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra se basa en evidencia documental concreta. Comparten un marco conceptual explícito: caribe.
+- articulo-kevin-cerra -> las-camilas: La relación entre Artículo Kevin Cerra y Las Camilas se apoya en palabras compartidas: caribe y colombiano. Comparten un marco conceptual explícito: caribe.
+- collective-memory-ui -> las-camilas: La relación entre Collective Memory PWA y Las Camilas todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: memoria y editorial. Comparten un marco conceptual explícito: caribe. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- paideia -> collective-memory-ui: La relación entre Paideia (Παιδεία) y Collective Memory PWA todavía es tentativa, pero ya muestra señales útiles: tecnologías: vite; palabras compartidas: vite y github. Comparten un corpus de trabajo.
+- propuesta-inv-2026 -> collective-memory-ui: La relación entre Propuesta de Investigación PCA y Collective Memory PWA tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- kansas-barranquilla -> concertacion-mincultura: La relación entre Estudio Kansas-Barranquilla y Concertación MinCultura se basa en evidencia documental concreta. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- las-camilas -> concertacion-mincultura: La relación entre Las Camilas y Concertación MinCultura se apoya en palabras compartidas: actualmente y caribe. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- diario-emociones -> markdown-pedagogico: La relación entre Diario de Emociones y Markdown Pedagógico tiene evidencia documental, pero todavía no una base compartida clara. El pasaje más útil es Todos los cambios notables en este proyecto serán documentados en este archivo..
+- diario-emociones -> paideia: La relación entre Diario de Emociones y Paideia (Παιδεία) tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
+- las-camilas -> dos-cuentos-hermanos: La relación entre Las Camilas y Dos Cuentos Hermanos todavía es tentativa, pero ya muestra señales útiles: etiquetas: creativo y literatura; palabras compartidas: libro, literatura, actualmente y editorial. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- propuesta-inv-2026 -> dos-cuentos-hermanos: La relación entre Propuesta de Investigación PCA y Dos Cuentos Hermanos tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
 
 ## Mapa Mermaid
 
@@ -74,9 +80,22 @@ graph LR
   picnic-semiotico["Picnic Semiótico"]
   propuesta-inv-2026["Propuesta de Investigación PCA"]
   proyecto-icfes["Proyecto ICFEs"]
+  articulo-kevin-cerra -->|| concertacion-mincultura
   kansas-barranquilla -->|| articulo-kevin-cerra
+  articulo-kevin-cerra -->|| las-camilas
+  collective-memory-ui -->|| las-camilas
   paideia -->|| collective-memory-ui
+  propuesta-inv-2026 -->|| collective-memory-ui
+  kansas-barranquilla -->|| concertacion-mincultura
+  las-camilas -->|| concertacion-mincultura
+  diario-emociones -->|| markdown-pedagogico
+  diario-emociones -->|| paideia
+  las-camilas -->|| dos-cuentos-hermanos
+  propuesta-inv-2026 -->|| dos-cuentos-hermanos
   picnic-semiotico -->|| generacion-2030
+  kansas-barranquilla -->|| las-camilas
+  propuesta-inv-2026 -->|| las-camilas
+  markdown-pedagogico -->|| paideia
   paideia -->|| picnic-semiotico
   propuesta-inv-2026 -->|| paideia
   propuesta-inv-2026 -->|| picnic-semiotico

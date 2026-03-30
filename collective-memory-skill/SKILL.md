@@ -2,7 +2,7 @@
 name: collective-memory
 description: Use when working with the collective-memory filesystem database, `/memoria` commands, portfolio snapshots, or cross-project relationship graphs.
 tags: [knowledge-management, memory, orchestration, portfolio]
-version: 1.3.0
+version: 1.4.0
 ---
 
 # Collective Memory Skill
@@ -31,6 +31,7 @@ When you execute this skill, include three concrete details in your response:
 
 Use clear, natural Spanish in generated summaries, project descriptions, and connection narratives. Prefer phrases like `se basa en`, `comparte`, `se entiende por`, and `palabras compartidas` instead of internal labels or English jargon such as `shared tokens` or `theoretical_frameworks`.
 Treat raw filesystem routes, truncated file paths, and field-like fragments such as `Ruta Objetivo:` or `Base Teórica Inyectada:` as internal evidence markers, not as user-facing prose; summarize the relationship they imply and omit the noise.
+When a connection is still tentative, keep the prose specific about the real evidence it has. Do not collapse exploratory links into the same generic fallback sentence over and over.
 
 The folder imported into the UI is the **snapshot root**, not a loose JSON file. By default that root lives at `~/Documents/Collective Memory/`, even if the user is working from a specific project.
 
@@ -44,6 +45,20 @@ If the user asks, "Which file do I use in the platform?", the answer should be:
 - import the **entire root folder**
 - if you need a starting point to open and review the snapshot, use `README.md`
 
+## Balanced Graph Policy
+
+When `/memoria connections`, `/memoria collect`, or any graph-redesign request touches the relationship engine, prefer a **balanced graph** instead of swinging between clutter and scarcity:
+
+- `strong` links: default-visible connections backed by mixed evidence, usually document evidence plus metadata or a clear semantic bridge.
+- `exploratory` links: promising but not yet definitive connections. Keep them optional, filterable, or reserved for a narrow coverage-floor rescue when a project would otherwise be isolated.
+- `discarded` links: generic or weak pairings that should not stay in the graph.
+
+Do not treat threshold tuning alone as the solution. If the graph is too noisy or too sparse, separate visibility policy from scoring policy.
+
+When extending `connections.json`, keep the existing array contract backward-compatible. Prefer optional fields such as `tier`, `visibility`, `selection_reason`, and `evidence.breakdown` instead of replacing the whole schema.
+
+If a user request includes **showing** those tiers in the UI, treat `memoria-colectiva.js` as a build artifact. Prefer editable source files such as `src/App.jsx` and `src/lib/*` rather than patching the minified public shell directly.
+
 ## Commands and Recommendations
 
 When the user asks what command to run, respond with a short, concrete table. Prioritize the command that best matches the intent:
@@ -54,7 +69,7 @@ When the user asks what command to run, respond with a short, concrete table. Pr
 | `/memoria scan` | Detects new or incomplete projects in the filesystem. | Run it before registering anything new or when you want to see what still needs structure. |
 | `/memoria register [path]` | Converts a folder into a structured project card. | Use it for a new project, a draft folder, or a folder with enough evidence to describe. |
 | `/memoria profile` | Regenerates `profile.json` and `PROFILE.md` with the unified identity. | Run it after registering multiple projects or when the user's focus changes. |
-| `/memoria connections` | Recomputes the relationship graph between projects. | Use it when you want to surface reuse, thematic bridges, and shared methods. |
+| `/memoria connections` | Recomputes the relationship graph between projects. | Use it when you want to surface reuse, thematic bridges, and shared methods without drifting back to either graph clutter or graph emptiness. |
 | `/memoria build-readme` | Rebuilds the human-readable `README.md` index for the snapshot. | Run it before importing the folder into the UI so the root has a clear entry point. |
 | `/memoria collect` | Runs scan, register, profile, connections, build-readme, and research sync in one pass. | Best default when you want everything refreshed together. |
 | `/memoria strengthen [file_path]` | Strengthens a current document using the memory database. | Use it for active writing so the document gains richer justifications, related history, and evidence-backed links. |
@@ -117,7 +132,9 @@ Whenever the user runs one of the following slash commands, execute the correspo
 1. Read all JSON files in the `projects/` directory.
 2. Identify cross-pollination opportunities, such as project A using a method that project B needs, or project C and D sharing data sources.
 3. Update `connections.json` with the resulting graph, keeping descriptions semantically focused and free of raw path fragments, field names, or document scaffolding.
-4. Present the user with a markdown table showing the discovered connections and suggesting concrete next steps to merge efforts or leverage past work in current projects.
+4. When the graph is being rebalanced, separate `strong`, `exploratory`, and discarded links instead of forcing every pair through one visibility rule. Keep strong links default-visible and exploratory links optional unless a narrow coverage-floor rescue is needed.
+5. If you need to extend the stored graph, keep it backward-compatible by adding optional metadata fields rather than replacing the array shape.
+6. Present the user with a markdown table showing the discovered connections and suggesting concrete next steps to merge efforts or leverage past work in current projects.
 
 ### `/memoria collect`
 **Goal:** Run the full memory refresh in a single pass.
@@ -128,8 +145,9 @@ Whenever the user runs one of the following slash commands, execute the correspo
 4. Run `/memoria connections` to refresh synergies and the graph.
 5. Run `/memoria build-readme` to regenerate the portfolio index.
 6. Run the local `research_sync` workflow to strengthen existing links, inspect real `.md` and `.docx` prose when metadata is insufficient, and apply validated new or refreshed descriptions when appropriate.
-7. Report the refreshed graph, any newly added projects, and any remaining evidence gaps that still need manual review.
-8. Close with the exact root folder path the user should import into the platform and list the files that live there.
+7. If the graph recently became too sparse or too noisy, rebalance it using the strong/exploratory policy rather than only raising or lowering thresholds.
+8. Report the refreshed graph, any newly added projects, and any remaining evidence gaps that still need manual review.
+9. Close with the exact root folder path the user should import into the platform and list the files that live there.
 
 ### `/memoria build-readme`
 **Goal:** Generate the "Collective Memory" portfolio document.

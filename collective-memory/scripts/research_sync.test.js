@@ -2,12 +2,16 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  applyVisibilityPolicy,
+  buildEvidenceBreakdown,
   buildConnectionContext,
   buildDocumentEvidenceSentence,
   buildLocalDescription,
+  classifyConnectionTier,
   isGeneratedMemoryDoc,
   isNoisyConnectionDescription,
   hasSufficientConnectionEvidence,
+  sanitizeConnectionDescription,
   shouldRefreshConnection,
   scorePair,
 } = require('./research_sync.js');
@@ -312,4 +316,176 @@ test('refreshes low-score fallback descriptions so weak links can be rewritten h
     ),
     true,
   );
+});
+
+test('preserves project names like Collective Memory PWA while cleaning legacy noise', () => {
+  const description = sanitizeConnectionDescription(
+    'La relación entre Paideia (Παιδεία) y Collective Memory PWA todavía es tentativa, pero ya muestra señales útiles: tecnologías: vite. La lectura sugerida va de Paideia hacia Collective Memory PWA, porque el vínculo parece acumulativo y no accidental.',
+  );
+
+  assert.match(description, /Collective Memory PWA/);
+  assert.doesNotMatch(description, /La lectura sugerida va de|porque el vínculo parece acumulativo/i);
+});
+
+test('buildEvidenceBreakdown separates metadata, documents, semantic bridges, and explicit relations', () => {
+  assert.deepEqual(
+    buildEvidenceBreakdown({
+      score: 38.4,
+      signals: [
+        { field: 'metadata_tokens', weight: 2.5 },
+        { field: 'document_citations', weight: 8 },
+        { field: 'semantic_bridge', weight: 7 },
+        { field: 'explicit_relation', weight: 10 },
+      ],
+    }),
+    {
+      metadata: 2.5,
+      documents: 8,
+      semanticBridge: 7,
+      explicitRelation: 10,
+      total: 38.4,
+    },
+  );
+});
+
+test('classifyConnectionTier separates strong exploratory and discarded candidates', () => {
+  const strong = classifyConnectionTier({
+    score: 38,
+    shared: {
+      theoretical_frameworks: ['fenomenologia'],
+      domains: ['educacion'],
+      themes: [],
+      tags: [],
+      technologies: [],
+      institutions: ['politecnico de la costa atlantica'],
+      collaborators: [],
+      outputs: [],
+    },
+    sharedMetadataTokens: ['fenomenologia', 'educacion', 'politecnico'],
+    sharedDocSignals: {
+      citations: ['Goffman, 1959'],
+      theoryTerms: ['fenomenologia'],
+      dataTerms: [],
+      provenanceTerms: [],
+      headings: ['Marco teórico'],
+      quotedPhrases: [],
+      keyPhrases: ['fenomenologia'],
+    },
+    docHighlights: ['Marco teórico: fenomenología del rumor.'],
+    signals: [
+      { field: 'document_citations', weight: 8 },
+      { field: 'metadata_tokens', weight: 2 },
+      { field: 'semantic_bridge', weight: 7 },
+    ],
+  });
+
+  const exploratory = classifyConnectionTier({
+    score: 24,
+    shared: {
+      theoretical_frameworks: [],
+      domains: [],
+      themes: [],
+      tags: [],
+      technologies: [],
+      institutions: ['politecnico de la costa atlantica'],
+      collaborators: [],
+      outputs: [],
+    },
+    sharedMetadataTokens: ['politecnico'],
+    sharedDocSignals: {
+      citations: [],
+      theoryTerms: ['caribe'],
+      dataTerms: [],
+      provenanceTerms: [],
+      headings: [],
+      quotedPhrases: [],
+      keyPhrases: ['caribe'],
+    },
+    docHighlights: [],
+    signals: [{ field: 'metadata_tokens', weight: 1.5 }],
+  });
+
+  const discarded = classifyConnectionTier({
+    score: 11,
+    shared: {
+      theoretical_frameworks: ['fenomenologia'],
+      domains: [],
+      themes: [],
+      tags: [],
+      technologies: [],
+      institutions: [],
+      collaborators: [],
+      outputs: [],
+    },
+    sharedMetadataTokens: ['investigacion'],
+    sharedDocSignals: {
+      citations: [],
+      theoryTerms: ['fenomenologia'],
+      dataTerms: [],
+      provenanceTerms: [],
+      headings: [],
+      quotedPhrases: [],
+      keyPhrases: [],
+    },
+    docHighlights: [],
+    signals: [{ field: 'document_theory_terms', weight: 2 }],
+  });
+
+  assert.equal(strong, 'strong');
+  assert.equal(exploratory, 'exploratory');
+  assert.equal(discarded, 'discarded');
+});
+
+test('applyVisibilityPolicy promotes one decent exploratory link for isolated projects', () => {
+  const selected = applyVisibilityPolicy([
+    { pairKey: 'alpha::beta', from: 'alpha', to: 'beta', score: 42, tier: 'strong' },
+    { pairKey: 'beta::gamma', from: 'beta', to: 'gamma', score: 30, tier: 'exploratory' },
+    { pairKey: 'gamma::delta', from: 'gamma', to: 'delta', score: 21, tier: 'exploratory' },
+  ], ['alpha', 'beta', 'gamma', 'delta']);
+
+  assert.equal(selected.find((item) => item.pairKey === 'alpha::beta').visibility, 'default');
+  assert.equal(selected.find((item) => item.pairKey === 'alpha::beta').selectionReason, 'strong-evidence');
+  assert.equal(selected.find((item) => item.pairKey === 'beta::gamma').visibility, 'default');
+  assert.equal(selected.find((item) => item.pairKey === 'beta::gamma').selectionReason, 'coverage-floor');
+  assert.equal(selected.find((item) => item.pairKey === 'gamma::delta').visibility, 'optional');
+});
+
+test('buildLocalDescription differentiates strong and exploratory prose', () => {
+  const strong = buildLocalDescription({
+    tier: 'strong',
+    fromName: 'Paideia',
+    toName: 'Collective Memory PWA',
+    sharedSummary: ['tecnologías: vite', 'instituciones: politecnico de la costa atlantica'],
+    documentEvidence: 'Comparten citas o referencias verificables.',
+    docSignals: {
+      citations: ['Goffman, 1959'],
+      theoryTerms: [],
+      dataTerms: [],
+      provenanceTerms: [],
+      headings: [],
+      quotedPhrases: [],
+      keyPhrases: [],
+    },
+  });
+
+  const exploratory = buildLocalDescription({
+    tier: 'exploratory',
+    fromName: 'Kansas-Barranquilla',
+    toName: 'Artículo Kevin Cerra',
+    sharedSummary: ['palabras compartidas: caribe'],
+    documentEvidence: 'Comparten un marco conceptual explícito: caribe.',
+    docSignals: {
+      citations: [],
+      theoryTerms: ['caribe'],
+      dataTerms: [],
+      provenanceTerms: [],
+      headings: [],
+      quotedPhrases: [],
+      keyPhrases: [],
+    },
+  });
+
+  assert.match(strong, /se apoya|se basa/i);
+  assert.match(exploratory, /todavia|todavía|aun|aún|por ahora/i);
+  assert.doesNotMatch(exploratory, /Cruce provisional|se entiende mejor por las señales/i);
 });

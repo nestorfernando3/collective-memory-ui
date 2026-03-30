@@ -170,6 +170,9 @@ const EXISTING_REPORT_THRESHOLD = 20;
 const EXISTING_REFRESH_THRESHOLD = 10;
 const NEW_CONNECTION_THRESHOLD = 35;
 const REFRESH_SCORE_THRESHOLD = 35;
+const STRONG_CONNECTION_THRESHOLD = 30;
+const EXPLORATORY_CONNECTION_THRESHOLD = 18;
+const COVERAGE_FLOOR_THRESHOLD = 26;
 
 function parseArgs(argv) {
   const args = {
@@ -548,7 +551,8 @@ function isNoisyNarrativeSnippet(value) {
     text.includes('base teorica inyectada') ||
     text.includes('archivo vivo de trabajo') ||
     text.includes('este perfil se entiende') ||
-    text.includes('collective memory pwa') ||
+    text === 'collective memory pwa' ||
+    text.includes('collective memory pwa:') ||
     text.includes('perfil unificado') ||
     text.includes('title:') ||
     text.includes('[bug]') ||
@@ -597,7 +601,7 @@ function cleanNarrativeSnippet(value) {
     .replace(/\s+En los textos aparecen[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Este perfil se entiende[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Archivo vivo de trabajo[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
-    .replace(/\s+Collective Memory PWA[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
+    .replace(/(?:^|[.?!]\s+)Collective Memory PWA:\s*[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+Perfil unificado[\s\S]*?(?=\s+Si hay citas|\s+La lectura sugerida|$)/gi, '. ')
     .replace(/\s+La lectura sugerida va de[\s\S]*$/gi, '.')
     .replace(/\s+porque el vínculo parece acumulativo y no accidental\.?/gi, '.')
@@ -664,6 +668,151 @@ function hasStrongDocumentEvidence(docSignals = {}, docHighlights = []) {
       headings.length >= 2 ||
       substantiveHighlights.length >= 2
   );
+}
+
+function buildEvidenceBreakdown(candidate = {}) {
+  const signals = Array.isArray(candidate.signals) ? candidate.signals : [];
+
+  return signals.reduce((acc, signal) => {
+    const weight = Number(signal?.weight || 0);
+    const field = String(signal?.field || '');
+
+    if (field.startsWith('document_')) {
+      acc.documents += weight;
+    } else if (field === 'semantic_bridge') {
+      acc.semanticBridge += weight;
+    } else if (field === 'explicit_relation') {
+      acc.explicitRelation += weight;
+    } else {
+      acc.metadata += weight;
+    }
+
+    return acc;
+  }, {
+    metadata: 0,
+    documents: 0,
+    semanticBridge: 0,
+    explicitRelation: 0,
+    total: Number(Number(candidate.score || 0).toFixed(2)),
+  });
+}
+
+function hasMetadataAnchor(candidate = {}) {
+  const shared = candidate.shared || {};
+  const meaningfulTokens = filterMeaningfulSharedTokens(candidate.sharedMetadataTokens || []);
+
+  if (meaningfulTokens.length) return true;
+
+  return ['domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators', 'outputs']
+    .some(field => {
+      const values = Array.isArray(shared[field]) ? shared[field] : [];
+      return values.some(isSubstantiveSharedValue);
+    });
+}
+
+function hasDocumentAnchor(candidate = {}, level = 'light') {
+  const docSignals = candidate.sharedDocSignals || {};
+  const docHighlights = Array.isArray(candidate.docHighlights) ? candidate.docHighlights : [];
+
+  if (level === 'strong') {
+    return hasStrongDocumentEvidence(docSignals, docHighlights);
+  }
+
+  return Boolean(
+    hasStrongDocumentEvidence(docSignals, docHighlights) ||
+      (Array.isArray(docSignals.theoryTerms) && docSignals.theoryTerms.length) ||
+      (Array.isArray(docSignals.keyPhrases) && filterEvidenceTerms(docSignals.keyPhrases).length >= 2)
+  );
+}
+
+function hasSemanticAnchor(candidate = {}) {
+  const breakdown = buildEvidenceBreakdown(candidate);
+  return breakdown.semanticBridge >= 4 || breakdown.explicitRelation >= 10;
+}
+
+function classifyConnectionTier(candidate = {}) {
+  const breakdown = buildEvidenceBreakdown(candidate);
+  const score = Number(candidate.score || 0);
+  const metadataAnchor = hasMetadataAnchor(candidate);
+  const semanticAnchor = hasSemanticAnchor(candidate);
+  const documentAnchor = hasDocumentAnchor(candidate, 'light');
+  const strongDocumentAnchor = hasDocumentAnchor(candidate, 'strong');
+
+  if (!hasSufficientConnectionEvidence(candidate)) return 'discarded';
+
+  if (
+    score >= STRONG_CONNECTION_THRESHOLD &&
+    strongDocumentAnchor &&
+    (metadataAnchor || semanticAnchor)
+  ) {
+    return 'strong';
+  }
+
+  if (
+    score >= 24 &&
+    metadataAnchor &&
+    (documentAnchor || semanticAnchor)
+  ) {
+    return 'exploratory';
+  }
+
+  if (
+    score >= EXPLORATORY_CONNECTION_THRESHOLD &&
+    (documentAnchor || metadataAnchor || semanticAnchor)
+  ) {
+    return 'exploratory';
+  }
+
+  if (
+    breakdown.explicitRelation >= 10 &&
+    score >= EXPLORATORY_CONNECTION_THRESHOLD &&
+    (metadataAnchor || documentAnchor)
+  ) {
+    return 'exploratory';
+  }
+
+  return 'discarded';
+}
+
+function applyVisibilityPolicy(candidates = [], projectIds = []) {
+  const selected = (Array.isArray(candidates) ? candidates : []).map(candidate => ({
+    ...candidate,
+    visibility: candidate.tier === 'strong' ? 'default' : 'optional',
+    selectionReason: candidate.tier === 'strong' ? 'strong-evidence' : 'exploratory',
+  }));
+
+  const visibleCount = new Map((Array.isArray(projectIds) ? projectIds : []).map(projectId => [projectId, 0]));
+  selected.forEach(candidate => {
+    if (candidate.visibility !== 'default') return;
+    visibleCount.set(candidate.from, (visibleCount.get(candidate.from) || 0) + 1);
+    visibleCount.set(candidate.to, (visibleCount.get(candidate.to) || 0) + 1);
+  });
+
+  for (const projectId of projectIds) {
+    if ((visibleCount.get(projectId) || 0) > 0) continue;
+
+    const rescue = selected
+      .filter(candidate => candidate.tier === 'exploratory')
+      .filter(candidate => candidate.score >= COVERAGE_FLOOR_THRESHOLD)
+      .filter(candidate => candidate.from === projectId || candidate.to === projectId)
+      .sort((left, right) => {
+        if (right.score !== left.score) return right.score - left.score;
+        const rightBreakdown = buildEvidenceBreakdown(right);
+        const leftBreakdown = buildEvidenceBreakdown(left);
+        if (rightBreakdown.documents !== leftBreakdown.documents) return rightBreakdown.documents - leftBreakdown.documents;
+        if (rightBreakdown.metadata !== leftBreakdown.metadata) return rightBreakdown.metadata - leftBreakdown.metadata;
+        return String(left.pairKey || '').localeCompare(String(right.pairKey || ''));
+      })[0];
+
+    if (!rescue) continue;
+
+    rescue.visibility = 'default';
+    rescue.selectionReason = 'coverage-floor';
+    visibleCount.set(rescue.from, (visibleCount.get(rescue.from) || 0) + 1);
+    visibleCount.set(rescue.to, (visibleCount.get(rescue.to) || 0) + 1);
+  }
+
+  return selected;
 }
 
 function buildDocumentEvidenceSentence(docSignals = {}, docHighlights = []) {
@@ -754,6 +903,9 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
 
   return {
     candidate,
+    tier: candidate.tier || classifyConnectionTier(candidate),
+    visibility: candidate.visibility || 'optional',
+    selectionReason: candidate.selectionReason || 'exploratory',
     fromId,
     toId,
     fromName: fromProject.name || fromProject.id,
@@ -774,12 +926,20 @@ function buildLocalDescription(context) {
   const clauses = [];
   const hasStrongSharedSignals = context.sharedSummary.some(isSubstantiveSharedSummaryEntry);
   const hasDocumentSignals = Boolean(context.documentEvidence);
+  const sharedLead = context.sharedSummary.slice(0, 2).join('; ');
+  const tier = context.tier || 'exploratory';
 
-  const lead = hasStrongSharedSignals
-    ? `La relación entre ${context.fromName} y ${context.toName} se apoya en ${context.sharedSummary.slice(0, 2).join('; ')}.`
-    : hasDocumentSignals
-      ? `La relación entre ${context.fromName} y ${context.toName} tiene evidencia documental, pero todavía no una base compartida clara.`
-      : `No hay base suficiente para destacar una relación sólida entre ${context.fromName} y ${context.toName}.`;
+  const lead = tier === 'strong'
+    ? hasStrongSharedSignals
+      ? `La relación entre ${context.fromName} y ${context.toName} se apoya en ${sharedLead}.`
+      : hasDocumentSignals
+        ? `La relación entre ${context.fromName} y ${context.toName} se basa en evidencia documental concreta.`
+        : `La relación entre ${context.fromName} y ${context.toName} tiene suficiente apoyo para entrar en la capa principal del grafo.`
+    : hasStrongSharedSignals
+      ? `La relación entre ${context.fromName} y ${context.toName} todavía es tentativa, pero ya muestra señales útiles: ${sharedLead}.`
+      : hasDocumentSignals
+        ? `La relación entre ${context.fromName} y ${context.toName} tiene evidencia documental, pero todavía no una base compartida clara.`
+        : `Por ahora no hay base suficiente para consolidar la relación entre ${context.fromName} y ${context.toName}.`;
   clauses.push(lead);
 
   if (context.documentEvidence) {
@@ -865,6 +1025,8 @@ function buildLLMPrompt(context) {
     'Cuando haga falta, traduce las señales a expresiones humanas como "marcos conceptuales", "tecnologías compartidas" o "evidencia documental".',
     `Proyecto origen: ${context.fromName} (${context.fromId})`,
     `Proyecto destino: ${context.toName} (${context.toId})`,
+    `Tier sugerido: ${context.tier || 'exploratory'}`,
+    `Visibilidad sugerida: ${context.visibility || 'optional'}`,
     `Tipo sugerido: ${context.type}`,
     `Fuerza sugerida: ${context.strength}`,
     `Evidencia compartida: ${context.sharedSummary.length ? context.sharedSummary.join(' | ') : 'sin metadatos compartidos fuertes'}`,
@@ -1711,55 +1873,55 @@ function shouldRefreshConnection(connection, candidate) {
 }
 
 async function applyCandidates(connectionsData, candidates, profilesById, options = {}, narrativeCache = new Map()) {
-  const existingKeys = existingConnectionKeys(connectionsData);
-  const existing = Array.isArray(connectionsData.connections) ? connectionsData.connections.slice() : [];
-  const byKey = new Map();
-  existing.forEach(connection => {
+  const allConnections = Array.isArray(connectionsData.connections) ? connectionsData.connections.slice() : [];
+  const preservedConnections = [];
+  const generatedConnections = [];
+  const generatedByKey = new Map();
+  const preservedPairKeys = new Set();
+
+  allConnections.forEach(connection => {
     const from = String(connection.from || connection.source || '').trim();
     const to = String(connection.to || connection.target || '').trim();
-    if (from && to) {
-      byKey.set(canonicalPairKey(from, to), connection);
+    if (!from || !to) return;
+    const pairKey = canonicalPairKey(from, to);
+    if (String(connection.source || '').trim().toLowerCase() === 'research-sync') {
+      generatedConnections.push(connection);
+      generatedByKey.set(pairKey, connection);
+      return;
     }
+    preservedConnections.push(connection);
+    preservedPairKeys.add(pairKey);
   });
+
+  const selectedCandidates = applyVisibilityPolicy(
+    (Array.isArray(candidates) ? candidates : [])
+      .map(candidate => ({
+        ...candidate,
+        tier: candidate.tier || classifyConnectionTier(candidate),
+      }))
+      .filter(candidate => candidate.tier !== 'discarded'),
+    Array.from(profilesById.keys()),
+  );
+
   let added = 0;
   let updated = 0;
+  let removed = 0;
+  const nextGenerated = [];
+  const seenGeneratedPairs = new Set();
 
-  for (const candidate of candidates) {
-    if (candidate.alreadyConnected) {
-      if (candidate.score < EXISTING_REFRESH_THRESHOLD) continue;
-    } else if (candidate.score < NEW_CONNECTION_THRESHOLD) {
+  for (const candidate of selectedCandidates) {
+    if (preservedPairKeys.has(candidate.pairKey)) {
       continue;
     }
+
     const [fromId, toId] = inferDirection(candidate, profilesById);
     const pairKey = canonicalPairKey(fromId, toId);
+    if (seenGeneratedPairs.has(pairKey)) continue;
+    seenGeneratedPairs.add(pairKey);
     const narrative = await resolveConnectionNarrative(candidate, fromId, toId, profilesById, options, narrativeCache);
-    if (existingKeys.has(pairKey)) {
-      const current = byKey.get(pairKey);
-      if (current && shouldRefreshConnection(current, candidate)) {
-        current.from = current.from || fromId;
-        current.to = current.to || toId;
-        current.type = narrative.type;
-        current.strength = narrative.strength;
-        current.description = narrative.description;
-        current.description_mode = narrative.descriptionMode;
-        current.source = current.source || 'research-sync';
-        current.evidence = {
-          ...(current.evidence || {}),
-          score: Number(candidate.score.toFixed(2)),
-          shared_fields: candidate.shared,
-          shared_metadata_tokens: candidate.sharedMetadataTokens.slice(0, 20),
-          shared_document_tokens: candidate.sharedDocTokens.slice(0, 20),
-          shared_document_signals: candidate.sharedDocSignals,
-          document_files: narrative.docFiles,
-          document_highlights: narrative.docHighlights,
-        };
-        updated += 1;
-      }
-      continue;
-    }
-
     const type = inferType(candidate);
     const strength = inferStrength(candidate.score);
+    const current = generatedByKey.get(pairKey);
     const connection = {
       from: fromId,
       to: toId,
@@ -1768,8 +1930,12 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       description: narrative.description,
       description_mode: narrative.descriptionMode,
       source: 'research-sync',
+      tier: candidate.tier,
+      visibility: candidate.visibility,
+      selection_reason: candidate.selectionReason,
       evidence: {
         score: Number(candidate.score.toFixed(2)),
+        breakdown: buildEvidenceBreakdown(candidate),
         shared_fields: candidate.shared,
         shared_metadata_tokens: candidate.sharedMetadataTokens.slice(0, 20),
         shared_document_tokens: candidate.sharedDocTokens.slice(0, 20),
@@ -1779,21 +1945,26 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       },
     };
 
-    existing.push(connection);
-    existingKeys.add(pairKey);
-    added += 1;
+    if (current) {
+      updated += 1;
+    } else {
+      added += 1;
+    }
+
+    nextGenerated.push(connection);
   }
 
+  removed = Math.max(0, generatedConnections.length - nextGenerated.length);
   const nextConnections = {
     ...connectionsData,
-    connections: existing.sort((a, b) => {
+    connections: [...preservedConnections, ...nextGenerated].sort((a, b) => {
       const aKey = canonicalPairKey(String(a.from || a.source || ''), String(a.to || a.target || ''));
       const bKey = canonicalPairKey(String(b.from || b.source || ''), String(b.to || b.target || ''));
       return aKey.localeCompare(bKey);
     }),
   };
 
-  return { nextConnections, added, updated };
+  return { nextConnections, added, updated, removed };
 }
 
 async function main() {
@@ -1821,11 +1992,13 @@ async function main() {
   const existingCandidates = [];
   const refreshableExistingCandidates = [];
   const newCandidates = [];
+  const allCandidates = [];
   const seenCandidateKeys = new Set();
 
   const addCandidate = candidate => {
     if (!candidate || seenCandidateKeys.has(candidate.pairKey)) return;
     seenCandidateKeys.add(candidate.pairKey);
+    allCandidates.push(candidate);
     if (candidate.alreadyConnected) {
       if (candidate.score >= EXISTING_REPORT_THRESHOLD) existingCandidates.push(candidate);
       if (candidate.score >= EXISTING_REFRESH_THRESHOLD) refreshableExistingCandidates.push(candidate);
@@ -1877,7 +2050,7 @@ async function main() {
   }
 
   if (args.apply) {
-    const { nextConnections, added, updated } = await applyCandidates(connectionsData, [...refreshableExistingCandidates, ...newCandidates], profilesById, {
+    const { nextConnections, added, updated, removed } = await applyCandidates(connectionsData, allCandidates, profilesById, {
       llm: args.llm,
       llmModel: args.llmModel,
     }, narrativeCache);
@@ -1889,7 +2062,8 @@ async function main() {
       }
     }
     const updatedMessage = updated > 0 ? `, refreshed ${updated} existing connection${updated === 1 ? '' : 's'}` : '';
-    console.log(`Applied ${added} new connection${added === 1 ? '' : 's'}${updatedMessage}.\n`);
+    const removedMessage = removed > 0 ? `, removed ${removed} outdated connection${removed === 1 ? '' : 's'}` : '';
+    console.log(`Applied ${added} new connection${added === 1 ? '' : 's'}${updatedMessage}${removedMessage}.\n`);
   }
 
   const renderedReport = await report;
@@ -1905,9 +2079,12 @@ if (require.main === module) {
 
 module.exports = {
   buildConnectionContext,
+  buildEvidenceBreakdown,
   buildDocumentEvidenceSentence,
   buildLocalDescription,
   buildLLMPrompt,
+  classifyConnectionTier,
+  applyVisibilityPolicy,
   buildProjectProfile,
   buildReport,
   canonicalPairKey,
@@ -1926,6 +2103,7 @@ module.exports = {
   hasSufficientConnectionEvidence,
   resolveConnectionNarrative,
   scorePair,
+  sanitizeConnectionDescription,
   sharedSignalDetails,
   isFallbackDescription,
   isNoisyConnectionDescription,

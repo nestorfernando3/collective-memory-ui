@@ -3,7 +3,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const Module = require('module');
+const { execFileSync } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const MEMORY_ROOT = path.join(REPO_ROOT, 'collective-memory');
@@ -318,17 +318,14 @@ function buildReadme(profile, projects, connections, outputRoot) {
 }
 
 function runResearchSync() {
-  const code = fs.readFileSync(RESEARCH_SYNC_PATH, 'utf8');
-  const previousArgv = process.argv.slice();
-  try {
-    process.argv = [process.execPath, RESEARCH_SYNC_PATH, '--apply'];
-    const researchModule = new Module(RESEARCH_SYNC_PATH, module.parent);
-    researchModule.filename = RESEARCH_SYNC_PATH;
-    researchModule.paths = Module._nodeModulePaths(path.dirname(RESEARCH_SYNC_PATH));
-    researchModule._compile(code, RESEARCH_SYNC_PATH);
-  } finally {
-    process.argv = previousArgv;
-  }
+  execFileSync(process.execPath, [RESEARCH_SYNC_PATH, '--apply', '--no-llm'], {
+    cwd: REPO_ROOT,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      OPENAI_API_KEY: '',
+    },
+  });
 }
 
 function writeSnapshot(outputRoot, config, profile, profileMarkdown, readme, projects, connections, clean) {
