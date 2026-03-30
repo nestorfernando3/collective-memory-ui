@@ -1,0 +1,28 @@
+{
+  "id": "atlas-caribe",
+  "name": "Atlas Caribe",
+  "type": "Writing",
+  "status": "Active",
+  "path": "~/demo/atlas-caribe",
+  "description": "Proyecto creativo sobre memoria oral, territorio y escritura literaria.",
+  "abstract": "Une observacion, relato y archivo afectivo para abrir cruces entre literatura y lugar.",
+  "tags": [
+    "creative",
+    "writing",
+    "art",
+    "literatura",
+    "caribe",
+    "memoria oral"
+  ],
+  "domains": [
+    "Writing",
+    "Creative Work"
+  ],
+  "themes": [
+    "Storytelling",
+    "Oral Memory"
+  ],
+  "technologies": [
+    "Markdown"
+  ]
+}
