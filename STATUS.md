@@ -58,6 +58,7 @@ We have successfully pivoted the project from a hardcoded personal portfolio int
 ## ✅ Recent UI/Skill Additions
 - Added richer project registration guidance so terse cards can be rebuilt from README/docs/source evidence.
 - Added a central persona drawer in the UI that synthesizes biography, project routes, and expansion ideas from the memory graph.
+- Added a systemwide skill update so connection narratives strip raw path fragments and keep the prose focused on semantic links.
 - Added persistent project exclusion/restoration so users can trim the visible selection without deleting data.
 - Added a Playwright browser smoke that checks onboarding, profile drawer, project drawer, and exclusion flow.
 - Added an English/Spanish language toggle to the UI and normalized the published docs to English.
