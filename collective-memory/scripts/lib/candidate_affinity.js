@@ -2,13 +2,34 @@ function uniq(values) {
   return [...new Set((values || []).filter(Boolean))];
 }
 
+function normalizeToken(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function extractNormalizedValue(value) {
+  if (typeof value === 'string') {
+    return normalizeToken(value);
+  }
+
+  if (value && typeof value === 'object') {
+    return normalizeToken(value.name || value.label || value.value || value.id || '');
+  }
+
+  return '';
+}
+
 function toList(value) {
   if (Array.isArray(value)) {
-    return uniq(value);
+    return uniq(value.map(extractNormalizedValue).filter(Boolean));
   }
 
   if (typeof value === 'string') {
-    return uniq(value.split(/[,;|]/).map((item) => item.trim()).filter(Boolean));
+    return uniq(value.split(/[,;|]/).map((item) => normalizeToken(item)).filter(Boolean));
+  }
+
+  if (value && typeof value === 'object') {
+    const extracted = extractNormalizedValue(value);
+    return extracted ? [extracted] : [];
   }
 
   return [];

@@ -8,38 +8,45 @@ function isEvidenceTier(tier) {
 }
 
 function collectDocuments(profile = {}) {
-  return Array.isArray(profile.documents) ? profile.documents.filter((doc) => doc && isEvidenceTier(doc.tier)) : [];
+  return Array.isArray(profile.documents)
+    ? profile.documents.filter((doc) => doc && isEvidenceTier(doc.tier) && typeof doc.text === 'string')
+    : [];
 }
 
-function extractFragment(documents) {
-  const fragments = documents.map((doc) => ({
+function extractFragments(documents) {
+  return documents.map((doc) => ({
     tier: normalizeTier(doc.tier),
-    text: String(doc.text || '').trim(),
+    text: doc.text.trim(),
   })).filter((doc) => doc.text);
+}
 
-  if (!fragments.length) {
-    return null;
-  }
+function scoreFragments(fragments) {
+  return fragments.reduce((total, fragment) => {
+    if (fragment.tier === 'A') {
+      return total + 24;
+    }
 
-  const tiers = [...new Set(fragments.map((fragment) => fragment.tier))];
-  return {
-    tier: tiers.includes('A') ? 'A' : 'B',
-    text: fragments.map((fragment) => fragment.text).join(' '),
-  };
+    if (fragment.tier === 'B') {
+      return total + 12;
+    }
+
+    return total;
+  }, 0);
 }
 
 function buildEvidenceAssessment(leftProfile = {}, rightProfile = {}) {
   const evidenceDocuments = [...collectDocuments(leftProfile), ...collectDocuments(rightProfile)];
-  const fragment = extractFragment(evidenceDocuments);
-  const fragments = fragment ? [fragment] : [];
-  const evidenceScore = fragment ? (fragment.tier === 'A' ? 48 : 24) : 0;
+  const fragments = extractFragments(evidenceDocuments);
+  const evidenceScore = scoreFragments(fragments);
+  const documentsA = fragments.filter((fragment) => fragment.tier === 'A').length;
+  const documentsB = fragments.filter((fragment) => fragment.tier === 'B').length;
 
   return {
     evidenceScore,
     fragments,
     breakdown: {
-      documentsA: fragment && fragment.tier === 'A' ? 48 : 0,
-      documentsB: fragment && fragment.tier === 'B' ? 24 : 0,
+      documentsA,
+      documentsB,
       documentsTechnical: 0,
     },
   };

@@ -22,3 +22,29 @@ test('buildAffinityCandidate scores shared explicit and inferred metadata', () =
   assert.deepEqual(candidate.shared.institutions, ['politecnico']);
   assert.deepEqual(candidate.shared.inferred_domains, ['semiotica']);
 });
+
+test('buildAffinityCandidate normalizes string and object metadata before intersection', () => {
+  const candidate = buildAffinityCandidate(
+    {
+      projectId: 'alpha',
+      metadata: {
+        domains: [' Educacion ', { label: 'Semiotica' }],
+        institutions: [{ name: 'Politecnico' }],
+      },
+      inferred: { domains: [' culture '] },
+    },
+    {
+      projectId: 'beta',
+      metadata: {
+        domains: 'educacion|semiotica',
+        institutions: [{ label: 'politecnico' }],
+      },
+      inferred: { domains: [{ name: 'Culture' }] },
+    },
+  );
+
+  assert.deepEqual(candidate.shared.domains, ['educacion', 'semiotica']);
+  assert.deepEqual(candidate.shared.institutions, ['politecnico']);
+  assert.deepEqual(candidate.shared.inferred_domains, ['culture']);
+  assert.ok(candidate.affinityScore >= 66);
+});

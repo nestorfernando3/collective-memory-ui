@@ -10,7 +10,34 @@ test('buildEvidenceAssessment ignores D/X docs and scores A/B fragments', () => 
   );
 
   assert.ok(evidence.evidenceScore >= 40);
-  assert.equal(evidence.fragments.length, 1);
+  assert.equal(evidence.fragments.length, 2);
   assert.equal(evidence.breakdown.documentsTechnical, 0);
   assert.equal(evidence.fragments.some((fragment) => fragment.tier === 'D' || fragment.tier === 'X'), false);
+  assert.equal(evidence.breakdown.documentsA, 2);
+  assert.equal(evidence.breakdown.documentsB, 0);
+});
+
+test('buildEvidenceAssessment preserves mixed A/B provenance and rejects invalid text', () => {
+  const evidence = buildEvidenceAssessment(
+    { documents: [{ tier: 'A', text: 'Alpha evidence.' }, { tier: 'B', text: { bad: true } }] },
+    { documents: [{ tier: 'B', text: 'Beta evidence.' }] },
+  );
+
+  assert.equal(evidence.fragments.length, 2);
+  assert.deepEqual(evidence.fragments.map((fragment) => fragment.tier), ['A', 'B']);
+  assert.equal(evidence.breakdown.documentsA, 1);
+  assert.equal(evidence.breakdown.documentsB, 1);
+  assert.equal(evidence.evidenceScore, 36);
+});
+
+test('buildEvidenceAssessment ignores invalid non-string document text', () => {
+  const evidence = buildEvidenceAssessment(
+    { documents: [{ tier: 'A', text: { bad: true } }] },
+    { documents: [{ tier: 'B', text: null }] },
+  );
+
+  assert.equal(evidence.fragments.length, 0);
+  assert.equal(evidence.evidenceScore, 0);
+  assert.equal(evidence.breakdown.documentsA, 0);
+  assert.equal(evidence.breakdown.documentsB, 0);
 });
