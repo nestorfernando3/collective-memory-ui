@@ -6,6 +6,7 @@ import {
   translateAffiliationRole,
 } from './i18n.js';
 import { sanitizeConnectionDescription } from './connectionText.js';
+import { buildConnectionNarrative } from '../../collective-memory/scripts/lib/connection_narrative.js';
 
 const EDUCATION_PATTERNS = [
   'educacion',
@@ -267,6 +268,20 @@ function normalizeConnectionVisibility(value) {
   return visibility === 'optional' ? 'optional' : 'default';
 }
 
+function normalizeSelectionReason(value) {
+  const selectionReason = normalizeText(value).trim();
+  if (selectionReason === 'coverage-floor' || selectionReason === 'coverage floor' || selectionReason === 'coveragefloor') {
+    return 'coverage-floor';
+  }
+  if (selectionReason === 'strong-evidence' || selectionReason === 'strong evidence' || selectionReason === 'strong') {
+    return 'strong-evidence';
+  }
+  if (selectionReason === 'exploratory' || selectionReason === 'exploration') {
+    return 'exploratory';
+  }
+  return selectionReason;
+}
+
 function buildConnectionMap(connections, projectById, locale) {
   const spanish = isSpanish(locale);
   return (Array.isArray(connections) ? connections : []).reduce((acc, connection) => {
@@ -283,7 +298,15 @@ function buildConnectionMap(connections, projectById, locale) {
       description: sanitizeConnectionDescription(connection?.description),
       tier: normalizeConnectionTier(connection?.tier),
       visibility: normalizeConnectionVisibility(connection?.visibility),
-      selectionReason: String(connection?.selection_reason || connection?.selectionReason || '').trim(),
+      selectionReason:
+        normalizeSelectionReason(
+          connection?.selection_reason ||
+            connection?.selectionReason ||
+            connection?.decision?.selection_reason ||
+            connection?.decision?.selectionReason ||
+            '',
+        ) || (connection?.decision?.coverage_promoted ? 'coverage-floor' : ''),
+      decision: connection?.decision && typeof connection.decision === 'object' ? connection.decision : {},
     });
     return acc;
   }, []);
@@ -442,15 +465,26 @@ function buildExpansionIdeas(projects, activeConnections, locale) {
 function summarizeConnection(connection, projectById, locale) {
   const fromProject = projectById.get(connection.from);
   const toProject = projectById.get(connection.to);
+  const selectionReason = connection.selectionReason || (connection.tier === 'exploratory' ? 'exploratory' : 'strong-evidence');
+  const narrative = buildConnectionNarrative({
+    fromName: projectLabel(fromProject, locale),
+    toName: projectLabel(toProject, locale),
+    tier: connection.tier,
+    selectionReason,
+    sharedSummary: connection.decision?.shared_summary || [],
+    evidenceFragments: connection.decision?.evidence_fragments || [],
+    locale,
+  });
   return {
     from: connection.from,
     to: connection.to,
     label: `${projectLabel(fromProject, locale)} → ${projectLabel(toProject, locale)}`,
     type: connection.type,
-    description: connection.description,
+    description: connection.description || narrative.description,
     tier: connection.tier,
     visibility: connection.visibility,
-    selectionReason: connection.selectionReason,
+    selectionReason,
+    decision: connection.decision || {},
   };
 }
 
@@ -491,6 +525,12 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
   const allConnections = buildConnectionMap(connections.connections || [], projectById, normalizedLocale);
   const activeConnections = allConnections.filter((connection) => connection.visibility === 'default');
   const strongConnectionCount = activeConnections.filter((connection) => connection.tier === 'strong').length;
+  const coverageFloorConnectionCount = activeConnections.filter(
+    (connection) => connection.tier === 'exploratory' && connection.selectionReason === 'coverage-floor',
+  ).length;
+  const reserveExploratoryConnectionCount = allConnections.filter(
+    (connection) => connection.tier === 'exploratory' && connection.visibility === 'optional',
+  ).length;
   const exploratoryConnectionCount = allConnections.filter((connection) => connection.tier === 'exploratory').length;
   const routes = buildRoutes(visibleProjects, normalizedLocale);
   const expansionIdeas = buildExpansionIdeas(visibleProjects, activeConnections, normalizedLocale);
@@ -509,6 +549,11 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
     stats: {
       projectCount: visibleProjects.length,
       connectionCount: activeConnections.length,
+      activeConnectionCount: activeConnections.length,
+      reserveConnectionCount: reserveExploratoryConnectionCount,
+      strongConnectionCount,
+      coverageFloorConnectionCount,
+      exploratoryConnectionCount,
       hiddenCount: normalizeHiddenCount(hiddenProjectIds),
     },
     sections: [
@@ -519,8 +564,20 @@ export function buildProfileNarrative({ profile = {}, projects = [], connections
             ? `Enfoque central: ${summarizePractice(visibleProjects, normalizedLocale)}`
             : `Core focus: ${summarizePractice(visibleProjects, normalizedLocale)}`,
           spanish
-            ? `${strongConnectionCount} puente${strongConnectionCount === 1 ? '' : 's'} fuerte${strongConnectionCount === 1 ? '' : 's'} visible${strongConnectionCount === 1 ? '' : 's'} y ${exploratoryConnectionCount} exploratorio${exploratoryConnectionCount === 1 ? '' : 's'} en reserva.`
-            : `${strongConnectionCount} visible strong bridge${strongConnectionCount === 1 ? '' : 's'} and ${exploratoryConnectionCount} exploratory bridge${exploratoryConnectionCount === 1 ? '' : 's'} in reserve.`,
+            ? [
+                `${strongConnectionCount} puente${strongConnectionCount === 1 ? '' : 's'} fuerte${strongConnectionCount === 1 ? '' : 's'} visible${strongConnectionCount === 1 ? '' : 's'}.`,
+                coverageFloorConnectionCount
+                  ? `${coverageFloorConnectionCount} puente${coverageFloorConnectionCount === 1 ? '' : 's'} exploratorio${coverageFloorConnectionCount === 1 ? '' : 's'} promovido${coverageFloorConnectionCount === 1 ? '' : 's'} por cobertura.`
+                  : null,
+                `${reserveExploratoryConnectionCount} puente${reserveExploratoryConnectionCount === 1 ? '' : 's'} exploratorio${reserveExploratoryConnectionCount === 1 ? '' : 's'} en reserva.`,
+              ].filter(Boolean).join(' ')
+            : [
+                `${strongConnectionCount} visible strong bridge${strongConnectionCount === 1 ? '' : 's'}.`,
+                coverageFloorConnectionCount
+                  ? `${coverageFloorConnectionCount} coverage-floor promoted exploratory bridge${coverageFloorConnectionCount === 1 ? '' : 's'}.`
+                  : null,
+                `${reserveExploratoryConnectionCount} exploratory bridge${reserveExploratoryConnectionCount === 1 ? '' : 's'} in reserve.`,
+              ].filter(Boolean).join(' '),
           profile?.affiliations?.length
             ? spanish
               ? `Afiliaciones activas: ${joinList(profile.affiliations.filter((item) => item?.current).map((item) => `${item.role} en ${item.institution}`), normalizedLocale)}`

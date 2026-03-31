@@ -159,3 +159,27 @@ test('buildProjectConnectionInsights can include optional exploratory links on d
   assert.equal(insights[1].tier, 'exploratory');
   assert.equal(insights[1].visibility, 'optional');
 });
+
+test('buildProjectConnectionInsights surfaces coverage-floor decision metadata', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'default',
+        selection_reason: 'coverage-floor',
+        decision: { coverage_promoted: true, affinity_score: 66, evidence_score: 22 },
+      },
+    ],
+    locale: 'es',
+    visibilityMode: 'all',
+  });
+
+  assert.equal(insights[0].selectionReason, 'coverage-floor');
+  assert.equal(insights[0].decision.coverage_promoted, true);
+  assert.equal(insights[0].raw.decision.coverage_promoted, true);
+  assert.match(insights[0].description, /cobertura|aislamiento/i);
+});

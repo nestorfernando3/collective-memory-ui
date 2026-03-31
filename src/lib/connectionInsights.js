@@ -1,6 +1,7 @@
 import { resolveConnectionEndpointIds } from './graphConnections.js';
 import { normalizeLocale } from './i18n.js';
 import { isWeakGenericDescription, sanitizeConnectionDescription } from './connectionText.js';
+import { buildConnectionNarrative } from '../../collective-memory/scripts/lib/connection_narrative.js';
 
 function normalizeText(value) {
   return String(value || '')
@@ -59,6 +60,41 @@ function normalizeVisibility(value) {
   return visibility === 'optional' ? 'optional' : 'default';
 }
 
+function normalizeSelectionReason(value) {
+  const selectionReason = normalizeText(value);
+  if (selectionReason === 'coverage-floor' || selectionReason === 'coverage floor' || selectionReason === 'coveragefloor') {
+    return 'coverage-floor';
+  }
+  if (selectionReason === 'strong-evidence' || selectionReason === 'strong evidence' || selectionReason === 'strong') {
+    return 'strong-evidence';
+  }
+  if (selectionReason === 'exploratory' || selectionReason === 'exploration') {
+    return 'exploratory';
+  }
+  return selectionReason;
+}
+
+function normalizeDecision(connection, selectionReason, tier, evidenceScore) {
+  const decision = connection?.decision && typeof connection.decision === 'object' ? connection.decision : {};
+  const affinityScore = Number.isFinite(Number(decision.affinity_score))
+    ? Number(decision.affinity_score)
+    : Number.isFinite(Number(connection?.affinityScore))
+      ? Number(connection.affinityScore)
+      : null;
+  const normalizedEvidenceScore = Number.isFinite(Number(decision.evidence_score))
+    ? Number(decision.evidence_score)
+    : Number.isFinite(evidenceScore)
+      ? evidenceScore
+      : null;
+
+  return {
+    affinity_score: affinityScore,
+    evidence_score: normalizedEvidenceScore,
+    coverage_promoted: Boolean(decision.coverage_promoted || selectionReason === 'coverage-floor'),
+    review_flag: Boolean(decision.review_flag || tier === 'review'),
+  };
+}
+
 function buildFallbackDescription(connection, locale) {
   const normalizedLocale = normalizeLocale(locale);
   const tier = normalizeTier(connection?.tier);
@@ -82,7 +118,26 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
   const description = sanitizeConnectionDescription(connection?.description);
   const tier = normalizeTier(connection?.tier);
   const visibility = normalizeVisibility(connection?.visibility);
-  const selectionReason = String(connection?.selection_reason || connection?.selectionReason || '').trim() || (tier === 'strong' ? 'strong-evidence' : 'exploratory');
+  const rawSelectionReason = normalizeSelectionReason(
+    connection?.selection_reason ||
+      connection?.selectionReason ||
+      connection?.decision?.selection_reason ||
+      connection?.decision?.selectionReason ||
+      '',
+  );
+  const selectionReason =
+    rawSelectionReason || (connection?.decision?.coverage_promoted ? 'coverage-floor' : tier === 'strong' ? 'strong-evidence' : 'exploratory');
+  const decision = normalizeDecision(connection, selectionReason, tier, evidenceScore);
+  const fallbackNarrative = buildConnectionNarrative({
+    fromName: sourceLabel,
+    toName: targetLabel,
+    tier,
+    selectionReason,
+    sharedSummary: connection?.decision?.shared_summary || connection?.sharedSummary || [],
+    evidenceFragments: connection?.decision?.evidence_fragments || [],
+    locale: normalizedLocale,
+  });
+  const shouldUseNarrative = !description || isWeakGenericDescription(description);
 
   return {
     id: connection?.id || `${source}::${target}::${fallbackId}`,
@@ -101,7 +156,12 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
     tier,
     visibility,
     selectionReason,
-    description: isWeakGenericDescription(description) ? buildFallbackDescription(connection, normalizedLocale) : description,
+    decision,
+    description: shouldUseNarrative
+      ? (selectionReason === 'coverage-floor' || tier === 'exploratory'
+        ? fallbackNarrative.description
+        : buildFallbackDescription(connection, normalizedLocale))
+      : description,
     strengthLabel: getStrengthLabel(connection, strengthValue, normalizedLocale),
     strengthValue,
     evidenceScore,

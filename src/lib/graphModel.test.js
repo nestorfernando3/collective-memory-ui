@@ -62,15 +62,27 @@ const connections = {
       type: 'Exploratoria',
       strength: 'Media',
       tier: 'exploratory',
-      visibility: 'optional',
+      visibility: 'default',
       selection_reason: 'coverage-floor',
       description: 'Todavía es tentativa, pero ya hay señales útiles para enlazar producto y acompañamiento.',
       evidence: { score: 14 },
+      decision: { coverage_promoted: true, affinity_score: 66, evidence_score: 22 },
+    },
+    {
+      from: 'proyecto-icfes',
+      to: 'diario-emociones',
+      type: 'Exploratoria',
+      strength: 'Baja',
+      tier: 'exploratory',
+      visibility: 'optional',
+      selection_reason: 'exploratory',
+      description: 'Un vínculo de reserva que todavía está en exploración.',
+      evidence: { score: 12 },
     },
   ],
 };
 
-test('buildGraphModel hides optional exploratory edges by default', () => {
+test('buildGraphModel keeps coverage-floor edges visible and hides optional exploratory edges by default', () => {
   const graph = buildGraphModel({
     profile,
     projects,
@@ -81,7 +93,7 @@ test('buildGraphModel hides optional exploratory edges by default', () => {
 
   assert.equal(graph.nodes.length, 4);
   assert.equal(graph.projectNodes.length, 3);
-  assert.equal(graph.edges.length, 4);
+  assert.equal(graph.edges.length, 5);
 
   const projectEdge = graph.edges.find((edge) => edge.id === 'connection:collective-memory-ui:proyecto-icfes');
   assert.ok(projectEdge);
@@ -89,11 +101,19 @@ test('buildGraphModel hides optional exploratory edges by default', () => {
   assert.equal(projectEdge.data.visibility, 'default');
   assert.match(projectEdge.data.description, /diseño instruccional/i);
 
-  const hiddenEdge = graph.edges.find((edge) => edge.id === 'connection:collective-memory-ui:diario-emociones');
-  assert.equal(hiddenEdge, undefined);
+  const promotedEdge = graph.edges.find((edge) => edge.id === 'connection:collective-memory-ui:diario-emociones');
+  assert.ok(promotedEdge);
+  assert.equal(promotedEdge.data.selectionReason, 'coverage-floor');
+  assert.equal(promotedEdge.data.decision.coverage_promoted, true);
 
-  assert.equal(graph.meta.visibleConnectionCount, 1);
-  assert.equal(graph.meta.exploratoryConnectionCount, 1);
+  const reserveEdge = graph.edges.find((edge) => edge.id === 'connection:proyecto-icfes:diario-emociones');
+  assert.equal(reserveEdge, undefined);
+
+  assert.equal(graph.meta.visibleConnectionCount, 2);
+  assert.equal(graph.meta.exploratoryConnectionCount, 2);
+  assert.equal(graph.meta.activeConnectionCount, 2);
+  assert.equal(graph.meta.reserveConnectionCount, 1);
+  assert.equal(graph.meta.coverageFloorPromotedConnectionCount, 1);
 });
 
 test('buildGraphModel can include optional exploratory edges on demand', () => {
@@ -108,10 +128,10 @@ test('buildGraphModel can include optional exploratory edges on demand', () => {
   const exploratoryEdge = graph.edges.find((edge) => edge.id === 'connection:collective-memory-ui:diario-emociones');
   assert.ok(exploratoryEdge);
   assert.equal(exploratoryEdge.data.tier, 'exploratory');
-  assert.equal(exploratoryEdge.data.visibility, 'optional');
+  assert.equal(exploratoryEdge.data.visibility, 'default');
   assert.equal(exploratoryEdge.data.selectionReason, 'coverage-floor');
   assert.match(exploratoryEdge.label, /Exploratoria/i);
-  assert.equal(graph.meta.visibleConnectionCount, 2);
+  assert.equal(graph.meta.visibleConnectionCount, 3);
 });
 
 test('buildConnectionEdgeBundle returns visible edges and counts in one pass', () => {
@@ -123,9 +143,11 @@ test('buildConnectionEdgeBundle returns visible edges and counts in one pass', (
     visibilityMode: 'default',
   });
 
-  assert.equal(bundle.edges.length, 1);
-  assert.equal(bundle.visibleConnectionCount, 1);
+  assert.equal(bundle.edges.length, 2);
+  assert.equal(bundle.visibleConnectionCount, 2);
   assert.equal(bundle.strongConnectionCount, 1);
-  assert.equal(bundle.exploratoryConnectionCount, 1);
+  assert.equal(bundle.exploratoryConnectionCount, 2);
+  assert.equal(bundle.activeConnectionCount, 2);
+  assert.equal(bundle.reserveConnectionCount, 1);
   assert.equal(bundle.edges[0].data.tier, 'strong');
 });

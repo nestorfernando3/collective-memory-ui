@@ -144,6 +144,10 @@ export function buildConnectionEdgeBundle({
   const edges = [];
   let strongConnectionCount = 0;
   let exploratoryConnectionCount = 0;
+  let activeConnectionCount = 0;
+  let reserveConnectionCount = 0;
+  let coverageFloorPromotedConnectionCount = 0;
+  let exploratoryReserveConnectionCount = 0;
 
   for (const [index, connection] of (Array.isArray(connections?.connections) ? connections.connections : []).entries()) {
     const insight = buildConnectionInsight(connection, projectById, `graph-${index}`, normalizedLocale);
@@ -158,10 +162,19 @@ export function buildConnectionEdgeBundle({
 
     if (insight.tier === 'strong' && insight.visibility === 'default') {
       strongConnectionCount += 1;
+      activeConnectionCount += 1;
     }
 
     if (insight.tier === 'exploratory') {
       exploratoryConnectionCount += 1;
+      if (insight.visibility === 'default' && insight.selectionReason === 'coverage-floor') {
+        coverageFloorPromotedConnectionCount += 1;
+        activeConnectionCount += 1;
+      }
+      if (insight.visibility === 'optional') {
+        exploratoryReserveConnectionCount += 1;
+        reserveConnectionCount += 1;
+      }
     }
 
     if (visibilityMode !== 'all' && insight.visibility !== 'default') {
@@ -194,6 +207,7 @@ export function buildConnectionEdgeBundle({
         tier: insight.tier,
         visibility: insight.visibility,
         selectionReason: insight.selectionReason,
+        decision: insight.decision,
         description: insight.description,
         strengthLabel: insight.strengthLabel,
         strengthValue: insight.strengthValue,
@@ -208,6 +222,10 @@ export function buildConnectionEdgeBundle({
     visibleConnectionCount: edges.length,
     strongConnectionCount,
     exploratoryConnectionCount,
+    activeConnectionCount,
+    reserveConnectionCount,
+    coverageFloorPromotedConnectionCount,
+    exploratoryReserveConnectionCount,
   };
 }
 
@@ -253,6 +271,10 @@ export function buildGraphModel({
       visibleConnectionCount: connectionData.visibleConnectionCount,
       strongConnectionCount: connectionData.strongConnectionCount,
       exploratoryConnectionCount: connectionData.exploratoryConnectionCount,
+      activeConnectionCount: connectionData.activeConnectionCount,
+      reserveConnectionCount: connectionData.reserveConnectionCount,
+      coverageFloorPromotedConnectionCount: connectionData.coverageFloorPromotedConnectionCount,
+      exploratoryReserveConnectionCount: connectionData.exploratoryReserveConnectionCount,
       activeLensId,
       visibilityMode,
     },

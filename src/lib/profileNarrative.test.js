@@ -139,6 +139,16 @@ test('profile narrative counts only default-visible bridges as active', () => {
           to: 'diario-emociones',
           type: 'Exploratoria',
           tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'coverage-floor',
+          decision: { coverage_promoted: true, affinity_score: 66, evidence_score: 22 },
+          description: '',
+        },
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
           visibility: 'optional',
           selection_reason: 'exploratory',
           description: 'La relación entre Paideia y Diario de Emociones todavía es tentativa, pero ya muestra señales útiles: acompañamiento y evaluación formativa.',
@@ -148,11 +158,18 @@ test('profile narrative counts only default-visible bridges as active', () => {
     locale: 'es',
   });
 
-  assert.equal(narrative.stats.connectionCount, 1);
-  assert.equal(narrative.sections.find((section) => section.title === 'Puentes activos').items.length, 1);
+  assert.equal(narrative.stats.connectionCount, 2);
+  assert.equal(narrative.stats.activeConnectionCount, 2);
+  assert.equal(narrative.stats.reserveConnectionCount, 1);
+  assert.equal(narrative.stats.coverageFloorConnectionCount, 1);
+  assert.equal(narrative.sections.find((section) => section.title === 'Puentes activos').items.length, 2);
   assert.match(
     narrative.sections.find((section) => section.title === 'Trayectorias centrales').items.join(' '),
-    /1 puente fuerte|1 puente exploratorio/i,
+    /1 puente fuerte visible|1 puente exploratorio promovido por cobertura|1 puente exploratorio en reserva/i,
+  );
+  assert.match(
+    narrative.sections.find((section) => section.title === 'Puentes activos').items.find((item) => item.selectionReason === 'coverage-floor').description,
+    /evitar aislamiento|cobertura/i,
   );
 });
 

@@ -519,6 +519,8 @@ function App() {
     dataset?.profile?.site_subtitle ||
     text.subtitleFallback;
   const activeConnectionsLabel = `${graph?.meta.visibleConnectionCount || 0} ${text.visibleConnections}`;
+  const graphActiveConnectionCount = graph?.meta.activeConnectionCount ?? graph?.meta.visibleConnectionCount ?? 0;
+  const graphReserveConnectionCount = graph?.meta.reserveConnectionCount ?? 0;
   const sourceDisplayLabel =
     dataset?.source === 'local'
       ? `${dataset.sourceName || 'Local memory'} · ${text.localMemoryActive}`
@@ -772,7 +774,7 @@ function App() {
                     <StatCard
                       label={text.visibleConnections}
                       value={graph?.meta.visibleConnectionCount || 0}
-                      note={`${graph?.meta.strongConnectionCount || 0} ${text.active} · ${graph?.meta.exploratoryConnectionCount || 0} ${text.reserve}`}
+                      note={`${graphActiveConnectionCount} ${text.active} · ${graphReserveConnectionCount} ${text.reserve}`}
                     />
                     <StatCard
                       label={text.sourceLabel}
