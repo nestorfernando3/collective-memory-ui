@@ -3,8 +3,8 @@ const assert = require('node:assert/strict');
 
 const { classifyDocument, DOCUMENT_CLASSES } = require('./document_classifier.js');
 
-function makeLongText(sentence, repeatCount) {
-  return Array.from({ length: repeatCount }, () => sentence).join(' ');
+function makeWordSequence(count, prefix = 'word') {
+  return Array.from({ length: count }, (_, index) => `${prefix}${index + 1}`).join(' ');
 }
 
 test('classifyDocument excludes technical and generated artifacts before scoring', () => {
@@ -19,36 +19,43 @@ test('classifyDocument excludes technical and generated artifacts before scoring
   );
 
   assert.equal(
+    classifyDocument('/Users/nestor/Documents/ReMember2/picnic-semiotico/short-note.md', 'This is a concise note with under the substantive threshold.').tier,
+    DOCUMENT_CLASSES.C,
+  );
+});
+
+test('classifyDocument enforces the substantive long-form threshold at the boundary', () => {
+  assert.equal(
     classifyDocument(
-      '/Users/nestor/Documents/ReMember2/picnic-semiotico/Manuscript_Food_Culture_Society.docx',
-      makeLongText('Drawing on Roland Barthes and Jean Baudrillard, this article examines Caribbean youth culture through semiotic methods and historical context.', 10),
+      '/Users/nestor/Documents/ReMember2/picnic-semiotico/mid-note.md',
+      makeWordSequence(119, 'mid'),
+    ).tier,
+    DOCUMENT_CLASSES.B,
+  );
+
+  assert.equal(
+    classifyDocument(
+      '/Users/nestor/Documents/ReMember2/picnic-semiotico/exact-threshold.md',
+      makeWordSequence(120, 'exact'),
     ).tier,
     DOCUMENT_CLASSES.A,
   );
 });
 
-test('classifyDocument only promotes substantive long markdown and docx files to A', () => {
+test('classifyDocument normalizes Windows paths and keeps strengthen-notes.docx out of X', () => {
   assert.equal(
     classifyDocument(
-      '/Users/nestor/Documents/ReMember2/picnic-semiotico/short-note.docx',
-      'Drawing on Roland Barthes and Jean Baudrillard, this article examines Caribbean youth culture.',
-    ).tier,
-    DOCUMENT_CLASSES.B,
-  );
-
-  assert.equal(
-    classifyDocument(
-      '/Users/nestor/Documents/ReMember2/picnic-semiotico/short-note.md',
-      'This is a concise note with under the substantive threshold.',
-    ).tier,
-    DOCUMENT_CLASSES.B,
-  );
-
-  assert.equal(
-    classifyDocument(
-      '/Users/nestor/Documents/ReMember2/picnic-semiotico/substantive-note.md',
-      makeLongText('This long-form note develops the project argument with specific examples, interpretive framing, and concrete observations.', 12),
+      'C:\\Users\\Nestor\\Documents\\ReMember2\\picnic-semiotico\\windows-substantive.md',
+      makeWordSequence(120, 'windows'),
     ).tier,
     DOCUMENT_CLASSES.A,
+  );
+
+  assert.equal(
+    classifyDocument(
+      'C:\\Users\\Nestor\\Documents\\ReMember2\\collective-memory\\strengthening-notes.docx',
+      'This operational note tracks edits, reminders, and next steps for the project.',
+    ).tier,
+    DOCUMENT_CLASSES.C,
   );
 });
