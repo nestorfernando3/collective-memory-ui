@@ -39,13 +39,26 @@ function normalizedProjectIds(projectIds) {
     .filter(Boolean);
 }
 
+function canonicalPairKey(candidate = {}) {
+  const from = String(candidate.from || '').trim();
+  const to = String(candidate.to || '').trim();
+  return [from, to].sort().join('::');
+}
+
+function rescueEligible(candidate = {}) {
+  const affinityScore = Number(candidate.affinityScore || 0);
+  const evidenceScore = Number(candidate.evidenceScore || 0);
+
+  return affinityScore >= 66 && evidenceScore >= 24;
+}
+
 function decideConnectionSet(candidates = [], projectIds = []) {
   const decided = (Array.isArray(candidates) ? candidates : [])
     .map((candidate) => ({
       ...candidate,
       ...decideTier(candidate),
     }))
-    .filter((candidate) => candidate.tier !== 'discarded' && candidate.tier !== 'review');
+    .filter((candidate) => candidate.tier !== 'discarded');
 
   const coverage = new Map(normalizedProjectIds(projectIds).map((projectId) => [projectId, 0]));
 
@@ -64,6 +77,7 @@ function decideConnectionSet(candidates = [], projectIds = []) {
 
     const rescue = decided
       .filter((candidate) => candidate.tier === 'exploratory')
+      .filter(rescueEligible)
       .filter((candidate) => {
         const from = String(candidate.from || '').trim();
         const to = String(candidate.to || '').trim();
@@ -72,7 +86,17 @@ function decideConnectionSet(candidates = [], projectIds = []) {
       .sort((left, right) => {
         const leftScore = Number(left.affinityScore || 0) + Number(left.evidenceScore || 0);
         const rightScore = Number(right.affinityScore || 0) + Number(right.evidenceScore || 0);
-        return rightScore - leftScore;
+        if (rightScore !== leftScore) return rightScore - leftScore;
+
+        const leftKey = canonicalPairKey(left);
+        const rightKey = canonicalPairKey(right);
+        if (leftKey !== rightKey) return leftKey.localeCompare(rightKey);
+
+        const leftFrom = String(left.from || '').trim();
+        const rightFrom = String(right.from || '').trim();
+        if (leftFrom !== rightFrom) return leftFrom.localeCompare(rightFrom);
+
+        return String(left.to || '').trim().localeCompare(String(right.to || '').trim());
       })[0];
 
     if (!rescue) return;
