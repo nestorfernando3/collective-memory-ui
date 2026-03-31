@@ -1436,8 +1436,7 @@ function buildV2Candidate(candidate, fromId, toId, profilesById) {
 
   const affinityCandidate = buildAffinityCandidate(fromSignalProfile, toSignalProfile);
   const evidenceAssessment = candidate.evidenceAssessment || buildEvidenceAssessment(fromSignalProfile, toSignalProfile);
-
-  return {
+  const nextCandidate = {
     ...candidate,
     a: candidate.a || fromProfile.project || null,
     b: candidate.b || toProfile.project || null,
@@ -1457,6 +1456,13 @@ function buildV2Candidate(candidate, fromId, toId, profilesById) {
       ? Number(candidate.score)
       : Number(affinityCandidate.affinityScore || 0) + Number(evidenceAssessment.evidenceScore || 0),
   };
+
+  const [resolvedFromId, resolvedToId] = resolveCandidateDirection(nextCandidate, profilesById);
+  return {
+    ...nextCandidate,
+    from: resolvedFromId || nextCandidate.from,
+    to: resolvedToId || nextCandidate.to,
+  };
 }
 
 function buildV2SeedCandidate(fromProfile, toProfile, existingKeys) {
@@ -1475,8 +1481,7 @@ function buildV2SeedCandidate(fromProfile, toProfile, existingKeys) {
   });
   const affinityCandidate = buildAffinityCandidate(leftSignalProfile, rightSignalProfile);
   const evidenceAssessment = buildEvidenceAssessment(leftSignalProfile, rightSignalProfile);
-
-  return {
+  const nextCandidate = {
     a: fromProfile.project || null,
     b: toProfile.project || null,
     from: fromId,
@@ -1493,6 +1498,20 @@ function buildV2SeedCandidate(fromProfile, toProfile, existingKeys) {
     evidenceScore: Number(evidenceAssessment.evidenceScore || 0),
     evidenceAssessment,
     score: Number(affinityCandidate.affinityScore || 0) + Number(evidenceAssessment.evidenceScore || 0),
+  };
+
+  const [resolvedFromId, resolvedToId] = resolveCandidateDirection(
+    nextCandidate,
+    new Map([
+      [fromId, fromProfile],
+      [toId, toProfile],
+    ]),
+  );
+
+  return {
+    ...nextCandidate,
+    from: resolvedFromId || nextCandidate.from,
+    to: resolvedToId || nextCandidate.to,
   };
 }
 
@@ -1528,8 +1547,8 @@ function buildV2CandidateQueue(projects = [], profilesById, existingKeys = new S
 function resolveCandidateDirection(candidate, profilesById) {
   const fromId = String(candidate?.from || candidate?.a?.id || '').trim();
   const toId = String(candidate?.to || candidate?.b?.id || '').trim();
-  if (fromId && toId) return [fromId, toId];
   if (candidate?.a && candidate?.b) return inferDirection(candidate, profilesById);
+  if (fromId && toId) return [fromId, toId];
   return [fromId, toId];
 }
 

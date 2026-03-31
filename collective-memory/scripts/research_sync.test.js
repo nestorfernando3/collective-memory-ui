@@ -211,13 +211,15 @@ test('buildV2CandidateQueue derives scores from the V2 modules', () => {
 });
 
 test('buildReport and applyCandidates use the same canonical V2 direction', async () => {
-  const profileA = makeV2Profile('a', 'Alpha');
-  const profileB = makeV2Profile('b', 'Beta');
+  const profileA = makeV2Profile('creative', 'Creative Project');
+  const profileB = makeV2Profile('theory', 'Theory Project');
+  profileA.roleFlags.creative = true;
+  profileB.roleFlags.theory = true;
   const profilesById = new Map([
-    ['a', profileA],
-    ['b', profileB],
+    ['creative', profileA],
+    ['theory', profileB],
   ]);
-  const [candidate] = buildV2CandidateQueue([{ id: 'a' }, { id: 'b' }], profilesById, new Set());
+  const [candidate] = buildV2CandidateQueue([{ id: 'creative' }, { id: 'theory' }], profilesById, new Set());
 
   const report = await buildReport({
     existingCandidates: [candidate],
@@ -236,12 +238,14 @@ test('buildReport and applyCandidates use the same canonical V2 direction', asyn
     { connections: [] },
     [candidate],
     profilesById,
-    { llm: false, projectIds: ['a', 'b'] },
+    { llm: false, projectIds: ['creative', 'theory'] },
   );
 
-  assert.match(report, /Alpha -> Beta/);
-  assert.equal(result.nextConnections.connections[0].from, 'a');
-  assert.equal(result.nextConnections.connections[0].to, 'b');
+  assert.equal(candidate.from, 'theory');
+  assert.equal(candidate.to, 'creative');
+  assert.match(report, /Theory Project -> Creative Project/);
+  assert.equal(result.nextConnections.connections[0].from, 'theory');
+  assert.equal(result.nextConnections.connections[0].to, 'creative');
 });
 
 test('retains meaningful shared tokens in the narrative context', () => {
