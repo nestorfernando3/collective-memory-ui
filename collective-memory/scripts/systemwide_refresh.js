@@ -76,6 +76,7 @@ function parseArgs(argv) {
   const args = {
     outputRoot: DEFAULT_OUTPUT_ROOT,
     clean: true,
+    engine: 'v2',
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -84,6 +85,8 @@ function parseArgs(argv) {
       args.outputRoot = argv[++i] || DEFAULT_OUTPUT_ROOT;
     } else if (arg === '--no-clean') {
       args.clean = false;
+    } else if (arg === '--engine') {
+      args.engine = argv[++i] || 'v2';
     } else if (arg === '--help' || arg === '-h') {
       console.log([
         'Usage: node collective-memory/scripts/systemwide_refresh.js [options]',
@@ -91,6 +94,7 @@ function parseArgs(argv) {
         'Options:',
         '  --output-root <path>   Snapshot root to generate (default: ~/Documents/Collective Memory)',
         '  --no-clean             Keep existing files in the output root before writing',
+        '  --engine <name>        Connection engine to use during research sync (default: v2)',
       ].join('\n'));
       process.exit(0);
     }
@@ -317,8 +321,8 @@ function buildReadme(profile, projects, connections, outputRoot) {
   ].flat().join('\n');
 }
 
-function runResearchSync() {
-  execFileSync(process.execPath, [RESEARCH_SYNC_PATH, '--apply', '--no-llm'], {
+function runResearchSync(engine) {
+  execFileSync(process.execPath, [RESEARCH_SYNC_PATH, '--apply', '--no-llm', '--engine', engine], {
     cwd: REPO_ROOT,
     stdio: 'inherit',
     env: {
@@ -359,7 +363,7 @@ function main() {
   const projects = loadProjects().map(normalizeProject);
   const baseProfile = readJson(PROFILE_PATH, {});
 
-  runResearchSync();
+  runResearchSync(args.engine);
 
   const connections = readJson(CONNECTIONS_PATH, { connections: [], clusters: [] });
   const profile = buildProfile(baseProfile, projects);

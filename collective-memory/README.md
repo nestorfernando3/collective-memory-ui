@@ -12,7 +12,7 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 - Título: Memoria Colectiva
 - Subtítulo: Archivo vivo de trabajo
 - Proyectos registrados: 18
-- Conexiones registradas: 19
+- Conexiones registradas: 151
 
 ## Archivos clave de esta raíz
 
@@ -45,18 +45,18 @@ Esta carpeta reúne el perfil unificado, las fichas de proyectos y el grafo de r
 
 ## Conexiones destacadas
 
-- articulo-kevin-cerra -> concertacion-mincultura: La relación entre Artículo Kevin Cerra y Concertación MinCultura se apoya en palabras compartidas: caribe. Comparten un marco conceptual explícito: caribe.
-- kansas-barranquilla -> articulo-kevin-cerra: La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra se basa en evidencia documental concreta. Comparten un marco conceptual explícito: caribe.
-- articulo-kevin-cerra -> las-camilas: La relación entre Artículo Kevin Cerra y Las Camilas se apoya en palabras compartidas: caribe y colombiano. Comparten un marco conceptual explícito: caribe.
-- collective-memory-ui -> las-camilas: La relación entre Collective Memory PWA y Las Camilas todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: memoria y editorial. Comparten un marco conceptual explícito: caribe. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
-- paideia -> collective-memory-ui: La relación entre Paideia (Παιδεία) y Collective Memory PWA todavía es tentativa, pero ya muestra señales útiles: tecnologías: vite; palabras compartidas: vite y github. Comparten un corpus de trabajo.
-- propuesta-inv-2026 -> collective-memory-ui: La relación entre Propuesta de Investigación PCA y Collective Memory PWA tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
-- kansas-barranquilla -> concertacion-mincultura: La relación entre Estudio Kansas-Barranquilla y Concertación MinCultura se basa en evidencia documental concreta. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
-- las-camilas -> concertacion-mincultura: La relación entre Las Camilas y Concertación MinCultura se apoya en palabras compartidas: actualmente y caribe. Comparten citas o referencias verificables. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
-- diario-emociones -> markdown-pedagogico: La relación entre Diario de Emociones y Markdown Pedagógico tiene evidencia documental, pero todavía no una base compartida clara. El pasaje más útil es Todos los cambios notables en este proyecto serán documentados en este archivo..
-- diario-emociones -> paideia: La relación entre Diario de Emociones y Paideia (Παιδεία) tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
-- las-camilas -> dos-cuentos-hermanos: La relación entre Las Camilas y Dos Cuentos Hermanos todavía es tentativa, pero ya muestra señales útiles: etiquetas: creativo y literatura; palabras compartidas: libro, literatura, actualmente y editorial. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
-- propuesta-inv-2026 -> dos-cuentos-hermanos: La relación entre Propuesta de Investigación PCA y Dos Cuentos Hermanos tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo. Si hay citas o material de terceros, conviene tratarlos como referencia y no como voz principal.
+- collective-memory-ui -> articulo-kevin-cerra: La relación entre Collective Memory PWA y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un marco conceptual explícito: caribe.
+- articulo-kevin-cerra -> concertacion-mincultura: La relación entre Artículo Kevin Cerra y Concertación MinCultura todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: caribe. Comparten un marco conceptual explícito: caribe.
+- diario-emociones -> articulo-kevin-cerra: La relación entre Diario de Emociones y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
+- articulo-kevin-cerra -> dos-cuentos-hermanos: La relación entre Artículo Kevin Cerra y Dos Cuentos Hermanos tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
+- examenes-planeacion -> articulo-kevin-cerra: La relación entre Exámenes y Planeación y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
+- articulo-kevin-cerra -> fenomenologia-rumor: La relación entre Artículo Kevin Cerra y Fenomenología del Rumor todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: caribe. Comparten un corpus de trabajo.
+- articulo-kevin-cerra -> generacion-2030: La relación entre Artículo Kevin Cerra y Generación 2030 / Formación en Artes todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: caribe y colombiano. Comparten un marco conceptual explícito: caribe.
+- articulo-kevin-cerra -> gestiones-brisas: La relación entre Artículo Kevin Cerra y Gestiones Brisas del Río tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
+- kansas-barranquilla -> articulo-kevin-cerra: La relación entre Estudio Kansas-Barranquilla y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un marco conceptual explícito: caribe.
+- articulo-kevin-cerra -> las-camilas: La relación entre Artículo Kevin Cerra y Las Camilas todavía es tentativa, pero ya muestra señales útiles: palabras compartidas: caribe y colombiano. Comparten un marco conceptual explícito: caribe.
+- markdown-pedagogico -> articulo-kevin-cerra: La relación entre Markdown Pedagógico y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
+- paideia -> articulo-kevin-cerra: La relación entre Paideia (Παιδεία) y Artículo Kevin Cerra tiene evidencia documental, pero todavía no una base compartida clara. Comparten un corpus de trabajo.
 
 ## Mapa Mermaid
 
@@ -80,25 +80,46 @@ graph LR
   picnic-semiotico["Picnic Semiótico"]
   propuesta-inv-2026["Propuesta de Investigación PCA"]
   proyecto-icfes["Proyecto ICFEs"]
+  collective-memory-ui -->|| articulo-kevin-cerra
   articulo-kevin-cerra -->|| concertacion-mincultura
+  diario-emociones -->|| articulo-kevin-cerra
+  articulo-kevin-cerra -->|| dos-cuentos-hermanos
+  examenes-planeacion -->|| articulo-kevin-cerra
+  articulo-kevin-cerra -->|| fenomenologia-rumor
+  articulo-kevin-cerra -->|| generacion-2030
+  articulo-kevin-cerra -->|| gestiones-brisas
   kansas-barranquilla -->|| articulo-kevin-cerra
   articulo-kevin-cerra -->|| las-camilas
+  markdown-pedagogico -->|| articulo-kevin-cerra
+  paideia -->|| articulo-kevin-cerra
+  articulo-kevin-cerra -->|| pca-mincultura
+  pei-brisas-del-rio -->|| articulo-kevin-cerra
+  articulo-kevin-cerra -->|| picnic-semiotico
+  propuesta-inv-2026 -->|| articulo-kevin-cerra
+  proyecto-icfes -->|| articulo-kevin-cerra
+  collective-memory-ui -->|| concertacion-mincultura
+  diario-emociones -->|| collective-memory-ui
+  collective-memory-ui -->|| dos-cuentos-hermanos
+  examenes-planeacion -->|| collective-memory-ui
+  collective-memory-ui -->|| fenomenologia-rumor
+  generacion-2030 -->|| collective-memory-ui
+  collective-memory-ui -->|| gestiones-brisas
+  kansas-barranquilla -->|| collective-memory-ui
   collective-memory-ui -->|| las-camilas
+  markdown-pedagogico -->|| collective-memory-ui
   paideia -->|| collective-memory-ui
+  collective-memory-ui -->|| pca-mincultura
+  pei-brisas-del-rio -->|| collective-memory-ui
+  collective-memory-ui -->|| picnic-semiotico
   propuesta-inv-2026 -->|| collective-memory-ui
+  proyecto-icfes -->|| collective-memory-ui
+  concertacion-mincultura -->|| diario-emociones
+  concertacion-mincultura -->|| dos-cuentos-hermanos
+  examenes-planeacion -->|| concertacion-mincultura
+  fenomenologia-rumor -->|| concertacion-mincultura
+  concertacion-mincultura -->|| generacion-2030
+  gestiones-brisas -->|| concertacion-mincultura
   kansas-barranquilla -->|| concertacion-mincultura
-  las-camilas -->|| concertacion-mincultura
-  diario-emociones -->|| markdown-pedagogico
-  diario-emociones -->|| paideia
-  las-camilas -->|| dos-cuentos-hermanos
-  propuesta-inv-2026 -->|| dos-cuentos-hermanos
-  picnic-semiotico -->|| generacion-2030
-  kansas-barranquilla -->|| las-camilas
-  propuesta-inv-2026 -->|| las-camilas
-  markdown-pedagogico -->|| paideia
-  paideia -->|| picnic-semiotico
-  propuesta-inv-2026 -->|| paideia
-  propuesta-inv-2026 -->|| picnic-semiotico
 ```
 
 ## Siguiente paso en la plataforma
