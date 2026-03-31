@@ -826,8 +826,6 @@ function App() {
               key={flowKey}
               nodes={renderedNodes}
               edges={renderedEdges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
               onNodeClick={handleNodeClick}
               onEdgeClick={handleEdgeClick}
             />

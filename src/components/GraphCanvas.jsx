@@ -1,4 +1,6 @@
 import { Background, ConnectionLineType, Handle, Position, ReactFlow } from '@xyflow/react';
+import { useEffect } from 'react';
+import { useEdgesState, useNodesState } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 const nodeTypes = {
@@ -38,15 +40,24 @@ function ProfileNode({ data }) {
 export default function GraphCanvas({
   nodes,
   edges,
-  onNodesChange,
-  onEdgesChange,
   onNodeClick,
   onEdgeClick,
 }) {
+  const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(nodes);
+  const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(edges);
+
+  useEffect(() => {
+    setFlowNodes(nodes);
+  }, [nodes, setFlowNodes]);
+
+  useEffect(() => {
+    setFlowEdges(edges);
+  }, [edges, setFlowEdges]);
+
   return (
     <ReactFlow
-      nodes={nodes}
-      edges={edges}
+      nodes={flowNodes}
+      edges={flowEdges}
       nodeTypes={nodeTypes}
       connectionLineType={ConnectionLineType.Bezier}
       onNodesChange={onNodesChange}
