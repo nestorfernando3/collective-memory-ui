@@ -14,10 +14,24 @@ function collectDocuments(profile = {}) {
 }
 
 function extractFragments(documents) {
+  const seen = new Set();
+
   return documents.map((doc) => ({
     tier: normalizeTier(doc.tier),
     text: doc.text.trim(),
-  })).filter((doc) => doc.text);
+  })).filter((doc) => {
+    if (!doc.text) {
+      return false;
+    }
+
+    const key = `${doc.tier}::${doc.text}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function scoreFragments(fragments) {

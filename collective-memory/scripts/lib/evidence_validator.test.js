@@ -41,3 +41,14 @@ test('buildEvidenceAssessment ignores invalid non-string document text', () => {
   assert.equal(evidence.breakdown.documentsA, 0);
   assert.equal(evidence.breakdown.documentsB, 0);
 });
+
+test('buildEvidenceAssessment dedupes repeated A evidence across profiles', () => {
+  const evidence = buildEvidenceAssessment(
+    { documents: [{ tier: 'A', text: 'Shared evidence snippet.' }] },
+    { documents: [{ tier: 'A', text: 'Shared evidence snippet.' }] },
+  );
+
+  assert.equal(evidence.fragments.length, 1);
+  assert.equal(evidence.breakdown.documentsA, 1);
+  assert.equal(evidence.evidenceScore, 24);
+});
