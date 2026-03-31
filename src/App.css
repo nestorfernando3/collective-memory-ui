@@ -1,6 +1,7 @@
 .app-shell {
   position: relative;
   width: 100vw;
+  min-height: 100dvh;
   height: 100vh;
 }
 
@@ -51,6 +52,17 @@
 .drawer-inline-action:hover,
 .connection-project-btn:hover {
   transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--accent-red);
+}
+
+.ghost-chip:focus-visible,
+.secondary-btn:focus-visible,
+.drawer-inline-action:focus-visible,
+.connection-project-btn:focus-visible,
+.lens-btn:focus-visible,
+.drawer-close:focus-visible {
+  outline: 3px solid var(--accent-red);
+  outline-offset: 2px;
   box-shadow: 4px 4px 0 var(--accent-red);
 }
 
@@ -110,6 +122,12 @@
   margin-top: 0.35rem;
   font-size: 0.8rem;
   line-height: 1.35;
+}
+
+.react-flow__node:focus-visible .glass-node,
+.react-flow__edge:focus-visible .react-flow__edge-path {
+  outline: 3px solid var(--accent-red);
+  outline-offset: 2px;
 }
 
 .drawer {
@@ -304,6 +322,22 @@
   font-style: italic;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .react-flow__edge.animated .react-flow__edge-path {
+    animation: none !important;
+    stroke-dasharray: none !important;
+  }
+}
+
 @media (max-width: 1080px) {
   .header {
     width: calc(100vw - 32px);
@@ -338,6 +372,7 @@
 
   .lens-btn {
     width: 100%;
+    min-height: 48px;
   }
 
   .drawer {
@@ -354,6 +389,7 @@
   .header {
     top: 16px;
     left: 16px;
+    width: calc(100vw - 32px);
   }
 
   .header h1 {
@@ -368,10 +404,23 @@
   .secondary-btn,
   .drawer-inline-action {
     font-size: 0.72rem;
+    min-height: 44px;
   }
 
   .hud-top {
-    top: 12.5rem;
+    top: 11.9rem;
+    width: calc(100vw - 32px);
+    left: 16px;
+  }
+
+  .hud-bottom {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .stats-grid {
+    gap: 0.75rem;
   }
 
   .drawer {
@@ -393,6 +442,8 @@
   .drawer-close {
     top: 14px;
     right: 14px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .instructions-page {

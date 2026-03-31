@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
   Handle,
@@ -87,6 +87,7 @@ const COPY = {
     optionalBadge: 'Exploratoria',
     defaultBadge: 'Activa',
     hiddenCount: 'ocultos',
+    closeDrawer: 'Cerrar panel',
   },
   en: {
     subtitleFallback: 'Living archive of work',
@@ -134,6 +135,7 @@ const COPY = {
     optionalBadge: 'Exploratory',
     defaultBadge: 'Active',
     hiddenCount: 'hidden',
+    closeDrawer: 'Close panel',
   },
 };
 
@@ -238,6 +240,8 @@ function App() {
   const [activeLensId, setActiveLensId] = useState('All');
   const [projectConnectionMode, setProjectConnectionMode] = useState('principal');
   const [drawer, setDrawer] = useState(null);
+  const drawerCloseRef = useRef(null);
+  const drawerTriggerRef = useRef(null);
 
   const language = normalizeLocale(locale);
   const text = COPY[language];
@@ -280,12 +284,6 @@ function App() {
 
   const availableLenses = dataset?.profile?.lenses?.length ? dataset.profile.lenses : [FALLBACK_LENS];
   const safeLensId = availableLenses.some((lens) => lens.id === activeLensId) ? activeLensId : availableLenses[0].id;
-
-  useEffect(() => {
-    if (safeLensId !== activeLensId) {
-      setActiveLensId(safeLensId);
-    }
-  }, [activeLensId, safeLensId]);
 
   const graph = useMemo(() => {
     if (!dataset) return null;
@@ -362,8 +360,39 @@ function App() {
     dataset?.profile?.site_subtitle ||
     text.subtitleFallback;
 
+  useEffect(() => {
+    if (!drawer) {
+      drawerTriggerRef.current?.focus?.();
+      return;
+    }
+
+    drawerCloseRef.current?.focus?.();
+  }, [drawer]);
+
+  useEffect(() => {
+    if (!drawer) return;
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setDrawer(null);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [drawer]);
+
+  function captureDrawerTrigger() {
+    if (typeof document === 'undefined') return;
+    if (document.activeElement instanceof HTMLElement) {
+      drawerTriggerRef.current = document.activeElement;
+    }
+  }
+
   function openProfile() {
     if (!profileNarrative) return;
+    captureDrawerTrigger();
     setDrawer({
       type: 'profile',
       profile: profileNarrative,
@@ -371,6 +400,7 @@ function App() {
   }
 
   function openProject(project) {
+    captureDrawerTrigger();
     setProjectConnectionMode('principal');
     setDrawer({
       type: 'project',
@@ -379,6 +409,7 @@ function App() {
   }
 
   function openConnection(connectionInsight) {
+    captureDrawerTrigger();
     setDrawer({
       type: 'connection',
       connection: connectionInsight,
@@ -411,6 +442,10 @@ function App() {
     }
   }
 
+  function closeDrawer() {
+    setDrawer(null);
+  }
+
   const flowKey = [safeLensId, visibilityMode, hiddenProjectIds.join(','), language].join('::');
 
   return (
@@ -421,7 +456,14 @@ function App() {
           <p>{subtitle}</p>
         </div>
         <div className="header-actions">
-          <button className="ghost-chip" type="button" onClick={openProfile}>
+          <button
+            className="ghost-chip"
+            type="button"
+            onClick={openProfile}
+            aria-haspopup="dialog"
+            aria-controls="detail-drawer"
+            aria-expanded={drawer?.type === 'profile'}
+          >
             <UserRound size={14} />
             {text.openProfile}
           </button>
@@ -532,8 +574,21 @@ function App() {
         </section>
       )}
 
-      <aside className={`drawer ${drawer ? 'open' : ''}`}>
-        <button className="drawer-close" type="button" onClick={() => setDrawer(null)}>
+      <aside
+        id="detail-drawer"
+        className={`drawer ${drawer ? 'open' : ''}`}
+        role="complementary"
+        aria-label={
+          drawer?.type === 'profile'
+            ? text.profileChip
+            : drawer?.type === 'project'
+              ? text.projectChip
+              : drawer?.type === 'connection'
+                ? text.connectionChip
+                : undefined
+        }
+      >
+        <button ref={drawerCloseRef} className="drawer-close" type="button" onClick={closeDrawer} aria-label={text.closeDrawer}>
           <X size={20} />
         </button>
 
