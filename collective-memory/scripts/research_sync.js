@@ -17,6 +17,10 @@ const https = require('https');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { classifyDocument } = require('./lib/document_classifier.js');
+const { buildProjectSignalProfile } = require('./lib/project_signal_profile.js');
+const { buildAffinityCandidate } = require('./lib/candidate_affinity.js');
+const { buildEvidenceAssessment } = require('./lib/evidence_validator.js');
 
 const ROOT_DIR = path.join(__dirname, '..');
 const UI_DIR = path.join(ROOT_DIR, '..', 'collective-memory-ui');
@@ -871,10 +875,11 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
   const fromDocEvidence = fromProfile.docEvidence || { snippets: [] };
   const toDocEvidence = toProfile.docEvidence || { snippets: [] };
   const meaningfulTokens = filterMeaningfulSharedTokens(candidate.sharedMetadataTokens || []);
+  const shared = candidate.shared || {};
 
   const sharedSummary = [];
   ['theoretical_frameworks', 'domains', 'themes', 'tags', 'technologies', 'institutions', 'collaborators'].forEach(field => {
-    const values = candidate.shared[field] || [];
+    const values = shared[field] || [];
     if (values.length) {
       sharedSummary.push(`${SHARED_FIELD_LABELS[field] || field}: ${joinList(values.slice(0, 3))}`);
     }
@@ -900,6 +905,9 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
   const documentEvidence = hasStrongDocumentEvidence(docSignals, docHighlights)
     ? buildDocumentEvidenceSentence(docSignals, docHighlights)
     : '';
+  const displayScore = Number.isFinite(Number(candidate.score))
+    ? Number(candidate.score)
+    : Number(candidate.evidenceScore || candidate.affinityScore || 0);
 
   return {
     candidate,
@@ -911,8 +919,8 @@ function buildConnectionContext(candidate, fromId, toId, profilesById) {
     fromName: fromProject.name || fromProject.id,
     toName: toProject.name || toProject.id,
     type: inferType(candidate),
-    strength: inferStrength(candidate.score),
-    score: Number(candidate.score.toFixed(1)),
+    strength: inferStrength(displayScore),
+    score: Number(displayScore.toFixed(1)),
     sharedSummary,
     docFiles,
     docSignals,
@@ -1363,6 +1371,15 @@ function buildProjectProfile(project, docsRoot) {
   const metadataFields = getMetadataFields(project);
   const metadataTokens = gatherProjectTokens(project);
   const docEvidence = gatherDocumentEvidence(project, docsRoot);
+  const documents = (docEvidence.snippets || []).map(snippet => ({
+    ...snippet,
+    ...classifyDocument(snippet.filePath, snippet.text),
+  }));
+  const signalProfile = buildProjectSignalProfile({
+    projectId: project.id,
+    metadata: metadataFields,
+    documents,
+  });
   const docTokens = docEvidence.tokens;
   const combinedTokens = new Set([...metadataTokens, ...docTokens]);
   const roleFlags = classifyProjectRole({
@@ -1379,10 +1396,48 @@ function buildProjectProfile(project, docsRoot) {
     metadataFields,
     metadataTokens,
     docEvidence,
+    documents,
     docTokens,
     docSignals: docEvidence.signals,
     combinedTokens,
     roleFlags,
+    signalProfile,
+  };
+}
+
+function buildV2Candidate(candidate, fromId, toId, profilesById) {
+  const fromProfile = profilesById.get(fromId) || {};
+  const toProfile = profilesById.get(toId) || {};
+  const fromSignalProfile = fromProfile.signalProfile || buildProjectSignalProfile({
+    projectId: fromId,
+    metadata: fromProfile.metadataFields || {},
+    documents: fromProfile.documents || [],
+  });
+  const toSignalProfile = toProfile.signalProfile || buildProjectSignalProfile({
+    projectId: toId,
+    metadata: toProfile.metadataFields || {},
+    documents: toProfile.documents || [],
+  });
+
+  const affinityCandidate = buildAffinityCandidate(fromSignalProfile, toSignalProfile);
+  const evidenceAssessment = candidate.evidenceAssessment || buildEvidenceAssessment(fromSignalProfile, toSignalProfile);
+
+  return {
+    ...candidate,
+    a: candidate.a || fromProfile.project || null,
+    b: candidate.b || toProfile.project || null,
+    from: fromId,
+    to: toId,
+    pairKey: candidate.pairKey || canonicalPairKey(fromId, toId),
+    roleA: candidate.roleA || (fromProfile.project ? (fromProfile.roleFlags || classifyProjectRole(fromProfile)) : {}),
+    roleB: candidate.roleB || (toProfile.project ? (toProfile.roleFlags || classifyProjectRole(toProfile)) : {}),
+    affinityScore: Number.isFinite(Number(candidate.affinityScore))
+      ? Number(candidate.affinityScore)
+      : Number(affinityCandidate.affinityScore || 0),
+    evidenceScore: Number.isFinite(Number(candidate.evidenceScore))
+      ? Number(candidate.evidenceScore)
+      : Number(evidenceAssessment.evidenceScore || 0),
+    evidenceAssessment,
   };
 }
 
@@ -1665,7 +1720,8 @@ function semanticBridgeLabels(roleA, roleB, shared, sharedTokens) {
 function inferType(candidate) {
   const roleA = candidate.roleA || {};
   const roleB = candidate.roleB || {};
-  const has = field => (candidate.shared[field] || []).length > 0;
+  const shared = candidate.shared || {};
+  const has = field => (shared[field] || []).length > 0;
 
   const theoryCreative = ((roleA.theory || roleA.research) && roleB.creative) || ((roleB.theory || roleB.research) && roleA.creative);
   const pedagogyTool = (roleA.pedagogy && roleB.tool) || (roleB.pedagogy && roleA.tool);
@@ -1893,15 +1949,27 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
     preservedPairKeys.add(pairKey);
   });
 
-  const selectedCandidates = applyVisibilityPolicy(
-    (Array.isArray(candidates) ? candidates : [])
+  const v2Candidates = (Array.isArray(candidates) ? candidates : [])
+    .map(candidate => {
+      const fromId = String(candidate.from || candidate.a?.id || '').trim();
+      const toId = String(candidate.to || candidate.b?.id || '').trim();
+      const directed = fromId && toId ? [fromId, toId] : inferDirection(candidate, profilesById);
+      const [resolvedFromId, resolvedToId] = directed;
+      return buildV2Candidate(candidate, resolvedFromId, resolvedToId, profilesById);
+    });
+
+  const presetCandidates = v2Candidates.filter(candidate => candidate.visibility && candidate.selectionReason);
+  const policyCandidates = applyVisibilityPolicy(
+    v2Candidates
+      .filter(candidate => !(candidate.visibility && candidate.selectionReason))
       .map(candidate => ({
         ...candidate,
         tier: candidate.tier || classifyConnectionTier(candidate),
-      }))
-      .filter(candidate => candidate.tier !== 'discarded'),
+      })),
     Array.from(profilesById.keys()),
   );
+  const selectedCandidates = [...presetCandidates, ...policyCandidates]
+    .filter(candidate => candidate.tier !== 'discarded');
 
   let added = 0;
   let updated = 0;
@@ -1914,7 +1982,8 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       continue;
     }
 
-    const [fromId, toId] = inferDirection(candidate, profilesById);
+    const fromId = String(candidate.from || '').trim();
+    const toId = String(candidate.to || '').trim();
     const pairKey = canonicalPairKey(fromId, toId);
     if (seenGeneratedPairs.has(pairKey)) continue;
     seenGeneratedPairs.add(pairKey);
@@ -1922,6 +1991,13 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
     const type = inferType(candidate);
     const strength = inferStrength(candidate.score);
     const current = generatedByKey.get(pairKey);
+    const evidenceAssessment = candidate.evidenceAssessment || buildEvidenceAssessment(
+      profilesById.get(fromId)?.signalProfile || {},
+      profilesById.get(toId)?.signalProfile || {},
+    );
+    const legacyScore = Number.isFinite(Number(candidate.score))
+      ? Number(candidate.score)
+      : Number(candidate.evidenceScore || 0);
     const connection = {
       from: fromId,
       to: toId,
@@ -1933,12 +2009,19 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       tier: candidate.tier,
       visibility: candidate.visibility,
       selection_reason: candidate.selectionReason,
+      decision: {
+        affinity_score: Number(candidate.affinityScore || 0),
+        evidence_score: Number(candidate.evidenceScore || 0),
+        coverage_promoted: candidate.selectionReason === 'coverage-floor',
+        review_flag: candidate.tier === 'review',
+      },
       evidence: {
-        score: Number(candidate.score.toFixed(2)),
-        breakdown: buildEvidenceBreakdown(candidate),
+        score: Number(legacyScore.toFixed(2)),
+        breakdown: evidenceAssessment.breakdown,
+        fragments: evidenceAssessment.fragments,
         shared_fields: candidate.shared,
-        shared_metadata_tokens: candidate.sharedMetadataTokens.slice(0, 20),
-        shared_document_tokens: candidate.sharedDocTokens.slice(0, 20),
+        shared_metadata_tokens: Array.isArray(candidate.sharedMetadataTokens) ? candidate.sharedMetadataTokens.slice(0, 20) : [],
+        shared_document_tokens: Array.isArray(candidate.sharedDocTokens) ? candidate.sharedDocTokens.slice(0, 20) : [],
         shared_document_signals: candidate.sharedDocSignals,
         document_files: narrative.docFiles,
         document_highlights: narrative.docHighlights,

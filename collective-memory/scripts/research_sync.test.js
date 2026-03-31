@@ -318,6 +318,46 @@ test('refreshes low-score fallback descriptions so weak links can be rewritten h
   );
 });
 
+test('applyCandidates writes decision scores and coverage promotion metadata', async () => {
+  const { applyCandidates } = require('./research_sync.js');
+
+  const result = await applyCandidates(
+    { connections: [] },
+    [
+      {
+        from: 'collective-memory-ui',
+        to: 'diario-emociones',
+        affinityScore: 66,
+        evidenceScore: 22,
+        tier: 'exploratory',
+        visibility: 'default',
+        selectionReason: 'coverage-floor',
+        evidenceAssessment: {
+          evidenceScore: 22,
+          breakdown: { documentsA: 0, documentsB: 22, documentsTechnical: 0 },
+          fragments: [{ kind: 'structure', quote: 'shared pedagogical flow', tier: 'B' }],
+        },
+      },
+    ],
+    new Map([
+      ['collective-memory-ui', { project: { id: 'collective-memory-ui', name: 'Collective Memory PWA' }, docEvidence: { snippets: [] }, docSignals: {} }],
+      ['diario-emociones', { project: { id: 'diario-emociones', name: 'Diario de Emociones' }, docEvidence: { snippets: [] }, docSignals: {} }],
+    ]),
+    { llm: false },
+  );
+
+  const connection = result.nextConnections.connections[0];
+  assert.equal(connection.from, 'collective-memory-ui');
+  assert.equal(connection.to, 'diario-emociones');
+  assert.equal(connection.selection_reason, 'coverage-floor');
+  assert.equal(connection.decision.affinity_score, 66);
+  assert.equal(connection.decision.evidence_score, 22);
+  assert.equal(connection.decision.coverage_promoted, true);
+  assert.equal(connection.decision.review_flag, false);
+  assert.deepEqual(connection.evidence.breakdown, { documentsA: 0, documentsB: 22, documentsTechnical: 0 });
+  assert.deepEqual(connection.evidence.fragments, [{ kind: 'structure', quote: 'shared pedagogical flow', tier: 'B' }]);
+});
+
 test('preserves project names like Collective Memory PWA while cleaning legacy noise', () => {
   const description = sanitizeConnectionDescription(
     'La relación entre Paideia (Παιδεία) y Collective Memory PWA todavía es tentativa, pero ya muestra señales útiles: tecnologías: vite. La lectura sugerida va de Paideia hacia Collective Memory PWA, porque el vínculo parece acumulativo y no accidental.',
