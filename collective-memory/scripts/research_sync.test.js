@@ -193,6 +193,15 @@ test('downweights generic metadata tokens', () => {
   assert.ok(!candidate.signals.some((signal) => signal.field === 'metadata_tokens'));
 });
 
+test('parseArgs accepts --engine v2 and --report-json', () => {
+  const { parseArgs } = require('./research_sync.js');
+
+  const args = parseArgs(['--engine', 'v2', '--report-json', 'tmp/report.json']);
+
+  assert.equal(args.engine, 'v2');
+  assert.equal(args.reportJson, 'tmp/report.json');
+});
+
 test('buildV2CandidateQueue derives scores from the V2 modules', () => {
   const profileA = makeV2Profile('a', 'Alpha');
   const profileB = makeV2Profile('b', 'Beta');

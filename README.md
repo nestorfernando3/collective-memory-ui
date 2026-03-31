@@ -16,7 +16,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 - Use `/memoria collect` for a full refresh: scan, register, profile, connections, build-readme, and research sync in one pass.
 - Use `/memoria systemwide` when you want to make the global scope explicit from the start and refresh the full memory root.
 - Use `collective-memory/scripts/sync.sh` to push data into the UI repo.
-- Use `collective-memory/scripts/research_sync.js` to rank and draft project connections from metadata, local notes, and fallback `.md`/`.docx` prose, with optional LLM-enriched connection justifications. By default it scans the full memory system; its document search adapts to the host platform, using common roots for macOS, Linux, and Windows. Pass `--focus <project-id>` only when you want a single-project pass, and `--documents-root` if you want to override the default roots. Set `OPENAI_NARRATIVE_MODEL` or `OPENAI_MODEL` to tune the prose generator.
+- Use `collective-memory/scripts/research_sync.js` to rank and draft project connections from metadata, local notes, and fallback `.md`/`.docx` prose, with optional LLM-enriched connection justifications. By default it scans the full memory system; its document search adapts to the host platform, using common roots for macOS, Linux, and Windows. Pass `--focus <project-id>` only when you want a single-project pass, `--documents-root` if you want to override the default roots, and `--engine v2 --report-json tmp/connection-report.json` when you want a rollout summary for comparison. Set `OPENAI_NARRATIVE_MODEL` or `OPENAI_MODEL` to tune the prose generator.
 
 ## Copy Style
 

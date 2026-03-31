@@ -182,11 +182,13 @@ const COVERAGE_FLOOR_THRESHOLD = 26;
 function parseArgs(argv) {
   const args = {
     apply: false,
+    engine: 'v2',
     focus: null,
     llm: Boolean(process.env.OPENAI_API_KEY),
     llmModel: process.env.OPENAI_NARRATIVE_MODEL || process.env.OPENAI_MODEL || 'gpt-4.1-mini',
     top: 5,
     docsRoot: DEFAULT_DOCS_ROOTS.slice(),
+    reportJson: null,
     report: null,
   };
 
@@ -194,12 +196,16 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--apply') {
       args.apply = true;
+    } else if (arg === '--engine') {
+      args.engine = argv[++i] || 'v2';
     } else if (arg === '--focus') {
       args.focus = argv[++i];
     } else if (arg === '--top') {
       args.top = Math.max(1, Number(argv[++i]) || 5);
     } else if (arg === '--documents-root') {
       args.docsRoot = argv[++i];
+    } else if (arg === '--report-json') {
+      args.reportJson = argv[++i];
     } else if (arg === '--report') {
       args.report = argv[++i];
     } else if (arg === '--llm') {
@@ -222,9 +228,11 @@ function printHelp() {
     'Usage: node collective-memory/scripts/research_sync.js [options]',
     '',
     'Options:',
+    '  --engine <name>           Select the connection engine (default: v2)',
     '  --focus <project-id>      Limit analysis to one project; otherwise it runs systemwide across all projects',
     '  --top <n>                 Number of suggestions to show (default: 5)',
     '  --documents-root <path>   Override the default document roots (comma-separated list allowed)',
+    '  --report-json <path>      Write a JSON rollout summary to a file',
     '  --report <path>           Write the markdown report to a file',
     '  --llm                      Use OpenAI for prose descriptions when available',
     '  --no-llm                   Force local deterministic prose only',
@@ -2223,6 +2231,26 @@ async function main() {
   if (args.report) {
     const renderedReport = await report;
     fs.writeFileSync(args.report, `${renderedReport}\n`, 'utf8');
+  }
+
+  if (args.reportJson) {
+    const previewConnections = JSON.parse(JSON.stringify(connectionsData));
+    const { nextConnections: previewNextConnections } = await applyCandidates(previewConnections, allCandidates, profilesById, {
+      llm: args.llm,
+      llmModel: args.llmModel,
+      projectIds: args.focus ? focusProjectIds : projects.map(project => project.id),
+    }, narrativeCache);
+    const { nextConnections: previewSanitizedConnections } = sanitizeConnectionsData(previewNextConnections);
+    writeJson(args.reportJson, {
+      engine: args.engine,
+      visibleConnections: (previewSanitizedConnections.connections || []).filter(item => item.visibility === 'default').length,
+      exploratoryConnections: (previewSanitizedConnections.connections || []).filter(item => item.tier === 'exploratory').length,
+      noisyTopEvidenceConnections: (previewSanitizedConnections.connections || []).filter(item => {
+        const topEvidence = item?.evidence?.fragments?.[0] || item?.evidence?.assessment?.fragments?.[0];
+        const fragmentText = String(topEvidence?.filePath || topEvidence?.label || topEvidence?.file || '');
+        return /CHANGELOG|bug_report/i.test(fragmentText) || isGeneratedMemoryDoc(fragmentText);
+      }).length,
+    });
   }
 
   if (args.apply) {
