@@ -24,7 +24,12 @@ function extractFragments(documents) {
       return false;
     }
 
-    const key = `${doc.tier}::${doc.text.toLowerCase()}`;
+    const normalizedText = doc.text
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const key = `${doc.tier}::${normalizedText}`;
     if (seen.has(key)) {
       return false;
     }
