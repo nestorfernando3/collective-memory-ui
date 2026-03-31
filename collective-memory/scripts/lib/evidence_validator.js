@@ -24,7 +24,7 @@ function extractFragments(documents) {
       return false;
     }
 
-    const key = `${doc.tier}::${doc.text}`;
+    const key = `${doc.tier}::${doc.text.toLowerCase()}`;
     if (seen.has(key)) {
       return false;
     }
