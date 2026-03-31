@@ -7,6 +7,7 @@ const {
   buildConnectionContext,
   buildDocumentEvidenceSentence,
   buildLocalDescription,
+  buildReport,
   buildV2CandidateQueue,
   classifyConnectionTier,
   isGeneratedMemoryDoc,
@@ -207,6 +208,40 @@ test('buildV2CandidateQueue derives scores from the V2 modules', () => {
   assert.equal(candidate.affinityScore, 66);
   assert.equal(candidate.evidenceScore, 24);
   assert.equal(candidate.score, 90);
+});
+
+test('buildReport and applyCandidates use the same canonical V2 direction', async () => {
+  const profileA = makeV2Profile('a', 'Alpha');
+  const profileB = makeV2Profile('b', 'Beta');
+  const profilesById = new Map([
+    ['a', profileA],
+    ['b', profileB],
+  ]);
+  const [candidate] = buildV2CandidateQueue([{ id: 'a' }, { id: 'b' }], profilesById, new Set());
+
+  const report = await buildReport({
+    existingCandidates: [candidate],
+    newCandidates: [],
+    profilesById,
+    focusId: null,
+    scopeLabel: 'Systemwide (all projects)',
+    top: 1,
+    narrativeCache: new Map(),
+    llm: false,
+    llmModel: 'gpt-4.1-mini',
+  });
+
+  const { applyCandidates } = require('./research_sync.js');
+  const result = await applyCandidates(
+    { connections: [] },
+    [candidate],
+    profilesById,
+    { llm: false, projectIds: ['a', 'b'] },
+  );
+
+  assert.match(report, /Alpha -> Beta/);
+  assert.equal(result.nextConnections.connections[0].from, 'a');
+  assert.equal(result.nextConnections.connections[0].to, 'b');
 });
 
 test('retains meaningful shared tokens in the narrative context', () => {
@@ -487,6 +522,48 @@ test('applyCandidates writes decision scores and coverage promotion metadata', a
   assert.equal(selected.visibility, 'hidden');
   assert.equal(selected.decision.affinity_score, 66);
   assert.equal(selected.decision.evidence_score, 24);
+  assert.deepEqual(
+    Object.keys(selected.evidence.breakdown).sort(),
+    ['assessment', 'documents', 'explicitRelation', 'metadata', 'semanticBridge', 'total'],
+  );
+  assert.equal(selected.evidence.breakdown.metadata, 0);
+  assert.equal(selected.evidence.breakdown.documents, 0);
+  assert.equal(selected.evidence.breakdown.semanticBridge, 0);
+  assert.equal(selected.evidence.breakdown.explicitRelation, 0);
+  assert.equal(selected.evidence.breakdown.total, 90);
+  assert.equal(selected.evidence.breakdown.assessment.evidenceScore, 24);
+  assert.deepEqual(selected.evidence.assessment.breakdown, selected.evidence.breakdown.assessment.breakdown);
+});
+
+test('applyCandidates scopes coverage decisions to the focused project set', async () => {
+  const calls = [];
+  const { applyCandidates } = loadResearchSyncWithStubbedVisibility((candidates, projectIds) => {
+    calls.push(projectIds.slice());
+    return candidates.map((candidate) => ({
+      ...candidate,
+      tier: 'exploratory',
+      visibility: 'optional',
+      selectionReason: 'exploratory',
+    }));
+  });
+
+  await applyCandidates(
+    { connections: [] },
+    [
+      { from: 'focus-a', to: 'focus-b' },
+      { from: 'focus-a', to: 'focus-c' },
+    ],
+    new Map([
+      ['focus-a', makeV2Profile('focus-a', 'Focus A')],
+      ['focus-b', makeV2Profile('focus-b', 'Focus B')],
+      ['focus-c', makeV2Profile('focus-c', 'Focus C')],
+      ['outside-project', makeV2Profile('outside-project', 'Outside Project')],
+    ]),
+    { llm: false, projectIds: ['focus-a', 'focus-b', 'focus-c'] },
+  );
+
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].sort(), ['focus-a', 'focus-b', 'focus-c']);
 });
 
 test('preserves project names like Collective Memory PWA while cleaning legacy noise', () => {

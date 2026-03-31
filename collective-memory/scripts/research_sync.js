@@ -702,6 +702,20 @@ function buildEvidenceBreakdown(candidate = {}) {
   });
 }
 
+function buildCompatibleEvidenceBreakdown(candidate = {}, evidenceAssessment = null) {
+  const legacyBreakdown = buildEvidenceBreakdown(candidate);
+  if (!evidenceAssessment) return legacyBreakdown;
+
+  return {
+    ...legacyBreakdown,
+    assessment: {
+      evidenceScore: Number(evidenceAssessment.evidenceScore || 0),
+      breakdown: evidenceAssessment.breakdown,
+      fragments: evidenceAssessment.fragments,
+    },
+  };
+}
+
 function hasMetadataAnchor(candidate = {}) {
   const shared = candidate.shared || {};
   const meaningfulTokens = filterMeaningfulSharedTokens(candidate.sharedMetadataTokens || []);
@@ -1511,6 +1525,14 @@ function buildV2CandidateQueue(projects = [], profilesById, existingKeys = new S
   return queue;
 }
 
+function resolveCandidateDirection(candidate, profilesById) {
+  const fromId = String(candidate?.from || candidate?.a?.id || '').trim();
+  const toId = String(candidate?.to || candidate?.b?.id || '').trim();
+  if (fromId && toId) return [fromId, toId];
+  if (candidate?.a && candidate?.b) return inferDirection(candidate, profilesById);
+  return [fromId, toId];
+}
+
 function setIntersection(a, b) {
   const out = [];
   const left = a instanceof Set ? a : new Set(a || []);
@@ -1876,7 +1898,7 @@ async function buildReport({ existingCandidates, newCandidates, profilesById, fo
     lines.push('');
 
     for (const [index, candidate] of candidates.slice(0, top).entries()) {
-      const [fromId, toId] = inferDirection(candidate, profilesById);
+      const [fromId, toId] = resolveCandidateDirection(candidate, profilesById);
       const fromProject = profilesById.get(fromId).project;
       const toProject = profilesById.get(toId).project;
       const narrative = await resolveConnectionNarrative(
@@ -2030,7 +2052,9 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
 
   const selectedCandidates = decideConnectionSet(
     v2Candidates,
-    Array.from(profilesById.keys()),
+    Array.isArray(options.projectIds) && options.projectIds.length
+      ? options.projectIds
+      : Array.from(profilesById.keys()),
   ).filter(candidate => candidate.tier !== 'discarded');
 
   let added = 0;
@@ -2044,8 +2068,7 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       continue;
     }
 
-    const fromId = String(candidate.from || '').trim();
-    const toId = String(candidate.to || '').trim();
+    const [fromId, toId] = resolveCandidateDirection(candidate, profilesById);
     const pairKey = canonicalPairKey(fromId, toId);
     if (seenGeneratedPairs.has(pairKey)) continue;
     seenGeneratedPairs.add(pairKey);
@@ -2079,7 +2102,8 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       },
       evidence: {
         score: Number(legacyScore.toFixed(2)),
-        breakdown: evidenceAssessment.breakdown,
+        breakdown: buildCompatibleEvidenceBreakdown(candidate, evidenceAssessment),
+        assessment: evidenceAssessment,
         fragments: evidenceAssessment.fragments,
         shared_fields: candidate.shared,
         shared_metadata_tokens: Array.isArray(candidate.sharedMetadataTokens) ? candidate.sharedMetadataTokens.slice(0, 20) : [],
@@ -2156,7 +2180,7 @@ async function main() {
 
   const decidedCandidates = decideConnectionSet(
     buildV2CandidateQueue(projects, profilesById, existingKeys, args.focus),
-    projects.map(project => project.id),
+    args.focus ? focusProjectIds : projects.map(project => project.id),
   );
 
   decidedCandidates
@@ -2186,6 +2210,7 @@ async function main() {
     const { nextConnections, added, updated, removed } = await applyCandidates(connectionsData, allCandidates, profilesById, {
       llm: args.llm,
       llmModel: args.llmModel,
+      projectIds: args.focus ? focusProjectIds : projects.map(project => project.id),
     }, narrativeCache);
     const { nextConnections: sanitizedConnections, changed: sanitizedChanged } = sanitizeConnectionsData(nextConnections);
     if (added > 0 || updated > 0 || sanitizedChanged || prunedChanged) {
@@ -2213,10 +2238,12 @@ if (require.main === module) {
 module.exports = {
   buildConnectionContext,
   buildEvidenceBreakdown,
+  buildCompatibleEvidenceBreakdown,
   buildDocumentEvidenceSentence,
   buildLocalDescription,
   buildLLMPrompt,
   buildV2CandidateQueue,
+  resolveCandidateDirection,
   classifyConnectionTier,
   applyVisibilityPolicy,
   buildProjectProfile,
