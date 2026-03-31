@@ -3,6 +3,7 @@
 ## Unreleased - 2026-03-31
 
 ### Changed
+- The collective-memory skill docs now include a GitHub install path, a public demo link, and an explicit instruction to close `/memoria` runs with that link for quick testing.
 - `research_sync.js` now accepts `--engine v2` and `--report-json` so the rollout path can emit a compact comparison summary without applying changes.
 - Replaced the old Vite-style favicon with a new Memoria Colectiva icon based on stacked documents and network nodes, and aligned the repo logo assets with the same mark.
 - Added a balanced connection-engine redesign spec and implementation plan that split graph links into `strong` and `exploratory` tiers, add a coverage-floor policy for isolated projects, and document the need to restore an editable `src/App.jsx` before tier-aware UI work lands.

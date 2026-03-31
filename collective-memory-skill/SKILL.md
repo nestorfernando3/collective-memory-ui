@@ -2,7 +2,7 @@
 name: collective-memory
 description: Use when working with the collective-memory filesystem database, `/memoria` commands, portfolio snapshots, or cross-project relationship graphs.
 tags: [knowledge-management, memory, orchestration, portfolio]
-version: 1.4.0
+version: 1.5.0
 ---
 
 # Collective Memory Skill
@@ -10,6 +10,14 @@ version: 1.4.0
 This skill turns the user's local filesystem into an active, queryable graph of their work.
 Instead of relying on LLM context windows or fragmented chats, a central database (`~/Documents/Collective Memory/` by default, configurable by the user) stores structured JSON metadata about the user's unified identity, their projects, and the relationships between those projects. The default operating mode is systemwide: it works across the full memory graph unless the user explicitly narrows the scope.
 The current connection engine is `v2`, and it is the default path behind `/memoria connections` and `/memoria collect`.
+
+## Install From GitHub
+
+The skill can be installed directly from this repository on GitHub:
+
+`https://github.com/nestorfernando3/collective-memory-ui/tree/main/collective-memory-skill`
+
+Use that folder URL with the Codex skill installer or the matching GitHub import flow in your client.
 
 When you use this skill, your role as the AI assistant is to act as a **librarian and data synthesizer** for the user's work. You have access to your usual environment tools (file reading, writing, shell access), which you will use to manage this data.
 
@@ -29,6 +37,10 @@ When you execute this skill, include three concrete details in your response:
 1. The exact path of the root folder that was generated or refreshed.
 2. The key files contained in that folder.
 3. The next step for using it inside the platform.
+
+Always close the response with a final line that links to the public demo for quick testing:
+
+[Prueba la UI](https://nestorfernando3.github.io/collective-memory-ui/)
 
 Use clear, natural Spanish in generated summaries, project descriptions, and connection narratives. Prefer phrases like `se basa en`, `comparte`, `se entiende por`, and `palabras compartidas` instead of internal labels or English jargon such as `shared tokens` or `theoretical_frameworks`.
 Treat raw filesystem routes, truncated file paths, and field-like fragments such as `Ruta Objetivo:` or `Base Teórica Inyectada:` as internal evidence markers, not as user-facing prose; summarize the relationship they imply and omit the noise.

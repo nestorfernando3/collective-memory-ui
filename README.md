@@ -7,6 +7,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 - `collective-memory-ui/` is the interactive graph app. It is its own git repository.
 - `collective-memory/` is the workspace-local memory database, scripts, and configuration.
 - `collective-memory-skill/` holds the skill docs that describe the `/memoria` workflows.
+- The published demo is at [https://nestorfernando3.github.io/collective-memory-ui/](https://nestorfernando3.github.io/collective-memory-ui/).
 
 ## Quick Start
 
@@ -16,6 +17,7 @@ This repository now acts as the umbrella workspace for the Collective Memory pro
 - Use `/memoria collect` for a full refresh: scan, register, profile, connections, build-readme, and research sync in one pass.
 - Use `/memoria systemwide` when you want to make the global scope explicit from the start and refresh the full memory root.
 - Use `collective-memory/scripts/sync.sh` to push data into the UI repo.
+- To install the skill from GitHub, open [collective-memory-skill/README.md](collective-memory-skill/README.md) or use the folder URL in the skill docs.
 - Use `collective-memory/scripts/research_sync.js` to rank and draft project connections from metadata, local notes, and fallback `.md`/`.docx` prose, with optional LLM-enriched connection justifications. By default it scans the full memory system; its document search adapts to the host platform, using common roots for macOS, Linux, and Windows. Pass `--focus <project-id>` only when you want a single-project pass, `--documents-root` if you want to override the default roots, and `--engine v2 --report-json tmp/connection-report.json` when you want a rollout summary for comparison. Set `OPENAI_NARRATIVE_MODEL` or `OPENAI_MODEL` to tune the prose generator.
 
 ## Copy Style
@@ -43,6 +45,6 @@ Default scope: systemwide across the full memory graph unless you explicitly nar
 
 ## Useful Links
 
-- UI repo README: [collective-memory-ui/README.md](/Users/nestor/Documents/ReMember2/collective-memory-ui/README.md)
-- UI setup wizard: [collective-memory-ui/init_memory.sh](/Users/nestor/Documents/ReMember2/collective-memory-ui/init_memory.sh)
-- Workspace status: [STATUS.md](/Users/nestor/Documents/ReMember2/STATUS.md)
+- UI repo README: [collective-memory-ui/README.md](collective-memory-ui/README.md)
+- UI setup wizard: [collective-memory-ui/init_memory.sh](collective-memory-ui/init_memory.sh)
+- Workspace status: [STATUS.md](STATUS.md)
