@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { buildGraphModel } from './graphModel.js';
+import { buildConnectionEdgeBundle, buildGraphModel } from './graphModel.js';
 
 const profile = {
   name: 'Néstor De León',
@@ -112,4 +112,20 @@ test('buildGraphModel can include optional exploratory edges on demand', () => {
   assert.equal(exploratoryEdge.data.selectionReason, 'coverage-floor');
   assert.match(exploratoryEdge.label, /Exploratoria/i);
   assert.equal(graph.meta.visibleConnectionCount, 2);
+});
+
+test('buildConnectionEdgeBundle returns visible edges and counts in one pass', () => {
+  const bundle = buildConnectionEdgeBundle({
+    visibleProjects: projects,
+    allProjects: projects,
+    connections,
+    locale: 'es',
+    visibilityMode: 'default',
+  });
+
+  assert.equal(bundle.edges.length, 1);
+  assert.equal(bundle.visibleConnectionCount, 1);
+  assert.equal(bundle.strongConnectionCount, 1);
+  assert.equal(bundle.exploratoryConnectionCount, 1);
+  assert.equal(bundle.edges[0].data.tier, 'strong');
 });

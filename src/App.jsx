@@ -1,14 +1,4 @@
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Background,
-  ConnectionLineType,
-  Handle,
-  Position,
-  ReactFlow,
-  useEdgesState,
-  useNodesState,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
+import { lazy, startTransition, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Eye,
   EyeOff,
@@ -29,10 +19,7 @@ import { normalizeLocale, translateAppSubtitle, translateAppTitle } from './lib/
 import { buildProfileNarrative } from './lib/profileNarrative.js';
 import { joinBasePath } from './lib/resourcePath.js';
 
-const nodeTypes = {
-  project: ProjectNode,
-  profile: ProfileNode,
-};
+const GraphCanvas = lazy(() => import('./components/GraphCanvas.jsx'));
 
 const STORAGE_KEYS = {
   locale: 'collective-memory-locale',
@@ -102,6 +89,8 @@ const COPY = {
     importFolder: 'Cargar carpeta local',
     restorePublished: 'Usar snapshot publicado',
     localMemoryActive: 'memoria local activa',
+    graphTab: 'GRAFO',
+    guideTab: 'GUÍA',
   },
   en: {
     atlasLabel: 'Memory atlas',
@@ -154,36 +143,9 @@ const COPY = {
     importFolder: 'Load local folder',
     restorePublished: 'Use published snapshot',
     localMemoryActive: 'local memory active',
+    graphTab: 'GRAPH',
+    guideTab: 'GUIDE',
   },
-};
-
-function ProjectNode({ data }) {
-  return (
-    <div className={`glass-node ${data.selected ? 'selected' : ''}`}>
-      <Handle type="target" position={Position.Top} style={hiddenHandleStyle} />
-      <Handle type="source" position={Position.Bottom} style={hiddenHandleStyle} />
-      <div className="node-title">{data.label}</div>
-      {data.subtitle ? <div className="node-subtitle">{data.subtitle}</div> : null}
-    </div>
-  );
-}
-
-function ProfileNode({ data }) {
-  return (
-    <div className="glass-node core-node">
-      <Handle type="source" position={Position.Bottom} style={hiddenHandleStyle} />
-      <div className="node-title">{data.label}</div>
-      {data.subtitle ? <div className="node-subtitle">{data.subtitle}</div> : null}
-    </div>
-  );
-}
-
-const hiddenHandleStyle = {
-  opacity: 0,
-  pointerEvents: 'none',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
 };
 
 function parseStoredJson(key, fallbackValue) {
@@ -416,8 +378,6 @@ function App() {
   const [activeLensId, setActiveLensId] = useState('All');
   const [projectConnectionMode, setProjectConnectionMode] = useState('principal');
   const [drawer, setDrawer] = useState(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const fileInputRef = useRef(null);
   const [viewMode, setViewMode] = useState('graph');
 
@@ -693,6 +653,59 @@ function App() {
           {dataset?.source === 'local' ? <span className="header-chip local">{text.localMemoryActive}</span> : null}
         </div>
 
+        <div className="sidebar-toolbar">
+          <div className="mode-switch">
+            <button
+              className={`mode-tab ${viewMode === 'graph' ? 'active' : ''}`}
+              type="button"
+              onClick={() => setViewMode('graph')}
+            >
+              <Menu size={14} />
+              {text.graphTab}
+            </button>
+            <button
+              className={`mode-tab ${viewMode === 'instructions' ? 'active' : ''}`}
+              type="button"
+              onClick={() => setViewMode('instructions')}
+            >
+              <FileText size={14} />
+              {text.guideTab}
+            </button>
+          </div>
+          <div className="toolbar-actions">
+            <button className="ghost-chip" type="button" onClick={handleImportFolder}>
+              <FolderUp size={14} />
+              {text.importFolder}
+            </button>
+            {dataset?.source === 'local' ? (
+              <button className="ghost-chip" type="button" onClick={handleRestorePublished}>
+                <RotateCcw size={14} />
+                {text.restorePublished}
+              </button>
+            ) : null}
+            <button
+              className="ghost-chip"
+              type="button"
+              onClick={() => setLocale((current) => (normalizeLocale(current) === 'es' ? 'en' : 'es'))}
+            >
+              <Languages size={14} />
+              {text.languageLabel}: {language.toUpperCase()}
+            </button>
+            <button
+              className="ghost-chip"
+              type="button"
+              onClick={() =>
+                startTransition(() => {
+                  setVisibilityMode((current) => (current === 'default' ? 'all' : 'default'));
+                })
+              }
+            >
+              {visibilityMode === 'default' ? <Eye size={14} /> : <EyeOff size={14} />}
+              {visibilityMode === 'default' ? text.visibilityAll : text.visibilityDefault}
+            </button>
+          </div>
+        </div>
+
         {showInstructions ? (
           <>
             <section className="sidebar-card">
@@ -742,135 +755,84 @@ function App() {
                 {text.openProfile}
               </button>
             </section>
+            {showGraph ? (
+              <>
+                <section className="sidebar-card sidebar-graph-summary">
+                  <h3>{text.summary}</h3>
+                  <div className="stats-grid">
+                    <StatCard
+                      label={text.visibleProjects}
+                      value={graph?.meta.visibleProjectCount || 0}
+                      note={
+                        hiddenProjectIds.length
+                          ? `${hiddenProjectIds.length} ${text.hiddenCount}`
+                          : null
+                      }
+                    />
+                    <StatCard
+                      label={text.visibleConnections}
+                      value={graph?.meta.visibleConnectionCount || 0}
+                      note={`${graph?.meta.strongConnectionCount || 0} ${text.active} · ${graph?.meta.exploratoryConnectionCount || 0} ${text.reserve}`}
+                    />
+                    <StatCard
+                      label={text.sourceLabel}
+                      value={sourceDisplayLabel}
+                      compact
+                      note={visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
+                    />
+                  </div>
+                </section>
+
+                <section className="sidebar-card sidebar-lenses">
+                  <div className="lens-panel-header">
+                    <span className="lens-panel-title">{text.lensLabel}</span>
+                    <span className="lens-panel-note">
+                      {visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
+                    </span>
+                  </div>
+                  <div className="lens-controls">
+                    {availableLenses.map((lens) => (
+                      <button
+                        key={lens.id}
+                        className={`lens-btn ${safeLensId === lens.id ? 'active' : ''}`}
+                        type="button"
+                        onClick={() =>
+                          startTransition(() => {
+                            setActiveLensId(lens.id);
+                          })
+                        }
+                      >
+                        {lens.label}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              </>
+            ) : null}
           </>
         )}
       </aside>
 
       <main className="stage">
-        <div className="stage-toolbar">
-          <div className="mode-switch">
-            <button
-              className={`mode-tab ${viewMode === 'graph' ? 'active' : ''}`}
-              type="button"
-              onClick={() => setViewMode('graph')}
-            >
-              <Menu size={14} />
-              GRAPH
-            </button>
-            <button
-              className={`mode-tab ${viewMode === 'instructions' ? 'active' : ''}`}
-              type="button"
-              onClick={() => setViewMode('instructions')}
-            >
-              INSTRUCTIONS AND TIPS
-            </button>
-          </div>
-          <div className="toolbar-actions">
-            <button className="ghost-chip" type="button" onClick={handleImportFolder}>
-              <FolderUp size={14} />
-              {text.importFolder}
-            </button>
-            {dataset?.source === 'local' ? (
-              <button className="ghost-chip" type="button" onClick={handleRestorePublished}>
-                <RotateCcw size={14} />
-                {text.restorePublished}
-              </button>
-            ) : null}
-            <button
-              className="ghost-chip"
-              type="button"
-              onClick={() => setLocale((current) => (normalizeLocale(current) === 'es' ? 'en' : 'es'))}
-            >
-              <Languages size={14} />
-              {text.languageLabel}: {language.toUpperCase()}
-            </button>
-            <button
-              className="ghost-chip"
-              type="button"
-              onClick={() =>
-                startTransition(() => {
-                  setVisibilityMode((current) => (current === 'default' ? 'all' : 'default'));
-                })
-              }
-            >
-              {visibilityMode === 'default' ? <Eye size={14} /> : <EyeOff size={14} />}
-              {visibilityMode === 'default' ? text.visibilityAll : text.visibilityDefault}
-            </button>
-          </div>
-        </div>
-
-      {showGraph ? (
-        <section className="hud-panel hud-top">
-          <div className="stats-grid">
-            <StatCard
-              label={text.visibleProjects}
-              value={graph?.meta.visibleProjectCount || 0}
-              note={
-                hiddenProjectIds.length
-                  ? `${hiddenProjectIds.length} ${text.hiddenCount}`
-                  : null
-              }
+        {showGraph ? (
+          <Suspense
+            fallback={
+              <div className="graph-loading-surface" aria-live="polite">
+                <span className="graph-loading-label">Loading graph...</span>
+              </div>
+            }
+          >
+            <GraphCanvas
+              key={flowKey}
+              nodes={renderedNodes}
+              edges={renderedEdges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onNodeClick={handleNodeClick}
+              onEdgeClick={handleEdgeClick}
             />
-            <StatCard
-              label={text.visibleConnections}
-              value={graph?.meta.visibleConnectionCount || 0}
-              note={`${graph?.meta.strongConnectionCount || 0} ${text.active} · ${graph?.meta.exploratoryConnectionCount || 0} ${text.reserve}`}
-            />
-            <StatCard
-              label={text.sourceLabel}
-              value={sourceDisplayLabel}
-              note={visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
-            />
-          </div>
-        </section>
-      ) : null}
-
-      <section className="hud-panel hud-bottom">
-        <div className="lens-panel">
-          <div className="lens-panel-header">
-            <span className="lens-panel-title">{text.lensLabel}</span>
-            <span className="lens-panel-note">
-              {visibilityMode === 'default' ? text.visibilityDefault : text.visibilityAll}
-            </span>
-          </div>
-          <div className="lens-controls">
-            {availableLenses.map((lens) => (
-              <button
-                key={lens.id}
-                className={`lens-btn ${safeLensId === lens.id ? 'active' : ''}`}
-                type="button"
-                onClick={() =>
-                  startTransition(() => {
-                    setActiveLensId(lens.id);
-                  })
-                }
-              >
-                {lens.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {showGraph ? (
-        <ReactFlow
-          key={flowKey}
-          nodes={renderedNodes}
-          edges={renderedEdges}
-          nodeTypes={nodeTypes}
-          connectionLineType={ConnectionLineType.Bezier}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onNodeClick={handleNodeClick}
-          onEdgeClick={handleEdgeClick}
-          fitView
-          fitViewOptions={{ padding: 0.18 }}
-          minZoom={0.2}
-          maxZoom={1.6}
-        >
-          <Background gap={36} color="rgba(26, 26, 26, 0.12)" size={1.1} />
-        </ReactFlow>
-      ) : null}
+          </Suspense>
+        ) : null}
       </main>
 
       <aside className={`drawer ${drawer ? 'open' : ''}`}>
@@ -1039,11 +1001,11 @@ function App() {
   );
 }
 
-function StatCard({ label, value, note }) {
+function StatCard({ label, value, note, compact = false }) {
   return (
     <div className="stat-card">
       <span className="stat-label">{label}</span>
-      <strong className="stat-value">{value}</strong>
+      <strong className={`stat-value ${compact ? 'stat-value-compact' : ''}`}>{value}</strong>
       {note ? <span className="stat-note">{note}</span> : null}
     </div>
   );

@@ -131,57 +131,77 @@ function buildCoreEdge(projectId) {
   };
 }
 
-function buildConnectionEdges({ visibleProjects, allProjects, connections, locale = 'en', visibilityMode = 'default' }) {
+export function buildConnectionEdgeBundle({
+  visibleProjects,
+  allProjects,
+  connections,
+  locale = 'en',
+  visibilityMode = 'default',
+} = {}) {
   const normalizedLocale = normalizeLocale(locale);
   const projectById = buildProjectById(allProjects);
   const visibleProjectIds = new Set((Array.isArray(visibleProjects) ? visibleProjects : []).map((project) => project.id));
-  const allInsights = (Array.isArray(connections?.connections) ? connections.connections : [])
-    .map((connection, index) => buildConnectionInsight(connection, projectById, `graph-${index}`, normalizedLocale))
-    .filter((item) => item.source && item.target)
-    .filter((item) => item.sourceProject && item.targetProject)
-    .filter((item) => visibleProjectIds.has(item.source) && visibleProjectIds.has(item.target))
-    .filter((item) => visibilityMode === 'all' || item.visibility === 'default');
+  const edges = [];
+  let strongConnectionCount = 0;
+  let exploratoryConnectionCount = 0;
 
-  const edges = allInsights.map((item) => ({
-    id: `connection:${item.source}:${item.target}`,
-    source: item.source,
-    target: item.target,
-    type: 'default',
-    label: item.type,
-    style: {
-      stroke: item.tier === 'exploratory' ? '#1d3557' : '#e63946',
-      strokeWidth: item.tier === 'exploratory' ? 1.75 : 2.6,
-      strokeDasharray: item.visibility === 'optional' ? '8 6' : undefined,
-    },
-    labelStyle: {
-      fill: '#1a1a1a',
-      fontWeight: 700,
-      fontSize: 12,
-    },
-    data: {
-      kind: 'connection',
-      sourceProjectId: item.source,
-      targetProjectId: item.target,
-      sourceLabel: item.sourceLabel,
-      targetLabel: item.targetLabel,
-      type: item.type,
-      tier: item.tier,
-      visibility: item.visibility,
-      selectionReason: item.selectionReason,
-      description: item.description,
-      strengthLabel: item.strengthLabel,
-      strengthValue: item.strengthValue,
-      evidenceScore: item.evidenceScore,
-      insight: item,
-    },
-  }));
+  for (const [index, connection] of (Array.isArray(connections?.connections) ? connections.connections : []).entries()) {
+    const insight = buildConnectionInsight(connection, projectById, `graph-${index}`, normalizedLocale);
 
-  const strongConnectionCount = allInsights.filter((item) => item.tier === 'strong' && item.visibility === 'default').length;
-  const exploratoryConnectionCount = (Array.isArray(connections?.connections) ? connections.connections : [])
-    .map((connection, index) => buildConnectionInsight(connection, projectById, `count-${index}`, normalizedLocale))
-    .filter((item) => item.sourceProject && item.targetProject)
-    .filter((item) => visibleProjectIds.has(item.source) && visibleProjectIds.has(item.target))
-    .filter((item) => item.tier === 'exploratory').length;
+    if (!insight.source || !insight.target || !insight.sourceProject || !insight.targetProject) {
+      continue;
+    }
+
+    if (!visibleProjectIds.has(insight.source) || !visibleProjectIds.has(insight.target)) {
+      continue;
+    }
+
+    if (insight.tier === 'strong' && insight.visibility === 'default') {
+      strongConnectionCount += 1;
+    }
+
+    if (insight.tier === 'exploratory') {
+      exploratoryConnectionCount += 1;
+    }
+
+    if (visibilityMode !== 'all' && insight.visibility !== 'default') {
+      continue;
+    }
+
+    edges.push({
+      id: `connection:${insight.source}:${insight.target}`,
+      source: insight.source,
+      target: insight.target,
+      type: 'default',
+      label: insight.type,
+      style: {
+        stroke: insight.tier === 'exploratory' ? '#1d3557' : '#e63946',
+        strokeWidth: insight.tier === 'exploratory' ? 1.75 : 2.6,
+        strokeDasharray: insight.visibility === 'optional' ? '8 6' : undefined,
+      },
+      labelStyle: {
+        fill: '#1a1a1a',
+        fontWeight: 700,
+        fontSize: 12,
+      },
+      data: {
+        kind: 'connection',
+        sourceProjectId: insight.source,
+        targetProjectId: insight.target,
+        sourceLabel: insight.sourceLabel,
+        targetLabel: insight.targetLabel,
+        type: insight.type,
+        tier: insight.tier,
+        visibility: insight.visibility,
+        selectionReason: insight.selectionReason,
+        description: insight.description,
+        strengthLabel: insight.strengthLabel,
+        strengthValue: insight.strengthValue,
+        evidenceScore: insight.evidenceScore,
+        insight,
+      },
+    });
+  }
 
   return {
     edges,
@@ -211,7 +231,7 @@ export function buildGraphModel({
 
   const profileNode = buildProfileNode(profile, locale);
   const projectNodes = visibleProjects.map((project, index) => buildProjectNode(project, positions[index], locale));
-  const connectionData = buildConnectionEdges({
+  const connectionData = buildConnectionEdgeBundle({
     visibleProjects,
     allProjects: projects,
     connections,

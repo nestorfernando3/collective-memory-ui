@@ -1,23 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --paper: #f4efe6;
+  --paper: #f3ede3;
+  --paper-warm: #f8f2e8;
   --paper-strong: #fcfaf6;
   --surface: rgba(252, 250, 246, 0.92);
-  --surface-muted: rgba(250, 246, 239, 0.86);
-  --ink: #171717;
-  --ink-muted: #5f625f;
-  --line: rgba(23, 23, 23, 0.14);
-  --line-strong: rgba(23, 23, 23, 0.22);
-  --terracotta: #c65a3d;
-  --slate: #32424a;
-  --moss: #6e7d68;
-  --brass: #b89446;
-  --shadow-soft: 0 14px 32px rgba(39, 28, 12, 0.08);
+  --surface-strong: rgba(253, 251, 247, 0.98);
+  --surface-muted: rgba(247, 241, 231, 0.86);
+  --ink: #161514;
+  --ink-muted: #5b605b;
+  --line: rgba(22, 20, 18, 0.12);
+  --line-strong: rgba(22, 20, 18, 0.2);
+  --terracotta: #bb5438;
+  --slate: #31414a;
+  --moss: #697763;
+  --brass: #ad8640;
+  --shadow-soft: 0 16px 36px rgba(39, 28, 12, 0.08);
+  --shadow-medium: 0 24px 60px rgba(39, 28, 12, 0.11);
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
+  --radius-xl: 28px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-emphatic: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 * {
@@ -32,12 +38,18 @@ body,
   min-height: 100%;
 }
 
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Instrument Sans', sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(circle at 14% 16%, rgba(184, 148, 70, 0.12), transparent 18%),
-    radial-gradient(circle at 84% 18%, rgba(198, 90, 61, 0.09), transparent 18%),
+    radial-gradient(circle at 14% 16%, rgba(184, 148, 70, 0.14), transparent 18%),
+    radial-gradient(circle at 84% 16%, rgba(187, 84, 56, 0.1), transparent 18%),
+    radial-gradient(circle at 52% 84%, rgba(49, 65, 74, 0.08), transparent 24%),
     linear-gradient(180deg, var(--paper-strong), var(--paper));
   overflow: hidden;
 }
@@ -47,12 +59,24 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.08;
+  opacity: 0.075;
   background-image:
     linear-gradient(var(--line) 1px, transparent 1px),
     linear-gradient(90deg, var(--line) 1px, transparent 1px);
   background-size: 32px 32px;
-  mask-image: linear-gradient(180deg, black 0%, rgba(0, 0, 0, 0.42) 32%, transparent 100%);
+  mask-image: linear-gradient(180deg, black 0%, rgba(0, 0, 0, 0.42) 36%, transparent 100%);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: -8vh;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.42), transparent 32%),
+    radial-gradient(circle at 50% 100%, rgba(39, 28, 12, 0.05), transparent 48%);
+  opacity: 0.55;
+  mix-blend-mode: multiply;
 }
 
 button,
@@ -60,6 +84,34 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgba(187, 84, 56, 0.9);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(187, 84, 56, 0.18);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .react-flow__pane {
@@ -73,6 +125,21 @@ textarea {
 .react-flow__attribution {
   background: transparent !important;
   color: var(--ink-muted) !important;
+}
+
+.react-flow__controls {
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: rgba(252, 250, 246, 0.94) !important;
+  border-color: var(--line) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #fff !important;
 }
 
 .glass-node {
@@ -177,6 +244,7 @@ textarea {
   font-size: clamp(1.9rem, 4vw, 2.6rem);
   line-height: 1;
   letter-spacing: -0.035em;
+  max-width: 10ch;
 }
 
 .drawer-meta {
@@ -233,6 +301,26 @@ textarea {
   font-size: 0.72rem;
   color: var(--slate);
   background: rgba(50, 66, 74, 0.04);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .glass-node,
+  .ghost-chip,
+  .secondary-btn,
+  .drawer-inline-action,
+  .connection-project-btn,
+  .lens-btn,
+  .connection-list-item,
+  .drawer-close,
+  .mode-tab,
+  .react-flow__controls-button {
+    transition:
+      transform 180ms var(--ease-out),
+      background-color 180ms var(--ease-out),
+      border-color 180ms var(--ease-out),
+      color 180ms var(--ease-out),
+      box-shadow 180ms var(--ease-out);
+  }
 }
 
 @keyframes dashdraw {
