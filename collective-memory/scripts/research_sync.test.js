@@ -7,6 +7,7 @@ const {
   buildConnectionContext,
   buildDocumentEvidenceSentence,
   buildLocalDescription,
+  buildV2CandidateQueue,
   classifyConnectionTier,
   isGeneratedMemoryDoc,
   isNoisyConnectionDescription,
@@ -15,6 +16,117 @@ const {
   shouldRefreshConnection,
   scorePair,
 } = require('./research_sync.js');
+
+function makeV2Profile(id, name, sharedText = 'Drawing on Barthes and myth in education.', docs = [{ tier: 'A', text: 'Drawing on Barthes and myth in education.' }]) {
+  return {
+    project: {
+      id,
+      name,
+      description: '',
+      tags: [],
+      domains: ['educacion'],
+      themes: [],
+      theoretical_frameworks: [],
+      technologies: [],
+      institutions: ['politecnico'],
+      collaborators: [],
+      outputs: [],
+    },
+    metadataFields: {
+      theoretical_frameworks: [],
+      domains: ['educacion'],
+      themes: [],
+      tags: [],
+      technologies: [],
+      institutions: ['politecnico'],
+      collaborators: [],
+      outputs: [],
+    },
+    metadataTokens: ['educacion', 'politecnico', 'semiotica'],
+    docTokens: ['barthes', 'myth', 'education'],
+    docSignals: {
+      citations: [],
+      theoryTerms: [],
+      dataTerms: [],
+      provenanceTerms: [],
+      headings: [],
+      quotedPhrases: [],
+      keyPhrases: [],
+      highlights: [],
+    },
+    docEvidence: {
+      snippets: docs.map((doc, index) => ({
+        filePath: `/tmp/${id}-${index}.md`,
+        label: `${id}-${index}.md`,
+        text: doc.text || sharedText,
+        highlights: [],
+      })),
+    },
+    documents: docs,
+    roleFlags: {
+      theory: false,
+      research: false,
+      pedagogy: false,
+      institutional: false,
+      creative: false,
+      tool: false,
+      data: false,
+      article: false,
+    },
+    signalProfile: {
+      projectId: id,
+      metadata: {
+        domains: ['educacion'],
+        themes: [],
+        institutions: ['politecnico'],
+        theoretical_frameworks: [],
+        confidence: 0,
+        sources: ['A'],
+      },
+      inferred: {
+        domains: ['semiotica'],
+        themes: [],
+        institutions: ['politecnico'],
+        theoretical_frameworks: ['barthes'],
+        confidence: 0.72,
+        sources: ['A'],
+      },
+      documents: docs,
+      signal: {
+        domains: ['educacion', 'semiotica'],
+        themes: [],
+        institutions: ['politecnico'],
+        theoretical_frameworks: ['barthes'],
+      },
+      confidence: 0.72,
+    },
+  };
+}
+
+function loadResearchSyncWithStubbedVisibility(decideConnectionSet) {
+  const modulePath = require.resolve('./research_sync.js');
+  const visibilityPath = require.resolve('./lib/visibility_policy.js');
+  const originalVisibility = require.cache[visibilityPath];
+
+  delete require.cache[modulePath];
+  require.cache[visibilityPath] = {
+    id: visibilityPath,
+    filename: visibilityPath,
+    loaded: true,
+    exports: { decideConnectionSet, decideTier: () => ({ tier: 'exploratory', visibility: 'optional', selectionReason: 'exploratory' }) },
+  };
+
+  try {
+    return require('./research_sync.js');
+  } finally {
+    delete require.cache[modulePath];
+    if (originalVisibility) {
+      require.cache[visibilityPath] = originalVisibility;
+    } else {
+      delete require.cache[visibilityPath];
+    }
+  }
+}
 
 function makeProfile(id, name, metadataTokens = [], extras = {}) {
   return {
@@ -78,6 +190,23 @@ test('downweights generic metadata tokens', () => {
   assert.ok(candidate.score > 0);
   assert.ok(candidate.score < 1);
   assert.ok(!candidate.signals.some((signal) => signal.field === 'metadata_tokens'));
+});
+
+test('buildV2CandidateQueue derives scores from the V2 modules', () => {
+  const profileA = makeV2Profile('a', 'Alpha');
+  const profileB = makeV2Profile('b', 'Beta');
+  const profilesById = new Map([
+    ['a', profileA],
+    ['b', profileB],
+  ]);
+
+  const [candidate] = buildV2CandidateQueue([{ id: 'a' }, { id: 'b' }], profilesById, new Set());
+
+  assert.equal(candidate.from, 'a');
+  assert.equal(candidate.to, 'b');
+  assert.equal(candidate.affinityScore, 66);
+  assert.equal(candidate.evidenceScore, 24);
+  assert.equal(candidate.score, 90);
 });
 
 test('retains meaningful shared tokens in the narrative context', () => {
@@ -319,7 +448,16 @@ test('refreshes low-score fallback descriptions so weak links can be rewritten h
 });
 
 test('applyCandidates writes decision scores and coverage promotion metadata', async () => {
-  const { applyCandidates } = require('./research_sync.js');
+  const calls = [];
+  const { applyCandidates } = loadResearchSyncWithStubbedVisibility((candidates, projectIds) => {
+    calls.push({ candidates, projectIds });
+    return candidates.map((candidate) => ({
+      ...candidate,
+      tier: 'review',
+      visibility: 'hidden',
+      selectionReason: 'stub-policy',
+    }));
+  });
 
   const result = await applyCandidates(
     { connections: [] },
@@ -327,35 +465,28 @@ test('applyCandidates writes decision scores and coverage promotion metadata', a
       {
         from: 'collective-memory-ui',
         to: 'diario-emociones',
-        affinityScore: 66,
-        evidenceScore: 22,
-        tier: 'exploratory',
-        visibility: 'default',
-        selectionReason: 'coverage-floor',
-        evidenceAssessment: {
-          evidenceScore: 22,
-          breakdown: { documentsA: 0, documentsB: 22, documentsTechnical: 0 },
-          fragments: [{ kind: 'structure', quote: 'shared pedagogical flow', tier: 'B' }],
-        },
+      },
+      {
+        from: 'diario-emociones',
+        to: 'tercer-proyecto',
       },
     ],
     new Map([
-      ['collective-memory-ui', { project: { id: 'collective-memory-ui', name: 'Collective Memory PWA' }, docEvidence: { snippets: [] }, docSignals: {} }],
-      ['diario-emociones', { project: { id: 'diario-emociones', name: 'Diario de Emociones' }, docEvidence: { snippets: [] }, docSignals: {} }],
+      ['collective-memory-ui', makeV2Profile('collective-memory-ui', 'Collective Memory PWA')],
+      ['diario-emociones', makeV2Profile('diario-emociones', 'Diario de Emociones')],
+      ['tercer-proyecto', makeV2Profile('tercer-proyecto', 'Tercer Proyecto')],
     ]),
     { llm: false },
   );
 
-  const connection = result.nextConnections.connections[0];
-  assert.equal(connection.from, 'collective-memory-ui');
-  assert.equal(connection.to, 'diario-emociones');
-  assert.equal(connection.selection_reason, 'coverage-floor');
-  assert.equal(connection.decision.affinity_score, 66);
-  assert.equal(connection.decision.evidence_score, 22);
-  assert.equal(connection.decision.coverage_promoted, true);
-  assert.equal(connection.decision.review_flag, false);
-  assert.deepEqual(connection.evidence.breakdown, { documentsA: 0, documentsB: 22, documentsTechnical: 0 });
-  assert.deepEqual(connection.evidence.fragments, [{ kind: 'structure', quote: 'shared pedagogical flow', tier: 'B' }]);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].projectIds.includes('collective-memory-ui'), true);
+  const selected = result.nextConnections.connections.find((item) => item.from === 'collective-memory-ui' && item.to === 'diario-emociones');
+  assert.equal(selected.selection_reason, 'stub-policy');
+  assert.equal(selected.tier, 'review');
+  assert.equal(selected.visibility, 'hidden');
+  assert.equal(selected.decision.affinity_score, 66);
+  assert.equal(selected.decision.evidence_score, 24);
 });
 
 test('preserves project names like Collective Memory PWA while cleaning legacy noise', () => {

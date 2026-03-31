@@ -21,6 +21,7 @@ const { classifyDocument } = require('./lib/document_classifier.js');
 const { buildProjectSignalProfile } = require('./lib/project_signal_profile.js');
 const { buildAffinityCandidate } = require('./lib/candidate_affinity.js');
 const { buildEvidenceAssessment } = require('./lib/evidence_validator.js');
+const { decideConnectionSet } = require('./lib/visibility_policy.js');
 
 const ROOT_DIR = path.join(__dirname, '..');
 const UI_DIR = path.join(ROOT_DIR, '..', 'collective-memory-ui');
@@ -1438,7 +1439,76 @@ function buildV2Candidate(candidate, fromId, toId, profilesById) {
       ? Number(candidate.evidenceScore)
       : Number(evidenceAssessment.evidenceScore || 0),
     evidenceAssessment,
+    score: Number.isFinite(Number(candidate.score))
+      ? Number(candidate.score)
+      : Number(affinityCandidate.affinityScore || 0) + Number(evidenceAssessment.evidenceScore || 0),
   };
+}
+
+function buildV2SeedCandidate(fromProfile, toProfile, existingKeys) {
+  const fromId = String(fromProfile?.project?.id || '').trim();
+  const toId = String(toProfile?.project?.id || '').trim();
+  const pairKey = canonicalPairKey(fromId, toId);
+  const leftSignalProfile = fromProfile.signalProfile || buildProjectSignalProfile({
+    projectId: fromId,
+    metadata: fromProfile.metadataFields || {},
+    documents: fromProfile.documents || [],
+  });
+  const rightSignalProfile = toProfile.signalProfile || buildProjectSignalProfile({
+    projectId: toId,
+    metadata: toProfile.metadataFields || {},
+    documents: toProfile.documents || [],
+  });
+  const affinityCandidate = buildAffinityCandidate(leftSignalProfile, rightSignalProfile);
+  const evidenceAssessment = buildEvidenceAssessment(leftSignalProfile, rightSignalProfile);
+
+  return {
+    a: fromProfile.project || null,
+    b: toProfile.project || null,
+    from: fromId,
+    to: toId,
+    pairKey,
+    alreadyConnected: existingKeys instanceof Set ? existingKeys.has(pairKey) : false,
+    shared: affinityCandidate.shared || {},
+    sharedMetadataTokens: setIntersection(fromProfile.metadataTokens || [], toProfile.metadataTokens || []),
+    sharedDocTokens: setIntersection(fromProfile.docTokens || [], toProfile.docTokens || []),
+    sharedDocSignals: sharedSignalDetails(fromProfile.docSignals || {}, toProfile.docSignals || {}),
+    roleA: fromProfile.project ? (fromProfile.roleFlags || classifyProjectRole(fromProfile)) : {},
+    roleB: toProfile.project ? (toProfile.roleFlags || classifyProjectRole(toProfile)) : {},
+    affinityScore: Number(affinityCandidate.affinityScore || 0),
+    evidenceScore: Number(evidenceAssessment.evidenceScore || 0),
+    evidenceAssessment,
+    score: Number(affinityCandidate.affinityScore || 0) + Number(evidenceAssessment.evidenceScore || 0),
+  };
+}
+
+function buildV2CandidateQueue(projects = [], profilesById, existingKeys = new Set(), focusId = null) {
+  const queue = [];
+  const projectList = Array.isArray(projects) ? projects : [];
+
+  if (focusId) {
+    const focusProfile = profilesById.get(focusId);
+    if (!focusProfile) return queue;
+
+    projectList.forEach(project => {
+      if (!project || project.id === focusId) return;
+      const otherProfile = profilesById.get(project.id);
+      if (!otherProfile) return;
+      queue.push(buildV2SeedCandidate(focusProfile, otherProfile, existingKeys));
+    });
+    return queue;
+  }
+
+  for (let i = 0; i < projectList.length; i += 1) {
+    for (let j = i + 1; j < projectList.length; j += 1) {
+      const leftProfile = profilesById.get(projectList[i].id);
+      const rightProfile = profilesById.get(projectList[j].id);
+      if (!leftProfile || !rightProfile) continue;
+      queue.push(buildV2SeedCandidate(leftProfile, rightProfile, existingKeys));
+    }
+  }
+
+  return queue;
 }
 
 function setIntersection(a, b) {
@@ -1958,18 +2028,10 @@ async function applyCandidates(connectionsData, candidates, profilesById, option
       return buildV2Candidate(candidate, resolvedFromId, resolvedToId, profilesById);
     });
 
-  const presetCandidates = v2Candidates.filter(candidate => candidate.visibility && candidate.selectionReason);
-  const policyCandidates = applyVisibilityPolicy(
-    v2Candidates
-      .filter(candidate => !(candidate.visibility && candidate.selectionReason))
-      .map(candidate => ({
-        ...candidate,
-        tier: candidate.tier || classifyConnectionTier(candidate),
-      })),
+  const selectedCandidates = decideConnectionSet(
+    v2Candidates,
     Array.from(profilesById.keys()),
-  );
-  const selectedCandidates = [...presetCandidates, ...policyCandidates]
-    .filter(candidate => candidate.tier !== 'discarded');
+  ).filter(candidate => candidate.tier !== 'discarded');
 
   let added = 0;
   let updated = 0;
@@ -2092,25 +2154,13 @@ async function main() {
     }
   };
 
-  if (args.focus) {
-    const focusId = focusProjectIds[0];
-    const focusProfile = profilesById.get(focusId);
-    if (focusProfile) {
-      projects.forEach(other => {
-        if (other.id === focusId) return;
-        const otherProfile = profilesById.get(other.id);
-        addCandidate(scorePair(focusProfile, otherProfile, existingKeys));
-      });
-    }
-  } else {
-    for (let i = 0; i < projects.length; i += 1) {
-      for (let j = i + 1; j < projects.length; j += 1) {
-        const aProfile = profilesById.get(projects[i].id);
-        const bProfile = profilesById.get(projects[j].id);
-        addCandidate(scorePair(aProfile, bProfile, existingKeys));
-      }
-    }
-  }
+  const decidedCandidates = decideConnectionSet(
+    buildV2CandidateQueue(projects, profilesById, existingKeys, args.focus),
+    projects.map(project => project.id),
+  );
+
+  decidedCandidates
+    .forEach(addCandidate);
 
   existingCandidates.sort((a, b) => b.score - a.score || a.a.id.localeCompare(b.a.id) || a.b.id.localeCompare(b.b.id));
   newCandidates.sort((a, b) => b.score - a.score || a.a.id.localeCompare(b.a.id) || a.b.id.localeCompare(b.b.id));
@@ -2166,6 +2216,7 @@ module.exports = {
   buildDocumentEvidenceSentence,
   buildLocalDescription,
   buildLLMPrompt,
+  buildV2CandidateQueue,
   classifyConnectionTier,
   applyVisibilityPolicy,
   buildProjectProfile,
