@@ -4,14 +4,28 @@ function uniq(values) {
   return [...new Set((values || []).filter(Boolean))];
 }
 
+function normalizeList(value) {
+  if (Array.isArray(value)) {
+    return uniq(value);
+  }
+
+  if (typeof value === 'string') {
+    return uniq(value.split(/[,;|]/).map((item) => item.trim()).filter(Boolean));
+  }
+
+  return [];
+}
+
 function normalizeMetadata(metadata = {}) {
+  const safeMetadata = metadata && typeof metadata === 'object' ? metadata : {};
+
   return {
-    domains: uniq(metadata.domains),
-    themes: uniq(metadata.themes),
-    institutions: uniq(metadata.institutions),
-    theoretical_frameworks: uniq(metadata.theoretical_frameworks),
-    confidence: Number.isFinite(metadata.confidence) ? metadata.confidence : 0,
-    sources: uniq(metadata.sources),
+    domains: normalizeList(safeMetadata.domains),
+    themes: normalizeList(safeMetadata.themes),
+    institutions: normalizeList(safeMetadata.institutions),
+    theoretical_frameworks: normalizeList(safeMetadata.theoretical_frameworks),
+    confidence: Number.isFinite(safeMetadata.confidence) ? safeMetadata.confidence : 0,
+    sources: normalizeList(safeMetadata.sources),
   };
 }
 

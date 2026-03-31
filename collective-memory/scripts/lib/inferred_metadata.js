@@ -10,7 +10,8 @@ function uniq(values) {
 }
 
 function inferMetadataFromDocuments(documents = []) {
-  const allowed = documents.filter((item) => item && (item.tier === 'A' || item.tier === 'B'));
+  const safeDocuments = Array.isArray(documents) ? documents : [];
+  const allowed = safeDocuments.filter((item) => item && (item.tier === 'A' || item.tier === 'B'));
   const sourceText = allowed.map((item) => String(item.text || '')).join('\n');
   const normalized = normalizeText(sourceText);
 
@@ -67,7 +68,7 @@ function inferMetadataFromDocuments(documents = []) {
   out.themes = uniq(out.themes);
   out.institutions = uniq(out.institutions);
   out.theoretical_frameworks = uniq(out.theoretical_frameworks);
-  out.confidence = out.sources.length ? 0.72 : 0;
+  out.confidence = out.domains.length || out.themes.length || out.institutions.length || out.theoretical_frameworks.length ? 0.72 : 0;
 
   return out;
 }
