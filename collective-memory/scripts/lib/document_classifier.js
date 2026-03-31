@@ -27,6 +27,8 @@ const X_TEXT_PATTERNS = [
   /Research Sync/i,
 ];
 
+const SUBSTANTIVE_WORD_THRESHOLD = 120;
+
 function normalizePath(filePath) {
   return String(filePath || '').replace(/\\/g, '/');
 }
@@ -54,11 +56,7 @@ function classifyDocument(filePath = '', text = '') {
     return { tier: DOCUMENT_CLASSES.X, reason: 'generated-memory-artifact' };
   }
 
-  if (lowerPath.endsWith('.docx')) {
-    return { tier: DOCUMENT_CLASSES.A, reason: 'substantive-document' };
-  }
-
-  if (lowerPath.endsWith('.md') && wordCount >= 20) {
+  if ((lowerPath.endsWith('.docx') || lowerPath.endsWith('.md')) && wordCount >= SUBSTANTIVE_WORD_THRESHOLD) {
     return { tier: DOCUMENT_CLASSES.A, reason: 'substantive-document' };
   }
 
