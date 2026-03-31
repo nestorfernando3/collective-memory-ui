@@ -19,6 +19,7 @@ import {
 import './App.css';
 import { buildProjectConnectionInsights } from './lib/connectionInsights.js';
 import { buildGraphModel } from './lib/graphModel.js';
+import { buildGraphSearchResults } from './lib/searchResults.js';
 import { normalizeLocale, translateAppSubtitle, translateAppTitle } from './lib/i18n.js';
 import { buildProfileNarrative } from './lib/profileNarrative.js';
 import { joinBasePath } from './lib/resourcePath.js';
@@ -32,6 +33,7 @@ const STORAGE_KEYS = {
   locale: 'collective-memory-locale',
   hiddenProjectIds: 'collective-memory-hidden-project-ids',
   visibilityMode: 'collective-memory-visibility-mode',
+  searchQuery: 'collective-memory-search-query',
 };
 
 const FALLBACK_LENS = {
@@ -87,6 +89,14 @@ const COPY = {
     optionalBadge: 'Exploratoria',
     defaultBadge: 'Activa',
     hiddenCount: 'ocultos',
+    searchTitle: 'Buscar en el grafo',
+    searchPlaceholder: 'Proyecto, tema, etiqueta o conexión',
+    searchHint: 'Encuentra proyectos y puentes en la vista actual.',
+    searchEmpty: 'Escribe para buscar en la vista actual.',
+    searchNoResults: 'No hay coincidencias en la vista actual.',
+    searchOpen: 'Abrir',
+    searchResults: 'resultados',
+    searchClear: 'Limpiar búsqueda',
   },
   en: {
     subtitleFallback: 'Living archive of work',
@@ -134,6 +144,14 @@ const COPY = {
     optionalBadge: 'Exploratory',
     defaultBadge: 'Active',
     hiddenCount: 'hidden',
+    searchTitle: 'Search the graph',
+    searchPlaceholder: 'Project, theme, tag, or connection',
+    searchHint: 'Find projects and bridges in the current view.',
+    searchEmpty: 'Type to search the current view.',
+    searchNoResults: 'No matches in the current view.',
+    searchOpen: 'Open',
+    searchResults: 'results',
+    searchClear: 'Clear search',
   },
 };
 
@@ -169,6 +187,16 @@ function parseStoredJson(key, fallbackValue) {
   try {
     const value = window.localStorage.getItem(key);
     return value ? JSON.parse(value) : fallbackValue;
+  } catch {
+    return fallbackValue;
+  }
+}
+
+function readStoredString(key, fallbackValue = '') {
+  if (typeof window === 'undefined') return fallbackValue;
+
+  try {
+    return window.localStorage.getItem(key) || fallbackValue;
   } catch {
     return fallbackValue;
   }
@@ -238,6 +266,7 @@ function App() {
   const [activeLensId, setActiveLensId] = useState('All');
   const [projectConnectionMode, setProjectConnectionMode] = useState('principal');
   const [drawer, setDrawer] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(() => readStoredString(STORAGE_KEYS.searchQuery, ''));
 
   const language = normalizeLocale(locale);
   const text = COPY[language];
@@ -278,14 +307,13 @@ function App() {
     window.localStorage.setItem(STORAGE_KEYS.visibilityMode, visibilityMode);
   }, [visibilityMode]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(STORAGE_KEYS.searchQuery, searchQuery);
+  }, [searchQuery]);
+
   const availableLenses = dataset?.profile?.lenses?.length ? dataset.profile.lenses : [FALLBACK_LENS];
   const safeLensId = availableLenses.some((lens) => lens.id === activeLensId) ? activeLensId : availableLenses[0].id;
-
-  useEffect(() => {
-    if (safeLensId !== activeLensId) {
-      setActiveLensId(safeLensId);
-    }
-  }, [activeLensId, safeLensId]);
 
   const graph = useMemo(() => {
     if (!dataset) return null;
@@ -301,11 +329,26 @@ function App() {
     });
   }, [dataset, hiddenProjectIds, language, safeLensId, visibilityMode]);
 
+  const graphSearchResults = useMemo(
+    () =>
+      buildGraphSearchResults({
+        projectNodes: graph?.projectNodes || [],
+        edges: graph?.edges || [],
+        query: searchQuery,
+      }),
+    [graph, searchQuery],
+  );
+
+  const searchResultIds = useMemo(() => new Set(graphSearchResults.map((result) => result.id)), [graphSearchResults]);
+
   const renderedNodes = useMemo(() => {
     if (!graph) return [];
 
     return graph.nodes.map((node) => ({
       ...node,
+      className: [
+        searchResultIds.has(node.id) ? 'search-hit' : '',
+      ].filter(Boolean).join(' '),
       data: {
         ...node.data,
         selected:
@@ -313,7 +356,7 @@ function App() {
           (drawer?.type === 'project' && node.id === drawer.project.id),
       },
     }));
-  }, [drawer, graph]);
+  }, [drawer, graph, searchResultIds]);
 
   const renderedEdges = useMemo(() => {
     if (!graph) return [];
@@ -321,8 +364,9 @@ function App() {
     return graph.edges.map((edge) => ({
       ...edge,
       animated: edge.data?.kind === 'profile-link',
+      className: searchResultIds.has(edge.id) ? 'search-hit' : '',
     }));
-  }, [graph]);
+  }, [graph, searchResultIds]);
 
   const profileNarrative = useMemo(() => {
     if (!dataset) return null;
@@ -361,6 +405,7 @@ function App() {
     translateAppSubtitle(dataset?.profile?.site_subtitle, language) ||
     dataset?.profile?.site_subtitle ||
     text.subtitleFallback;
+  const visibleSearchResults = graphSearchResults.slice(0, 8);
 
   function openProfile() {
     if (!profileNarrative) return;
@@ -383,6 +428,23 @@ function App() {
       type: 'connection',
       connection: connectionInsight,
     });
+  }
+
+  function openSearchResult(result) {
+    setDrawer(null);
+
+    if (result.kind === 'project') {
+      openProject(result.payload);
+      return;
+    }
+
+    if (result.kind === 'connection') {
+      openConnection(result.payload);
+    }
+  }
+
+  function clearSearch() {
+    setSearchQuery('');
   }
 
   function toggleProjectVisibility(projectId) {
@@ -447,6 +509,70 @@ function App() {
           </button>
         </div>
       </header>
+
+      {graph ? (
+        <section className="hud-panel hud-search">
+          <div className="search-panel-header">
+            <div>
+              <h3>{text.searchTitle}</h3>
+              <p>{text.searchHint}</p>
+            </div>
+            {searchQuery ? (
+              <button className="drawer-inline-action search-clear-btn" type="button" onClick={clearSearch}>
+                {text.searchClear}
+              </button>
+            ) : null}
+          </div>
+          <label className="search-field">
+            <span className="sr-only">{text.searchTitle}</span>
+            <input
+              type="search"
+              value={searchQuery}
+              placeholder={text.searchPlaceholder}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && visibleSearchResults[0]) {
+                  event.preventDefault();
+                  openSearchResult(visibleSearchResults[0]);
+                }
+              }}
+            />
+          </label>
+          {searchQuery ? (
+            <>
+              <div className="search-results-meta">
+                {graphSearchResults.length} {text.searchResults}
+              </div>
+              {visibleSearchResults.length ? (
+                <div className="search-results-list" aria-label={text.searchTitle}>
+                  {visibleSearchResults.map((result) => (
+                    <button
+                      key={result.id}
+                      className="search-result"
+                      type="button"
+                      onClick={() => openSearchResult(result)}
+                    >
+                      <span className="search-result-topline">
+                        <strong>{result.label}</strong>
+                        <span className="search-result-kind">
+                          {result.kind === 'project' ? text.projectChip : text.connectionChip}
+                        </span>
+                      </span>
+                      {result.subtitle ? <span className="search-result-subtitle">{result.subtitle}</span> : null}
+                      {result.description ? <span className="search-result-description">{result.description}</span> : null}
+                      <span className="search-result-open">{text.searchOpen}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="search-empty">{text.searchNoResults}</p>
+              )}
+            </>
+          ) : (
+            <p className="search-empty">{text.searchEmpty}</p>
+          )}
+        </section>
+      ) : null}
 
       <section className="hud-panel hud-top">
         <div className="stats-grid">
