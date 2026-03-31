@@ -57,6 +57,8 @@ test('removes route, boilerplate, and legacy memory noise from connection descri
       {
         from: 'alpha',
         to: 'beta',
+        tier: 'exploratory',
+        selection_reason: 'coverage-floor',
         description:
           'La relación entre Alpha y Beta se entiende mejor por las señales que repiten sus textos. En los textos aparecen citas como Generación 2030 y GESTIONES BRISAS DEL RIO 2026, matrices teóricas como fenomenología y teoría, reuso de datos y corpus compartidos y pasajes como Archivo vivo de trabajo. Este perfil se entiende por la suma de proyectos académicos, pedagógicos y culturales. La lectura sugerida va de Alpha hacia Beta, porque el vínculo parece acumulativo y no accidental.',
       },
@@ -69,7 +71,7 @@ test('removes route, boilerplate, and legacy memory noise from connection descri
     connections: connections.connections,
   });
 
-  assert.equal(insights[0].description, '');
+  assert.match(insights[0].description, /coverage-floor|aislamiento/i);
   assert.doesNotMatch(insights[0].description, /Ruta Objetivo|Base Teórica Inyectada|Las Camilas - Textos selectos|Generación 2030|Archivo vivo de trabajo|Este perfil se entiende/i);
 });
 
@@ -79,8 +81,10 @@ test('replaces weak generic fallback descriptions with exploratory copy', () => 
       {
         from: 'alpha',
         to: 'beta',
+        tier: 'exploratory',
+        selection_reason: 'exploratory',
         description:
-          'La relación entre Alpha y Beta se entiende mejor por las señales que repiten sus textos. La lectura sugerida va de Alpha hacia Beta, porque el vínculo parece acumulativo y no accidental.',
+          'This link seems useful because of thematic proximity and a suggested reading.',
         evidence: { score: 14 },
       },
     ],
@@ -92,8 +96,116 @@ test('replaces weak generic fallback descriptions with exploratory copy', () => 
     connections: connections.connections,
   });
 
-  assert.equal(insights[0].description, '');
-  assert.doesNotMatch(insights[0].description, /se entiende mejor por las señales/i);
+  assert.match(insights[0].description, /Exploratory connection between Alpha and Beta/i);
+  assert.doesNotMatch(insights[0].description, /thematic proximity/i);
+});
+
+test('buildProjectConnectionInsights normalizes partial decision payloads', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'optional',
+        selection_reason: 'coverage-floor',
+        evidence: { score: 22 },
+        decision: {
+          custom_flag: 'keep-me',
+          evidence_score: 5,
+        },
+      },
+    ],
+    visibilityMode: 'all',
+  });
+
+  assert.equal(insights[0].decision.custom_flag, 'keep-me');
+  assert.equal(insights[0].decision.evidence_score, 22);
+  assert.equal(insights[0].decision.coverage_promoted, true);
+});
+
+test('preserves curated exploratory descriptions when they are already specific', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'default',
+        selection_reason: 'exploratory',
+        description: 'Curated exploratory note about editor workflow and assessment rhythm.',
+      },
+    ],
+  });
+
+  assert.equal(insights[0].description, 'Curated exploratory note about editor workflow and assessment rhythm.');
+});
+
+test('preserves short curated exploratory descriptions instead of flagging them as generic', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'default',
+        selection_reason: 'exploratory',
+        description: 'Short curated note on editor workflow and assessment rhythm.',
+      },
+    ],
+  });
+
+  assert.equal(insights[0].description, 'Short curated note on editor workflow and assessment rhythm.');
+});
+
+test('preserves short specific exploratory descriptions that still use relation language', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'default',
+        selection_reason: 'exploratory',
+        description: 'La relación entre Alpha y Beta se apoya en un marco conceptual explícito y evidencia documental.',
+      },
+    ],
+  });
+
+  assert.equal(
+    insights[0].description,
+    'La relación entre Alpha y Beta se apoya en un marco conceptual explícito y evidencia documental.',
+  );
+});
+
+test('preserves short specific English relation-language descriptions', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'default',
+        selection_reason: 'exploratory',
+        description: 'The relation between Alpha and Beta is grounded in an explicit framework and shared evidence.',
+      },
+    ],
+  });
+
+  assert.equal(
+    insights[0].description,
+    'The relation between Alpha and Beta is grounded in an explicit framework and shared evidence.',
+  );
 });
 
 test('buildProjectConnectionInsights hides optional exploratory links by default', () => {
@@ -160,6 +272,36 @@ test('buildProjectConnectionInsights can include optional exploratory links on d
   assert.equal(insights[1].visibility, 'optional');
 });
 
+test('buildProjectConnectionInsights preserves the full decision payload', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'optional',
+        selection_reason: 'coverage-floor',
+        description: 'La relación entre Alpha y Beta todavía es tentativa.',
+        decision: {
+          affinity_score: 66,
+          evidence_score: 22,
+          coverage_promoted: true,
+          review_flag: false,
+          custom_flag: 'keep-me',
+          shared_summary: ['dominios: educación'],
+        },
+      },
+    ],
+    visibilityMode: 'all',
+  });
+
+  assert.equal(insights[0].selectionReason, 'coverage-floor');
+  assert.equal(insights[0].decision.custom_flag, 'keep-me');
+  assert.equal(insights[0].decision.coverage_promoted, true);
+});
+
 test('buildProjectConnectionInsights surfaces coverage-floor decision metadata', () => {
   const insights = buildProjectConnectionInsights({
     projectId: 'alpha',
@@ -182,4 +324,23 @@ test('buildProjectConnectionInsights surfaces coverage-floor decision metadata',
   assert.equal(insights[0].decision.coverage_promoted, true);
   assert.equal(insights[0].raw.decision.coverage_promoted, true);
   assert.match(insights[0].description, /cobertura|aislamiento/i);
+});
+
+test('preserves curated coverage-floor descriptions when they are already specific', () => {
+  const insights = buildProjectConnectionInsights({
+    projectId: 'alpha',
+    projects,
+    connections: [
+      {
+        from: 'alpha',
+        to: 'beta',
+        tier: 'exploratory',
+        visibility: 'default',
+        selection_reason: 'coverage-floor',
+        description: 'Curated coverage-floor note about product flow and formative assessment.',
+      },
+    ],
+  });
+
+  assert.equal(insights[0].description, 'Curated coverage-floor note about product flow and formative assessment.');
 });

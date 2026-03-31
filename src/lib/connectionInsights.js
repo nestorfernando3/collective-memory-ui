@@ -76,15 +76,15 @@ function normalizeSelectionReason(value) {
 
 function normalizeDecision(connection, selectionReason, tier, evidenceScore) {
   const decision = connection?.decision && typeof connection.decision === 'object' ? connection.decision : {};
-  const affinityScore = Number.isFinite(Number(decision.affinity_score))
-    ? Number(decision.affinity_score)
-    : Number.isFinite(Number(connection?.affinityScore))
-      ? Number(connection.affinityScore)
+  const affinityScore = Number.isFinite(Number(connection?.affinityScore))
+    ? Number(connection.affinityScore)
+    : Number.isFinite(Number(decision.affinity_score))
+      ? Number(decision.affinity_score)
       : null;
-  const normalizedEvidenceScore = Number.isFinite(Number(decision.evidence_score))
-    ? Number(decision.evidence_score)
-    : Number.isFinite(evidenceScore)
-      ? evidenceScore
+  const normalizedEvidenceScore = Number.isFinite(evidenceScore)
+    ? evidenceScore
+    : Number.isFinite(Number(decision.evidence_score))
+      ? Number(decision.evidence_score)
       : null;
 
   return {
@@ -93,17 +93,6 @@ function normalizeDecision(connection, selectionReason, tier, evidenceScore) {
     coverage_promoted: Boolean(decision.coverage_promoted || selectionReason === 'coverage-floor'),
     review_flag: Boolean(decision.review_flag || tier === 'review'),
   };
-}
-
-function buildFallbackDescription(connection, locale) {
-  const normalizedLocale = normalizeLocale(locale);
-  const tier = normalizeTier(connection?.tier);
-
-  if (tier === 'exploratory') {
-    return normalizedLocale === 'es' ? 'Sin descripción revisada' : 'No reviewed description';
-  }
-
-  return '';
 }
 
 export function buildConnectionInsight(connection, projectById, fallbackId = '', locale = 'en') {
@@ -127,17 +116,22 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
   );
   const selectionReason =
     rawSelectionReason || (connection?.decision?.coverage_promoted ? 'coverage-floor' : tier === 'strong' ? 'strong-evidence' : 'exploratory');
-  const decision = normalizeDecision(connection, selectionReason, tier, evidenceScore);
+  const normalizedDecision = normalizeDecision(connection, selectionReason, tier, evidenceScore);
+  const decisionPayload = connection?.decision && typeof connection.decision === 'object'
+    ? connection.decision
+    : {};
   const fallbackNarrative = buildConnectionNarrative({
     fromName: sourceLabel,
     toName: targetLabel,
     tier,
     selectionReason,
-    sharedSummary: connection?.decision?.shared_summary || connection?.sharedSummary || [],
-    evidenceFragments: connection?.decision?.evidence_fragments || [],
+    sharedSummary: connection?.decision?.shared_summary || connection?.decision?.sharedSummary || connection?.sharedSummary || [],
+    evidenceFragments: connection?.decision?.evidence_fragments || connection?.decision?.evidenceFragments || connection?.evidenceFragments || [],
     locale: normalizedLocale,
   });
-  const shouldUseNarrative = !description || isWeakGenericDescription(description);
+  const shouldUseNarrative =
+    !description ||
+    isWeakGenericDescription(description);
 
   return {
     id: connection?.id || `${source}::${target}::${fallbackId}`,
@@ -156,12 +150,11 @@ export function buildConnectionInsight(connection, projectById, fallbackId = '',
     tier,
     visibility,
     selectionReason,
-    decision,
-    description: shouldUseNarrative
-      ? (selectionReason === 'coverage-floor' || tier === 'exploratory'
-        ? fallbackNarrative.description
-        : buildFallbackDescription(connection, normalizedLocale))
-      : description,
+    decision: {
+      ...decisionPayload,
+      ...normalizedDecision,
+    },
+    description: shouldUseNarrative ? fallbackNarrative.description : description,
     strengthLabel: getStrengthLabel(connection, strengthValue, normalizedLocale),
     strengthValue,
     evidenceScore,

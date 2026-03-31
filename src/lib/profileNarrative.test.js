@@ -112,7 +112,7 @@ test('builds a profile narrative with routes and expansion ideas', () => {
   assert.ok(narrative.routes.some((route) => route.projects.includes('proyecto-icfes')));
   assert.equal(
     narrative.sections.find((section) => section.title === 'Active bridges').items[0].description,
-    'La relación entre Paideia y Markdown Pedagógico se entiende mejor por las señales que repiten sus textos.',
+    'Strong connection between Paideia and Markdown Pedagógico: they share a shared base.',
   );
   assert.ok(narrative.expansionIdeas.some((idea) => idea.from === 'paideia' && idea.to === 'diario-emociones'));
   assert.ok(narrative.sections.some((section) => section.title === 'Active bridges'));
@@ -171,6 +171,193 @@ test('profile narrative counts only default-visible bridges as active', () => {
     narrative.sections.find((section) => section.title === 'Puentes activos').items.find((item) => item.selectionReason === 'coverage-floor').description,
     /evitar aislamiento|cobertura/i,
   );
+});
+
+test('profile narrative upgrades weak exploratory descriptions to the new semantics', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'coverage-floor',
+          decision: {
+            coverage_promoted: true,
+            affinity_score: 66,
+            evidence_score: 22,
+            shared_summary: ['acompañamiento'],
+          },
+          description: 'La relación entre Paideia y Diario de Emociones se entiende mejor por las señales que repiten sus textos.',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.match(bridge.description, /evitar aislamiento|cobertura/i);
+  assert.doesNotMatch(bridge.description, /se entiende mejor por las señales/i);
+});
+
+test('profile narrative preserves curated exploratory descriptions when they are already specific', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'exploratory',
+          description: 'Curated exploratory note about product flow and formative assessment.',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.equal(bridge.description, 'Curated exploratory note about product flow and formative assessment.');
+});
+
+test('profile narrative fills empty exploratory descriptions with the new narrative', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'exploratory',
+          description: '',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.match(bridge.description, /conexión exploratoria|afinidad/i);
+});
+
+test('profile narrative preserves curated coverage-floor descriptions when they are already specific', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'coverage-floor',
+          description: 'Curated coverage-floor note about product flow and formative assessment.',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.equal(bridge.description, 'Curated coverage-floor note about product flow and formative assessment.');
+});
+
+test('profile narrative preserves short specific notes that still use relation language', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'exploratory',
+          description: 'La relación entre Alpha y Beta se apoya en un marco conceptual explícito y evidencia documental.',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.equal(
+    bridge.description,
+    'La relación entre Alpha y Beta se apoya en un marco conceptual explícito y evidencia documental.',
+  );
+});
+
+test('profile narrative normalizes partial decision payloads on bridge items', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'diario-emociones',
+          type: 'Exploratoria',
+          tier: 'exploratory',
+          visibility: 'default',
+          selection_reason: 'coverage-floor',
+          evidence: { score: 22 },
+          decision: {
+            custom_flag: 'keep-me',
+            evidence_score: 5,
+          },
+          description: 'Curated coverage-floor note about product flow and formative assessment.',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.equal(bridge.decision.custom_flag, 'keep-me');
+  assert.equal(bridge.decision.evidence_score, 22);
+  assert.equal(bridge.decision.coverage_promoted, true);
+});
+
+test('profile narrative keeps root-level shared summary and evidence fragments', () => {
+  const narrative = buildProfileNarrative({
+    profile,
+    projects,
+    connections: {
+      connections: [
+        {
+          from: 'paideia',
+          to: 'markdown-pedagogico',
+          type: 'Técnica/Diseño',
+          tier: 'strong',
+          visibility: 'default',
+          selection_reason: 'strong-evidence',
+          sharedSummary: ['marco conceptual explícito'],
+          evidenceFragments: ['fragmento citado'],
+          description: '',
+        },
+      ],
+    },
+    locale: 'es',
+  });
+
+  const bridge = narrative.sections.find((section) => section.title === 'Puentes activos').items[0];
+  assert.match(bridge.description, /marco conceptual explícito/i);
 });
 
 test('builds a spanish profile narrative when requested', () => {

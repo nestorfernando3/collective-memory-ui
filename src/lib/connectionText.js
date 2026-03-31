@@ -59,6 +59,12 @@ export function isWeakGenericDescription(text) {
     normalized.includes('se apoya en etiquetas') ||
     normalized.includes('palabras compartidas') ||
     normalized.includes('sigue siendo exploratoria') ||
-    normalized.includes('porque el vinculo parece acumulativo y no accidental')
+    normalized.includes('porque el vinculo parece acumulativo y no accidental') ||
+    normalized.includes('this link seems useful because') ||
+    normalized.includes('thematic proximity') ||
+    normalized.includes('suggested reading') ||
+    normalized.includes('because of thematic proximity') ||
+    normalized.includes('it is still tentative') ||
+    normalized.includes('it seems cumulative and not accidental')
   );
 }

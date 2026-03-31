@@ -5,7 +5,7 @@ import {
   translateAppTitle,
   translateAffiliationRole,
 } from './i18n.js';
-import { sanitizeConnectionDescription } from './connectionText.js';
+import { isWeakGenericDescription, sanitizeConnectionDescription } from './connectionText.js';
 import { buildConnectionNarrative } from '../../collective-memory/scripts/lib/connection_narrative.js';
 
 const EDUCATION_PATTERNS = [
@@ -268,6 +268,28 @@ function normalizeConnectionVisibility(value) {
   return visibility === 'optional' ? 'optional' : 'default';
 }
 
+function normalizeConnectionDecision(connection, selectionReason, tier) {
+  const rawDecision = connection?.decision && typeof connection.decision === 'object' ? connection.decision : {};
+  const evidenceScore = Number.isFinite(Number(connection?.evidence?.score))
+    ? Number(connection.evidence.score)
+    : Number.isFinite(Number(rawDecision.evidence_score))
+      ? Number(rawDecision.evidence_score)
+      : null;
+  const affinityScore = Number.isFinite(Number(connection?.affinityScore))
+    ? Number(connection.affinityScore)
+    : Number.isFinite(Number(rawDecision.affinity_score))
+      ? Number(rawDecision.affinity_score)
+      : null;
+
+  return {
+    ...rawDecision,
+    affinity_score: affinityScore,
+    evidence_score: evidenceScore,
+    coverage_promoted: Boolean(rawDecision.coverage_promoted || selectionReason === 'coverage-floor'),
+    review_flag: Boolean(rawDecision.review_flag || tier === 'review'),
+  };
+}
+
 function normalizeSelectionReason(value) {
   const selectionReason = normalizeText(value).trim();
   if (selectionReason === 'coverage-floor' || selectionReason === 'coverage floor' || selectionReason === 'coveragefloor') {
@@ -291,22 +313,28 @@ function buildConnectionMap(connections, projectById, locale) {
     if (!from || !to) return acc;
     if (!projectById.has(from) || !projectById.has(to)) return acc;
 
+    const selectionReason =
+      normalizeSelectionReason(
+        connection?.selection_reason ||
+          connection?.selectionReason ||
+          connection?.decision?.selection_reason ||
+          connection?.decision?.selectionReason ||
+          '',
+      ) || (connection?.decision?.coverage_promoted ? 'coverage-floor' : '');
+    const tier = normalizeConnectionTier(connection?.tier);
+    const decision = normalizeConnectionDecision(connection, selectionReason, tier);
+
     acc.push({
       from,
       to,
       type: connection?.type || (spanish ? 'Sinérgica' : 'Synergistic'),
       description: sanitizeConnectionDescription(connection?.description),
-      tier: normalizeConnectionTier(connection?.tier),
+      tier,
       visibility: normalizeConnectionVisibility(connection?.visibility),
-      selectionReason:
-        normalizeSelectionReason(
-          connection?.selection_reason ||
-            connection?.selectionReason ||
-            connection?.decision?.selection_reason ||
-            connection?.decision?.selectionReason ||
-            '',
-        ) || (connection?.decision?.coverage_promoted ? 'coverage-floor' : ''),
-      decision: connection?.decision && typeof connection.decision === 'object' ? connection.decision : {},
+      selectionReason,
+      decision,
+      sharedSummary: connection?.sharedSummary || connection?.decision?.shared_summary || connection?.decision?.sharedSummary || [],
+      evidenceFragments: connection?.evidenceFragments || connection?.decision?.evidence_fragments || connection?.decision?.evidenceFragments || [],
     });
     return acc;
   }, []);
@@ -466,25 +494,30 @@ function summarizeConnection(connection, projectById, locale) {
   const fromProject = projectById.get(connection.from);
   const toProject = projectById.get(connection.to);
   const selectionReason = connection.selectionReason || (connection.tier === 'exploratory' ? 'exploratory' : 'strong-evidence');
+  const decision = normalizeConnectionDecision(connection, selectionReason, connection.tier);
   const narrative = buildConnectionNarrative({
     fromName: projectLabel(fromProject, locale),
     toName: projectLabel(toProject, locale),
     tier: connection.tier,
     selectionReason,
-    sharedSummary: connection.decision?.shared_summary || [],
-    evidenceFragments: connection.decision?.evidence_fragments || [],
+    sharedSummary: connection.sharedSummary || decision.shared_summary || decision.sharedSummary || [],
+    evidenceFragments: connection.evidenceFragments || decision.evidence_fragments || decision.evidenceFragments || [],
     locale,
   });
+  const sanitizedDescription = sanitizeConnectionDescription(connection.description);
+  const shouldPreferNarrative =
+    !sanitizedDescription ||
+    isWeakGenericDescription(sanitizedDescription);
   return {
     from: connection.from,
     to: connection.to,
     label: `${projectLabel(fromProject, locale)} → ${projectLabel(toProject, locale)}`,
     type: connection.type,
-    description: connection.description || narrative.description,
+    description: shouldPreferNarrative ? narrative.description : sanitizedDescription,
     tier: connection.tier,
     visibility: connection.visibility,
     selectionReason,
-    decision: connection.decision || {},
+    decision,
   };
 }
 
