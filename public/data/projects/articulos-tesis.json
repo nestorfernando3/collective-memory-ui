@@ -1,0 +1,12 @@
+{
+  "id": "articulos-tesis",
+  "name": "Artículos derivados de Tesis de Maestría",
+  "type": "Investigación",
+  "status": "En desarrollo",
+  "path": "/Users/nestor/Documents/ARTÍCULOS/artículos derivados de mi tesis de maestría",
+  "description": "Seis artículos académicos derivados de la investigación sobre la transición a clases remotas en educación superior.",
+  "abstract": "Extracción y sistematización de hallazgos de la tesis de maestría en Educación. El proyecto cuenta con un roadmap estructurado de 12 meses dirigido a revistas indexadas. Se han delineado propuestas sobre Pedagogía de Emergencia, Brechas Digitales Cruzadas, Innovación, y Bienestar Docente. Incluye el primer borrador estructurado del Artículo Prospectivo sobre Pedagogía de Emergencia (modelo MPEE).",
+  "tags": ["investigación", "educación", "tesis", "publicaciones", "pedagogía"],
+  "domains": ["Investigación Académica", "Educación"],
+  "themes": ["Pedagogía de Emergencia", "Brecha Digital", "Innovación Docente", "Bienestar"]
+}
